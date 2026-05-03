@@ -1,0 +1,162 @@
+﻿@model MVC17.DTOs.Products.Create.CreateProductDTO
+@using MVC17.Helpers.Constants.Products
+<div class="row g-3">
+    @switch (Model.CategoryId)
+    {
+        case CategoryType.Laptop:
+            <div class="col-md-6">
+                <input asp-for="Laptop.LaptopType" placeholder="Laptop Type" class="form-control" />
+                <span asp-validation-for="Laptop.LaptopType" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <input asp-for="Laptop.Os" placeholder="OS" class="form-control" />
+                <span asp-validation-for="Laptop.Os" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <input asp-for="Laptop.ScreenResolution" placeholder="Resolution" class="form-control" />
+                <span asp-validation-for="Laptop.ScreenResolution" class="text-danger"></span>
+            </div>
+            <div class="col-md-3">
+                <input asp-for="Laptop.Length" placeholder="Size" class="form-control" />
+                <span asp-validation-for="Laptop.Length" class="text-danger"></span>
+            </div>
+            <div class="col-md-3">
+                <input asp-for="Laptop.Weight" placeholder="Weight" class="form-control" />
+                <span asp-validation-for="Laptop.Weight" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-3">
+                <select asp-for="Laptop.CpuId" class="form-control" asp-items="ViewBag.Cpus">
+                    <option value="">-- Select CPU --</option>
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <select asp-for="Laptop.GpuId" class="form-control" asp-items="ViewBag.Gpus">
+                    <option value="">-- Select GPU --</option>
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <select asp-for="Laptop.RamId" class="form-control" asp-items="ViewBag.Rams">
+                    <option value="">-- Select RAM --</option>
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <select asp-for="Laptop.StorageId" class="form-control" asp-items="ViewBag.Storages">
+                    <option value="">-- Select Storage --</option>
+                </select>
+            </div>
+            break;
+        case CategoryType.CPU:
+            <div class="col-md-4">
+                <input asp-for="Cpu.Cores" placeholder="Cores" class="form-control" />
+                <span asp-validation-for="Cpu.Cores" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <input asp-for="Cpu.Logicals" placeholder="Threads" class="form-control" />
+                <span asp-validation-for="Cpu.Logicals" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <input asp-for="Cpu.Tdp" placeholder="TDP" class="form-control" />
+                <span asp-validation-for="Cpu.Tdp" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <input asp-for="Cpu.Socket" placeholder="Socket" class="form-control" />
+                <span asp-validation-for="Cpu.Socket" class="text-danger"></span>
+            </div>
+            <div class="col-md-3">
+                <input asp-for="Cpu.Speed" placeholder="Base Clock" class="form-control" />
+                <span asp-validation-for="Cpu.Speed" class="text-danger"></span>
+            </div>
+            <div class="col-md-3">
+                <input asp-for="Cpu.Turbo" placeholder="Turbo Clock" class="form-control" />
+                <span asp-validation-for="Cpu.Turbo" class="text-danger"></span>
+            </div>
+            break;
+        case CategoryType.GPU:
+            <div class="col-md-4">
+                <input asp-for="Gpu.MemorySize" placeholder="Memory" class="form-control" />
+                <span asp-validation-for="Gpu.MemorySize" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <input asp-for="Gpu.MemoryType" placeholder="Type" class="form-control" />
+                <span asp-validation-for="Gpu.MemoryType" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <input asp-for="Gpu.Clock" placeholder="Clock" class="form-control" />
+                <span asp-validation-for="Gpu.Clock" class="text-danger"></span>
+            </div>
+            <div class="col-md-3">
+                <input asp-for="Gpu.UnifiedShader" placeholder="Shader" class="form-control" />
+                <span asp-validation-for="Gpu.UnifiedShader" class="text-danger"></span>
+            </div>
+            <div class="col-md-3">
+                <input asp-for="Gpu.Tmu" placeholder="TMU" class="form-control" />
+                <span asp-validation-for="Gpu.Tmu" class="text-danger"></span>
+            </div>
+            <div class="col-md-3">
+                <input asp-for="Gpu.Rop" placeholder="ROP" class="form-control" />
+                <span asp-validation-for="Gpu.Rop" class="text-danger"></span>
+            </div>
+            <div class="col-md-3">
+                <input asp-for="Gpu.Bus" placeholder="Bus" class="form-control" />
+                <span asp-validation-for="Gpu.Bus" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <input asp-for="Gpu.Igpu" placeholder="iGPU" class="form-control" type="checkbox"/>
+                <span asp-validation-for="Gpu.Igpu" class="text-danger"></span>
+            </div>
+            break;
+        case CategoryType.RAM:
+            <div class="col-md-3">
+                <input asp-for="Ram.Capacity" placeholder="Capacity" class="form-control" />
+            </div>
+            <span asp-validation-for="Ram.Capacity" class="text-danger"></span>
+            <div class="col-md-3">
+                <input asp-for="Ram.Gen" placeholder="DDR Gen" class="form-control" />
+                <span asp-validation-for="Ram.Gen" class="text-danger"></span>
+            </div>
+            <div class="col-md-3">
+                <input asp-for="Ram.Speed" placeholder="Speed" class="form-control" />
+                <span asp-validation-for="Ram.Speed" class="text-danger"></span>
+            </div>
+            <div class="col-md-3">
+                <input asp-for="Ram.Kit" placeholder="Kit" class="form-control" />
+                <span asp-validation-for="Ram.Kit" class="text-danger"></span>
+            </div>
+            break;
+        case CategoryType.Storage:
+            <div class="col-md-4">
+                <input asp-for="Storage.Capacity" placeholder="Capacity" class="form-control" />
+                <span asp-validation-for="Storage.Capacity" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <input asp-for="Storage.MemoryType" placeholder="Type" class="form-control" />
+                <span asp-validation-for="Storage.MemoryType" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <input asp-for="Storage.InterfaceType" placeholder="Interface" class="form-control" />
+                <span asp-validation-for="Storage.InterfaceType" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <input asp-for="Storage.ReadSpeed" placeholder="Read Speed" class="form-control" />
+                <span asp-validation-for="Storage.ReadSpeed" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <input asp-for="Storage.WriteSpeed" placeholder="Write Speed" class="form-control" />
+                <span asp-validation-for="Storage.WriteSpeed" class="text-danger"></span>
+            </div>
+            break;
+    }
+
+    
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

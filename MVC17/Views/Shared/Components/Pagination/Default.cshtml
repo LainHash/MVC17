@@ -1,0 +1,43 @@
+﻿@model MVC17.ViewModels.PaginateVM
+<nav aria-label="Page navigation example">
+    <ul class="pagination justify-content-center">
+        @if (Model.ActivePage > 1)
+        {
+            <li class="page-item">
+                <a class="page-link"
+                       aria-label="Previous"
+                       asp-route-page="@(Model.ActivePage > 1 ? Model.ActivePage - 1 : 1)">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+        }
+        @for (; Model.IndexPage <= Model.TotalPages; Model.IndexPage++)
+        {
+            if (Model.IndexPage == Model.ActivePage)
+            {
+                <li class="page-item active" aria-current="page">
+                    <span class="page-link">@Model.IndexPage</span>
+                </li>
+            }
+            else
+            {
+                <li class="page-item">
+                    <a class="page-link"
+                           asp-route-page="@Model.IndexPage">
+                        @Model.IndexPage
+                    </a>
+                </li>
+            }
+        }
+        @if (Model.ActivePage < Model.TotalPages)
+        {
+            <li class="page-item">
+                <a class="page-link"
+                       aria-label="Next"
+                       asp-route-page="@(Model.ActivePage < Model.TotalPages ? Model.ActivePage + 1 : Model.TotalPages)">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        }
+    </ul>
+</nav>

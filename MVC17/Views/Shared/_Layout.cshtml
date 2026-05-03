@@ -1,0 +1,25 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Cental - Car Rent Website Template</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="" name="keywords">
+    <meta content="" name="description">
+    <partial name="_C_Styles" />
+</head>
+<body>
+    <partial name="_Header" />
+    
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <partial name="_Footer" />
+
+    <partial name="_C_Scripts" />
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
