@@ -1,0 +1,184 @@
+﻿@model MVC17.DTOs.Products.Update.UpdateProductDTO
+@using MVC17.Helpers.Constants.Products
+
+<div class="col-md-4">
+    @switch (Model.CategoryId)
+    {
+        case CategoryType.Laptop:
+            <div class="form-group">
+                <label asp-for="Laptop.LaptopType" class="control-label"></label>
+                <input asp-for="Laptop.LaptopType" class="form-control" />
+                <span asp-validation-for="Laptop.LaptopType" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Laptop.Os" class="control-label"></label>
+                <input asp-for="Laptop.Os" class="form-control" />
+                <span asp-validation-for="Laptop.Os" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Laptop.ScreenResolution" class="control-label"></label>
+                <input asp-for="Laptop.ScreenResolution" class="form-control" />
+                <span asp-validation-for="Laptop.ScreenResolution" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Laptop.Length" class="control-label"></label>
+                <input asp-for="Laptop.Length" class="form-control" />
+                <span asp-validation-for="Laptop.Length" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Laptop.Weight" class="control-label"></label>
+                <input asp-for="Laptop.Weight" class="form-control" />
+                <span asp-validation-for="Laptop.Weight" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Laptop.CpuId" class="control-label"></label>
+                <select asp-for="Laptop.CpuId" class="form-control" asp-items="ViewBag.Cpus"></select>
+                <span asp-validation-for="Laptop.CpuId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Laptop.GpuId" class="control-label"></label>
+                <select asp-for="Laptop.GpuId" class="form-control" asp-items="ViewBag.Gpus"></select>
+                <span asp-validation-for="Laptop.GpuId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Laptop.RamId" class="control-label"></label>
+                <select asp-for="Laptop.RamId" class="form-control" asp-items="ViewBag.Rams"></select>
+                <span asp-validation-for="Laptop.RamId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Laptop.StorageId" class="control-label"></label>
+                <select asp-for="Laptop.StorageId" class="form-control" asp-items="ViewBag.Storages"></select>
+                <span asp-validation-for="Laptop.StorageId" class="text-danger"></span>
+            </div>
+            break;
+        case CategoryType.CPU:
+            <div class="form-group">
+                <label asp-for="Cpu.Cores" class="control-label"></label>
+                <input asp-for="Cpu.Cores" class="form-control" />
+                <span asp-validation-for="Cpu.Cores" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Cpu.Logicals" class="control-label"></label>
+                <input asp-for="Cpu.Logicals" class="form-control" />
+                <span asp-validation-for="Cpu.Logicals" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Cpu.Tdp" class="control-label"></label>
+                <input asp-for="Cpu.Tdp" class="form-control" />
+                <span asp-validation-for="Cpu.Tdp" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Cpu.Socket" class="control-label"></label>
+                <input asp-for="Cpu.Socket" class="form-control" />
+                <span asp-validation-for="Cpu.Socket" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Cpu.Speed" class="control-label"></label>
+                <input asp-for="Cpu.Speed" class="form-control" />
+                <span asp-validation-for="Cpu.Speed" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Cpu.Turbo" class="control-label"></label>
+                <input asp-for="Cpu.Turbo" class="form-control" />
+                <span asp-validation-for="Cpu.Turbo" class="text-danger"></span>
+            </div>
+            break;
+        case CategoryType.GPU:
+            <div class="form-group">
+                <label asp-for="Gpu.MemorySize" class="control-label"></label>
+                <input asp-for="Gpu.MemorySize" class="form-control" />
+                <span asp-validation-for="Gpu.MemorySize" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Gpu.MemoryType" class="control-label"></label>
+                <input asp-for="Gpu.MemoryType" class="form-control" />
+                <span asp-validation-for="Gpu.MemoryType" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Gpu.Clock" class="control-label"></label>
+                <input asp-for="Gpu.Clock" class="form-control" />
+                <span asp-validation-for="Gpu.Clock" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Gpu.Bus" class="control-label"></label>
+                <input asp-for="Gpu.Bus" class="form-control" />
+                <span asp-validation-for="Gpu.Bus" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Gpu.UnifiedShader" class="control-label"></label>
+                <input asp-for="Gpu.UnifiedShader" class="form-control" />
+                <span asp-validation-for="Gpu.UnifiedShader" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Gpu.Tmu" class="control-label"></label>
+                <input asp-for="Gpu.Tmu" class="form-control" />
+                <span asp-validation-for="Gpu.Tmu" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Gpu.Rop" class="control-label"></label>
+                <input asp-for="Gpu.Rop" class="form-control" />
+                <span asp-validation-for="Gpu.Rop" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Gpu.Igpu" class="control-label"></label>
+                <input asp-for="Gpu.Igpu" class="form-control" />
+                <span asp-validation-for="Gpu.Igpu" class="text-danger"></span>
+            </div>
+            break;
+        case CategoryType.RAM:
+            <div class="form-group">
+                <label asp-for="Ram.Capacity" class="control-label"></label>
+                <input asp-for="Ram.Capacity" class="form-control" />
+                <span asp-validation-for="Ram.Capacity" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Ram.Gen" class="control-label"></label>
+                <input asp-for="Ram.Gen" class="form-control" />
+                <span asp-validation-for="Ram.Gen" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Ram.Speed" class="control-label"></label>
+                <input asp-for="Ram.Speed" class="form-control" />
+                <span asp-validation-for="Ram.Speed" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Ram.Kit" class="control-label"></label>
+                <input asp-for="Ram.Kit" class="form-control" />
+                <span asp-validation-for="Ram.Kit" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Ram.Gen" class="control-label"></label>
+                <input asp-for="Ram.Gen" class="form-control" />
+                <span asp-validation-for="Ram.Gen" class="text-danger"></span>
+            </div>
+            break;
+        case CategoryType.Storage:
+            <div class="form-group">
+                <label asp-for="Storage.Capacity" class="control-label"></label>
+                <input asp-for="Storage.Capacity" class="form-control" />
+                <span asp-validation-for="Storage.Capacity" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Storage.MemoryType" class="control-label"></label>
+                <input asp-for="Storage.MemoryType" class="form-control" />
+                <span asp-validation-for="Storage.MemoryType" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Storage.InterfaceType" class="control-label"></label>
+                <input asp-for="Storage.InterfaceType" class="form-control" />
+                <span asp-validation-for="Storage.InterfaceType" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Storage.ReadSpeed" class="control-label"></label>
+                <input asp-for="Storage.ReadSpeed" class="form-control" />
+                <span asp-validation-for="Storage.ReadSpeed" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Storage.WriteSpeed" class="control-label"></label>
+                <input asp-for="Storage.WriteSpeed" class="form-control" />
+                <span asp-validation-for="Storage.WriteSpeed" class="text-danger"></span>
+            </div>
+            break;
+    }
+
+</div>

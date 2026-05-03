@@ -1,0 +1,121 @@
+﻿@model MVC17.Models.VwInvoice
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Invoice</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.CustomerCode)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.CustomerCode)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.EmployeeCode)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.EmployeeCode)
+        </dd>
+        <dt>
+            Danh sách sản phẩm
+        </dt>
+        <dd>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Tên sản phẩm</th>
+                        <th>Loại sản phẩm</th>
+                        <th>Công ty</th>
+                        <th>Đơn giá</th>
+                        <th>Số lượng</th>
+                        <th>Tổng cộng</th>
+                    </tr>
+                    
+                </thead>
+                <tbody>
+                    @foreach (var item in ViewBag.InvoiceDetails)
+                    {
+                        <tr>
+                            <td>@item.ProductName</td>
+                            <td>@item.CategoryName</td>
+                            <td>@item.CompanyName</td>
+                            <td>@item.UnitPrice</td>
+                            <td>@item.Quantity</td>
+                            <td>@item.LineTotal</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.OrderDate)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.OrderDate)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.RequiredDate)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.RequiredDate)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ShippedDate)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ShippedDate)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Status)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Status)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Subtotal)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Subtotal)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ProductDiscount)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ProductDiscount)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ShippingFee)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ShippingFee)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ShippingDiscount)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ShippingDiscount)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.TotalAmount)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.TotalAmount)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Note)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Note)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.InvoiceId">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

@@ -1,0 +1,357 @@
+﻿@model MVC17.ViewModels.ProductVM
+
+<div class="specifications-container">
+    <!-- Thông số cơ bản -->
+    <div class="spec-section mb-4">
+        <div class="spec-header">
+            <i class="fas fa-info-circle text-primary me-2"></i>
+            <h5 class="mb-0">Thông tin cơ bản</h5>
+        </div>
+        <div class="spec-content">
+            @if (!string.IsNullOrEmpty(Model.Description))
+            {
+                <div class="spec-item">
+                    <label class="spec-label">Mô tả:</label>
+                    <span class="spec-value">@Model.Description</span>
+                </div>
+            }
+            <div class="spec-item">
+                <label class="spec-label">Danh mục:</label>
+                <span class="spec-value"><span class="badge bg-info">@Model.CategoryName</span></span>
+            </div>
+            <div class="spec-item">
+                <label class="spec-label">Nhà cung cấp:</label>
+                <span class="spec-value">@Model.CompanyName</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Thông số CPU (nếu có) -->
+    @if (Model?.Cpu != null)
+    {
+        <div class="spec-section mb-4">
+            <div class="spec-header">
+                <i class="fas fa-microchip text-danger me-2"></i>
+                <h5 class="mb-0">Thông số CPU</h5>
+            </div>
+            <div class="spec-content">
+                <div class="spec-grid">
+                    <div class="spec-item">
+                        <label class="spec-label">Số nhân:</label>
+                        <span class="spec-value">@Model.Cpu.Cores nhân</span>
+                    </div>
+                    <div class="spec-item">
+                        <label class="spec-label">Số luồng:</label>
+                        <span class="spec-value">@Model.Cpu.Logicals luồng</span>
+                    </div>
+                    <div class="spec-item">
+                        <label class="spec-label">Socket:</label>
+                        <span class="spec-value">@Model.Cpu.Socket</span>
+                    </div>
+                    <div class="spec-item">
+                        <label class="spec-label">TDP:</label>
+                        <span class="spec-value">@Model.Cpu.Tdp W</span>
+                    </div>
+                    <div class="spec-item">
+                        <label class="spec-label">Tốc độ xung:</label>
+                        <span class="spec-value">@Model.Cpu.CpuSpeed MHz</span>
+                    </div>
+                    <div class="spec-item">
+                        <label class="spec-label">Tốc độ Turbo:</label>
+                        <span class="spec-value">@Model.Cpu.Turbo MHz</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Thông số GPU (nếu có) -->
+    @if (Model?.Gpu != null)
+    {
+        <div class="spec-section mb-4">
+            <div class="spec-header">
+                <i class="fas fa-tv text-warning me-2"></i>
+                <h5 class="mb-0">Thông số GPU</h5>
+            </div>
+            <div class="spec-content">
+                <div class="spec-grid">
+                    <div class="spec-item">
+                        <label class="spec-label">Dung lượng bộ nhớ:</label>
+                        <span class="spec-value">@Model.Gpu.MemorySize GB @Model.Gpu.MemoryType</span>
+                    </div>
+                    <div class="spec-item">
+                        <label class="spec-label">Xung nhịp:</label>
+                        <span class="spec-value">@Model.Gpu.Clock MHz</span>
+                    </div>
+                    <div class="spec-item">
+                        <label class="spec-label">Unified Shader:</label>
+                        <span class="spec-value">@Model.Gpu.UnifiedShader</span>
+                    </div>
+                    <div class="spec-item">
+                        <label class="spec-label">TMU:</label>
+                        <span class="spec-value">@Model.Gpu.Tmu</span>
+                    </div>
+                    <div class="spec-item">
+                        <label class="spec-label">ROP:</label>
+                        <span class="spec-value">@Model.Gpu.Rop</span>
+                    </div>
+                    <div class="spec-item">
+                        <label class="spec-label">Bus:</label>
+                        <span class="spec-value">@Model.Gpu.Bus</span>
+                    </div>
+                    @if (Model.Gpu.Igpu.HasValue && Model.Gpu.Igpu.Value)
+                    {
+                        <div class="spec-item">
+                            <label class="spec-label">iGPU:</label>
+                            <span class="spec-value"><span class="badge bg-success">Có</span></span>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Thông số RAM (nếu có) -->
+    @if (Model?.Ram != null)
+    {
+        <div class="spec-section mb-4">
+            <div class="spec-header">
+                <i class="fas fa-memory text-success me-2"></i>
+                <h5 class="mb-0">Thông số RAM</h5>
+            </div>
+            <div class="spec-content">
+                <div class="spec-grid">
+                    <div class="spec-item">
+                        <label class="spec-label">Dung lượng:</label>
+                        <span class="spec-value">@Model.Ram.RamCapacity GB</span>
+                    </div>
+                    <div class="spec-item">
+                        <label class="spec-label">Thế hệ:</label>
+                        <span class="spec-value">@Model.Ram.Gen</span>
+                    </div>
+                    <div class="spec-item">
+                        <label class="spec-label">Tốc độ:</label>
+                        <span class="spec-value">@Model.Ram.RamSpeed MHz</span>
+                    </div>
+                    <div class="spec-item">
+                        <label class="spec-label">Kit:</label>
+                        <span class="spec-value">@Model.Ram.Kit</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Thông số Bộ lưu trữ (nếu có) -->
+    @if (Model?.Storage != null)
+    {
+        <div class="spec-section mb-4">
+            <div class="spec-header">
+                <i class="fas fa-hdd text-info me-2"></i>
+                <h5 class="mb-0">Thông số Lưu trữ</h5>
+            </div>
+            <div class="spec-content">
+                <div class="spec-grid">
+                    <div class="spec-item">
+                        <label class="spec-label">Dung lượng:</label>
+                        <span class="spec-value">@Model.Storage.StorageCapacity GB</span>
+                    </div>
+                    <div class="spec-item">
+                        <label class="spec-label">Loại:</label>
+                        <span class="spec-value">@Model.Storage.StorageType</span>
+                    </div>
+                    <div class="spec-item">
+                        <label class="spec-label">Giao diện:</label>
+                        <span class="spec-value">@Model.Storage.InterfaceType</span>
+                    </div>
+                    <div class="spec-item">
+                        <label class="spec-label">Tốc độ đọc:</label>
+                        <span class="spec-value">@Model.Storage.ReadSpeed MB/s</span>
+                    </div>
+                    <div class="spec-item">
+                        <label class="spec-label">Tốc độ ghi:</label>
+                        <span class="spec-value">@Model.Storage.WriteSpeed MB/s</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Thông số Laptop (nếu có) -->
+    @if (Model?.Laptop != null)
+    {
+        <div class="spec-section mb-4">
+            <div class="spec-header">
+                <i class="fas fa-laptop text-secondary me-2"></i>
+                <h5 class="mb-0">Thông số Laptop</h5>
+            </div>
+            <div class="spec-content">
+                <div class="spec-grid">
+                    <div class="spec-item">
+                        <label class="spec-label">Loại:</label>
+                        <span class="spec-value">@Model.Laptop.LaptopType</span>
+                    </div>
+                    <div class="spec-item">
+                        <label class="spec-label">Hệ điều hành:</label>
+                        <span class="spec-value">@Model.Laptop.Os</span>
+                    </div>
+                    <div class="spec-item">
+                        <label class="spec-label">Độ phân giải màn hình:</label>
+                        <span class="spec-value">@Model.Laptop.ScreenResolution</span>
+                    </div>
+                    <div class="spec-item">
+                        <label class="spec-label">Chiều dài:</label>
+                        <span class="spec-value">@Model.Laptop.Length cm</span>
+                    </div>
+                    <div class="spec-item">
+                        <label class="spec-label">Cân nặng:</label>
+                        <span class="spec-value">@Model.Laptop.Weight kg</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Thông số Linh kiện Laptop (nếu Laptop có linh kiện) -->
+    @if (Model?.Laptop != null)
+    {
+        <div class="spec-section mb-4" style="background: linear-gradient(135deg, #fff3cd 0%, #ffe8a1 100%); border: 2px solid #ffc107;">
+            <div class="spec-header" style="background: #ffc107; color: #000; border-bottom: 2px solid #ff9800;">
+                <i class="fas fa-puzzle-piece text-dark me-2"></i>
+                <h5 class="mb-0" style="color: #000; font-weight: 700;">Thông số Linh kiện Bên trong Laptop</h5>
+            </div>
+        </div>
+
+        <div class="spec-section mb-4">
+            <div class="spec-header">
+                <i class="fas fa-microchip text-danger me-2"></i>
+                <h5 class="mb-0">CPU: @Model.Laptop.CpuName</h5>
+            </div>
+            <div class="spec-content">
+                <div class="spec-grid">
+                    <div class="spec-item">
+                        <label class="spec-label">Số nhân:</label>
+                        <span class="spec-value">@Model.Laptop.Cores nhân</span>
+                    </div>
+                    <div class="spec-item">
+                        <label class="spec-label">Số luồng:</label>
+                        <span class="spec-value">@Model.Laptop.Logicals luồng</span>
+                    </div>
+                    <div class="spec-item">
+                        <label class="spec-label">Socket:</label>
+                        <span class="spec-value">@Model.Laptop.Socket</span>
+                    </div>
+                    <div class="spec-item">
+                        <label class="spec-label">TDP:</label>
+                        <span class="spec-value">@Model.Laptop.Tdp W</span>
+                    </div>
+                    <div class="spec-item">
+                        <label class="spec-label">Tốc độ xung:</label>
+                        <span class="spec-value">@Model.Laptop.CpuSpeed MHz</span>
+                    </div>
+                    <div class="spec-item">
+                        <label class="spec-label">Tốc độ Turbo:</label>
+                        <span class="spec-value">@Model.Laptop.Turbo MHz</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="spec-section mb-4">
+            <div class="spec-header">
+                <i class="fas fa-tv text-warning me-2"></i>
+                <h5 class="mb-0">GPU: @Model.Laptop.GpuName</h5>
+            </div>
+            <div class="spec-content">
+                <div class="spec-grid">
+                    <div class="spec-item">
+                        <label class="spec-label">Dung lượng bộ nhớ:</label>
+                        <span class="spec-value">@Model.Laptop.MemorySize GB @Model.Laptop.MemoryType</span>
+                    </div>
+                    <div class="spec-item">
+                        <label class="spec-label">Xung nhịp:</label>
+                        <span class="spec-value">@Model.Laptop.Clock MHz</span>
+                    </div>
+                    <div class="spec-item">
+                        <label class="spec-label">Unified Shader:</label>
+                        <span class="spec-value">@Model.Laptop.UnifiedShader</span>
+                    </div>
+                    <div class="spec-item">
+                        <label class="spec-label">TMU:</label>
+                        <span class="spec-value">@Model.Laptop.Tmu</span>
+                    </div>
+                    <div class="spec-item">
+                        <label class="spec-label">ROP:</label>
+                        <span class="spec-value">@Model.Laptop.Rop</span>
+                    </div>
+                    <div class="spec-item">
+                        <label class="spec-label">Bus:</label>
+                        <span class="spec-value">@Model.Laptop.Bus</span>
+                    </div>
+                    <div class="spec-item">
+                        <label class="spec-label">iGPU:</label>
+                        <span class="spec-value">@(Model.Laptop.Igpu == null ? "Không có" : Model.Laptop.Igpu)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="spec-section mb-4">
+            <div class="spec-header">
+                <i class="fas fa-memory text-success me-2"></i>
+                <h5 class="mb-0">RAM: @Model.Laptop.RamName</h5>
+            </div>
+            <div class="spec-content">
+                <div class="spec-grid">
+                    <div class="spec-item">
+                        <label class="spec-label">Dung lượng:</label>
+                        <span class="spec-value">@Model.Laptop.RamCapacity GB</span>
+                    </div>
+                    <div class="spec-item">
+                        <label class="spec-label">Thế hệ:</label>
+                        <span class="spec-value">@Model.Laptop.Gen</span>
+                    </div>
+                    <div class="spec-item">
+                        <label class="spec-label">Tốc độ:</label>
+                        <span class="spec-value">@Model.Laptop.RamSpeed MHz</span>
+                    </div>
+                    <div class="spec-item">
+                        <label class="spec-label">Kit:</label>
+                        <span class="spec-value">@Model.Laptop.Kit</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="spec-section mb-4">
+            <div class="spec-header">
+                <i class="fas fa-hdd text-info me-2"></i>
+                <h5 class="mb-0">Bộ nhớ: @Model.Laptop.StorageName</h5>
+            </div>
+            <div class="spec-content">
+                <div class="spec-grid">
+                    <div class="spec-item">
+                        <label class="spec-label">Dung lượng:</label>
+                        <span class="spec-value">@Model.Laptop.StorageCapacity GB</span>
+                    </div>
+                    <div class="spec-item">
+                        <label class="spec-label">Loại:</label>
+                        <span class="spec-value">@Model.Laptop.MemoryType</span>
+                    </div>
+                    <div class="spec-item">
+                        <label class="spec-label">Giao diện:</label>
+                        <span class="spec-value">@Model.Laptop.InterfaceType</span>
+                    </div>
+                    <div class="spec-item">
+                        <label class="spec-label">Tốc độ đọc:</label>
+                        <span class="spec-value">@Model.Laptop.ReadSpeed MB/s</span>
+                    </div>
+                    <div class="spec-item">
+                        <label class="spec-label">Tốc độ ghi:</label>
+                        <span class="spec-value">@Model.Laptop.WriteSpeed MB/s</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    }
+</div>

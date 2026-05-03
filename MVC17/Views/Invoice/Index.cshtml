@@ -1,0 +1,83 @@
+﻿@model IEnumerable<MVC17.Models.VwInvoice>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.CustomerCode)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EmployeeCode)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.OrderDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RequiredDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ShippedDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Status)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Subtotal)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TotalAmount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Note)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CustomerCode)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EmployeeCode)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.OrderDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RequiredDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ShippedDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Status)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Subtotal)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TotalAmount)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Note)
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.InvoiceId">Details</a> 
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
