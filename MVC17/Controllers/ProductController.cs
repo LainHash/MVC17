@@ -59,8 +59,12 @@ namespace MVC17.Controllers
 
             var product = await _context.VwProducts
                 .FirstOrDefaultAsync(m => m.ProductId == id);
+            if (product == null) 
+            {
+                return NotFound("Sản phẩm không tồn tại!");
+            }
 
-            if(product.IsDeleted != null && product.IsDeleted == true)
+            if(product.IsDeleted)
             {
                 return NotFound("Sản phẩm này đã bị xóa!");
             }
@@ -141,6 +145,10 @@ namespace MVC17.Controllers
                 .Include(ps => ps.Laptop)
                     .ThenInclude(l => l.LaptopComponent)
                 .FirstOrDefaultAsync(ps => ps.ProductId == id);
+            if (sku == null) 
+            {
+                return BadRequest();
+            }
 
             var dto = GetUpdateProduct(product, sku);
 

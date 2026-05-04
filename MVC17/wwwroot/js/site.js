@@ -1,5 +1,4 @@
-﻿
-$(document).on("submit", ".add-to-cart-form", function (e) {
+﻿$(document).on("submit", ".add-to-cart-form", function (e) {
     e.preventDefault();
 
     let form = $(this);
@@ -20,6 +19,5 @@ $(document).on("submit", ".add-to-cart-form", function (e) {
             let modal = new bootstrap.Modal(document.getElementById("cartModal"));
             modal.show();
         }
-        });
-    }
+    });
 });
