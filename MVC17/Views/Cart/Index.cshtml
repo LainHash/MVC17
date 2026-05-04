@@ -65,9 +65,11 @@
                     </form>
                 </td>
                 <td>
-                    <a asp-controller="Invoice"
-                       asp-action="BuyOne"
-                       asp-route-id="@item.ProductId"
+                    <a asp-controller="Order"
+                       asp-action="Checkout"
+                       asp-route-productId="@item.ProductId"
+                       asp-route-quantity="1"
+                       asp-route-isBuyMany="false"
                        class="btn btn-outline-primary btn-sm rounded-circle"
                        title="Mua"> Mua ngay </a>
                 </td>
@@ -82,3 +84,8 @@
         }
     </tbody>
 </table>
+<a asp-controller="Invoice"
+       asp-action="Checkout"
+       asp-route-isBuyMany="true">
+    Thanh toán
+</a>

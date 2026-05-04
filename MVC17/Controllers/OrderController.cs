@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -41,163 +41,219 @@ namespace MVC17.Controllers
             return View(invoice);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> BuyOne(int productId, int quantity = 1)
+        [HttpGet]
+        public async Task<IActionResult> Checkout(int? productId, int quantity = 1, bool isBuyMany = false)
         {
             if (quantity <= 0) quantity = 1;
 
-            // 1. lấy user hiện tại
             var userId = HttpContext.Session.GetInt32(SessionConstants.userId);
             if (userId == null)
-            {
-                return RedirectToAction("Login", "Account");
-            }
-
-            // 2. lấy customer từ user
-            var customer = await _context.Customers
-                .FirstOrDefaultAsync(c => c.UserId == userId && c.IsDeleted != true);
-
-            if (customer == null)
-            {
-                return BadRequest("Không tìm thấy thông tin khách hàng.");
-            }
-
-            // 3. lấy sản phẩm
-            var product = await _context.Products
-                .Include(p => p.ProductSku)
-                .FirstOrDefaultAsync(p => p.ProductId == productId);
-
-            if (product == null)
-            {
-                return NotFound("Sản phẩm không tồn tại.");
-            }
-
-            var unitPrice = product.ProductSku.UnitPrice;
-            var lineTotal = unitPrice * quantity;
-
-            using var transaction = await _context.Database.BeginTransactionAsync();
-
-            try
-            {
-                // 4. tạo invoice
-                var invoice = new Invoice
-                {
-                    InvoiceUuid = Guid.NewGuid(),
-                    CustomerId = customer.CustomerId,
-                    OrderDate = DateOnly.FromDateTime(DateTime.Now),
-                    RequiredDate = DateOnly.FromDateTime(DateTime.Now.AddDays(3)),
-                    Status = "Pending",
-                    Subtotal = lineTotal,
-                    ProductDiscount = 0,
-                    ShippingFee = 0,
-                    ShippingDiscount = 0,
-                    TotalAmount = lineTotal,
-                    CreatedAt = DateTime.Now,
-                    UpdatedAt = DateTime.Now
-                };
-
-                _context.Invoices.Add(invoice);
-                await _context.SaveChangesAsync();
-
-                // 5. tạo invoice detail
-                var invoiceDetail = new InvoiceDetail
-                {
-                    InvoiceId = invoice.InvoiceId,
-                    ProductId = product.ProductId,
-                    Quantity = quantity,
-                    UnitPrice = unitPrice,
-                    LineTotal = lineTotal
-                };
-
-                _context.InvoiceDetails.Add(invoiceDetail);
-                await _context.SaveChangesAsync();
-
-                await transaction.CommitAsync();
-
-                return RedirectToAction("Checkout", new { id = invoice.InvoiceId });
-            }
-            catch
-            {
-                await transaction.RollbackAsync();
-                throw;
-            }
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> BuyMany()
-        {
-            // 1. lấy user hiện tại
-            var userId = HttpContext.Session.GetInt32("UserId");
-            if (userId == null)
                 return RedirectToAction("Login", "Account");
 
-            // 2. lấy customer
             var customer = await _context.Customers
+                .Include(c => c.Pi)
                 .FirstOrDefaultAsync(c => c.UserId == userId && c.IsDeleted != true);
 
             if (customer == null)
                 return BadRequest("Không tìm thấy thông tin khách hàng.");
 
-            // 3. lấy cart hiện tại
-            var cart = await _context.ShoppingCarts
-                .Include(c => c.CartItems)
-                .FirstOrDefaultAsync(c => c.UserId == userId);
-
-            if (cart == null)
-                return BadRequest("Không tìm thấy giỏ hàng.");
-
-            if (cart.CartItems == null || !cart.CartItems.Any())
-                return BadRequest("Giỏ hàng trống.");
-
-            using var transaction = await _context.Database.BeginTransactionAsync();
-
-            try
+            var model = new CheckoutVM
             {
-                var subtotal = cart.CartItems.Sum(x => x.LineTotal);
+                IsBuyMany = isBuyMany,
+                FullName = customer.Pi != null ? $"{customer.Pi.FirstName} {customer.Pi.LastName}" : "",
+                Phone = customer.Pi?.Phone ?? "",
+                Email = customer.Pi?.Email ?? "",
+                Address = customer.Pi?.Address ?? "",
+                ShippingFee = 0
+            };
 
-                // 4. tạo invoice
-                var invoice = new Invoice
+            if (!isBuyMany)
+            {
+                if (productId == null)
+                    return BadRequest("Thiếu sản phẩm.");
+
+                var product = await _context.Products
+                    .Include(p => p.ProductSku)
+                    .Include(p => p.Image)
+                    .FirstOrDefaultAsync(p => p.ProductId == productId);
+
+                if (product == null)
+                    return NotFound("Sản phẩm không tồn tại.");
+
+                var unitPrice = product.ProductSku.UnitPrice;
+                var lineTotal = unitPrice * quantity;
+
+                model.ProductId = productId;
+                model.Quantity = quantity;
+                model.Items = new List<CheckoutItemVM>
                 {
-                    InvoiceUuid = Guid.NewGuid(),
-                    CustomerId = customer.CustomerId,
-                    OrderDate = DateOnly.FromDateTime(DateTime.Now),
-                    RequiredDate = DateOnly.FromDateTime(DateTime.Now.AddDays(3)),
-                    Status = "Pending",
-                    Subtotal = subtotal,
-                    ProductDiscount = 0,
-                    ShippingFee = 0,
-                    ShippingDiscount = 0,
-                    TotalAmount = subtotal,
-                    CreatedAt = DateTime.Now,
-                    UpdatedAt = DateTime.Now
+                    new CheckoutItemVM
+                    {
+                        ProductId = product.ProductId,
+                        ProductName = product.ProductName,
+                        ImageUrl = product.Image.ImageUrl,
+                        Quantity = quantity,
+                        UnitPrice = unitPrice,
+                        LineTotal = lineTotal
+                    }
                 };
+                model.Subtotal = lineTotal;
+            }
+            else
+            {
+                var cart = await _context.ShoppingCarts
+                    .Include(c => c.CartItems)
+                    .ThenInclude(ci => ci.Product)
+                    .ThenInclude(p => p.Image)
+                    .FirstOrDefaultAsync(c => c.UserId == userId);
 
-                _context.Invoices.Add(invoice);
-                await _context.SaveChangesAsync();
+                if (cart == null || cart.CartItems == null || !cart.CartItems.Any())
+                    return BadRequest("Giỏ hàng trống.");
 
-                // 5. tạo invoice details
-                var invoiceDetails = cart.CartItems.Select(item => new InvoiceDetail
+                model.Items = cart.CartItems.Select(item => new CheckoutItemVM
                 {
-                    InvoiceId = invoice.InvoiceId,
                     ProductId = item.ProductId,
+                    ProductName = item.Product.ProductName,
+                    ImageUrl = item.Product.Image.ImageUrl,
                     Quantity = item.Quantity,
                     UnitPrice = item.UnitPrice,
                     LineTotal = item.LineTotal
                 }).ToList();
 
-                _context.InvoiceDetails.AddRange(invoiceDetails);
+                model.Subtotal = cart.CartItems.Sum(x => x.LineTotal);
+            }
 
-                // 6. xóa cart items
-                _context.CartItems.RemoveRange(cart.CartItems);
+            return View(model);
+        }
 
-                // 7. reset cart
-                cart.Subtotal = 0;
-                cart.UpdatedAt = DateTime.Now;
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Checkout(CheckoutVM model)
+        {
+            var userId = HttpContext.Session.GetInt32(SessionConstants.userId);
+            if (userId == null)
+                return RedirectToAction("Login", "Account");
+
+            var customer = await _context.Customers
+                .Include(cst => cst.User)
+                .FirstOrDefaultAsync(c => c.UserId == userId && c.IsDeleted != true);
+
+            if (customer == null)
+                return BadRequest("Không tìm thấy thông tin khách hàng.");
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                Invoice invoice;
+
+                if (!model.IsBuyMany)
+                {
+                    var productId = model.ProductId ?? 0;
+                    var quantity = model.Quantity ?? 1;
+
+                    var product = await _context.Products
+                        .Include(p => p.ProductSku)
+                        .FirstOrDefaultAsync(p => p.ProductId == productId);
+
+                    if (product == null)
+                        return NotFound("Sản phẩm không tồn tại.");
+
+                    var unitPrice = product.ProductSku.UnitPrice;
+                    var lineTotal = unitPrice * quantity;
+
+                    if (customer.User.Balance < lineTotal)
+                    {
+                        ModelState.AddModelError("", "Số dư không đủ để thanh toán.");
+                        return View(model);
+                    }
+
+                    invoice = new Invoice
+                    {
+                        InvoiceUuid = Guid.NewGuid(),
+                        CustomerId = customer.CustomerId,
+                        OrderDate = DateOnly.FromDateTime(DateTime.Now),
+                        RequiredDate = DateOnly.FromDateTime(DateTime.Now.AddDays(3)),
+                        Status = "Pending",
+                        Subtotal = lineTotal,
+                        ProductDiscount = 0,
+                        ShippingFee = 0,
+                        ShippingDiscount = 0,
+                        TotalAmount = lineTotal,
+                        CreatedAt = DateTime.Now,
+                        UpdatedAt = DateTime.Now
+                    };
+
+                    customer.User.Balance -= (int)lineTotal;
+
+                    _context.Invoices.Add(invoice);
+                    await _context.SaveChangesAsync();
+
+                    _context.InvoiceDetails.Add(new InvoiceDetail
+                    {
+                        InvoiceId = invoice.InvoiceId,
+                        ProductId = product.ProductId,
+                        Quantity = quantity,
+                        UnitPrice = unitPrice,
+                        LineTotal = lineTotal
+                    });
+                }
+                else
+                {
+                    var cart = await _context.ShoppingCarts
+                        .Include(c => c.CartItems)
+                        .FirstOrDefaultAsync(c => c.UserId == userId);
+
+                    if (cart == null || cart.CartItems == null || !cart.CartItems.Any())
+                        return BadRequest("Giỏ hàng trống.");
+
+                    var subtotal = cart.CartItems.Sum(x => x.LineTotal);
+
+                    if (customer.User.Balance < subtotal)
+                    {
+                        ModelState.AddModelError("", "Số dư không đủ để thanh toán.");
+                        return View(model);
+                    }
+
+                    invoice = new Invoice
+                    {
+                        InvoiceUuid = Guid.NewGuid(),
+                        CustomerId = customer.CustomerId,
+                        OrderDate = DateOnly.FromDateTime(DateTime.Now),
+                        RequiredDate = DateOnly.FromDateTime(DateTime.Now.AddDays(3)),
+                        Status = "Pending",
+                        Subtotal = subtotal,
+                        ProductDiscount = 0,
+                        ShippingFee = 0,
+                        ShippingDiscount = 0,
+                        TotalAmount = subtotal,
+                        CreatedAt = DateTime.Now,
+                        UpdatedAt = DateTime.Now
+                    };
+
+                    _context.Invoices.Add(invoice);
+                    await _context.SaveChangesAsync();
+
+                    var invoiceDetails = cart.CartItems.Select(item => new InvoiceDetail
+                    {
+                        InvoiceId = invoice.InvoiceId,
+                        ProductId = item.ProductId,
+                        Quantity = item.Quantity,
+                        UnitPrice = item.UnitPrice,
+                        LineTotal = item.LineTotal
+                    }).ToList();
+
+                    _context.InvoiceDetails.AddRange(invoiceDetails);
+
+                    _context.CartItems.RemoveRange(cart.CartItems);
+                    cart.Subtotal = 0;
+                    cart.UpdatedAt = DateTime.Now;
+                }
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
-                return RedirectToAction("Checkout", new { id = invoice.InvoiceId });
+                return RedirectToAction("Success", new { id = invoice.InvoiceId });
             }
             catch
             {
@@ -206,5 +262,10 @@ namespace MVC17.Controllers
             }
         }
 
+        public async Task<IActionResult> Success(int id)
+        {
+            var invoice = await _context.Invoices.FirstOrDefaultAsync(iv => iv.InvoiceId == id);
+            return View(invoice);
+        }
     }
 }
