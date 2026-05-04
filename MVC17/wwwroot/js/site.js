@@ -20,5 +20,6 @@ $(document).on("submit", ".add-to-cart-form", function (e) {
             let modal = new bootstrap.Modal(document.getElementById("cartModal"));
             modal.show();
         }
-    });
+        });
+    }
 });

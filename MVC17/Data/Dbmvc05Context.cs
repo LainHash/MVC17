@@ -68,6 +68,8 @@ public partial class Dbmvc05Context : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
+    public virtual DbSet<VwCartItem> VwCartItems { get; set; }
+
     public virtual DbSet<VwCpuSpec> VwCpuSpecs { get; set; }
 
     public virtual DbSet<VwCustomerProfile> VwCustomerProfiles { get; set; }
@@ -595,6 +597,25 @@ public partial class Dbmvc05Context : DbContext
                 .HasForeignKey(d => d.RoleId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Users__RoleId__5D95E53A");
+        });
+
+        modelBuilder.Entity<VwCartItem>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("vw_CartItems");
+
+            entity.Property(e => e.CategoryName)
+                .HasMaxLength(255)
+                .IsUnicode(false);
+            entity.Property(e => e.CompanyName)
+                .HasMaxLength(255)
+                .IsUnicode(false);
+            entity.Property(e => e.LineTotal).HasColumnType("decimal(26, 2)");
+            entity.Property(e => e.ProductName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UnitPrice).HasColumnType("decimal(15, 2)");
         });
 
         modelBuilder.Entity<VwCpuSpec>(entity =>
