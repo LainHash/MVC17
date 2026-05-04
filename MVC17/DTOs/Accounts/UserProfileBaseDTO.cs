@@ -24,12 +24,10 @@ namespace MVC17.DTOs.Accounts
 
         [Display(Name = "Thành Phố")]
         [Required(ErrorMessage = "Thành phố là bắt buộc")]
-        [StringLength(100, MinimumLength = 2, ErrorMessage = "Thành phố phải từ 2 đến 100 ký tự")]
         public string City { get; set; } = null!;
 
         [Display(Name = "Quốc Gia")]
         [Required(ErrorMessage = "Quốc gia là bắt buộc")]
-        [StringLength(100, MinimumLength = 2, ErrorMessage = "Quốc gia phải từ 2 đến 100 ký tự")]
         public string Country { get; set; } = null!;
 
         [Display(Name = "Địa Chỉ")]
@@ -49,7 +47,6 @@ namespace MVC17.DTOs.Accounts
 
         [Display(Name = "Số CMND/CCCD")]
         [Required(ErrorMessage = "Số CMND/CCCD là bắt buộc")]
-        [RegularExpression(@"^\d{9}$|^\d{12}$", ErrorMessage = "Số CMND/CCCD không hợp lệ")]
         public string CitizenIdentityCard { get; set; } = null!;
     }
 }

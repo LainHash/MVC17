@@ -216,8 +216,10 @@ namespace MVC17.Controllers
 
             await _context.SaveChangesAsync();
 
-            TempData["Success"] = "Đổi mật khẩu thành công";
-            return RedirectToAction("Profile");
+            HttpContext.Session.Clear();
+            TempData["Success"] = "Đổi mật khẩu thành công. Vui lòng đăng nhập lại.";
+
+            return RedirectToAction("Login");
         }
 
         private async Task MergeCartAsync(int userId)

@@ -23,18 +23,24 @@
                     @await Component.InvokeAsync("CategoryMenu")
                     <a class="nav-item nav-link" asp-controller="Cart" asp-action="Index">@RouteDisplayName.ShoppingCartPage</a>
                     <a class="nav-link nav-item" asp-controller="Order" asp-action="Index">Hóa đơn</a>
-                    @if (username != null)
-                    {
-                        <a class="nav-item nav-link" asp-area="" asp-controller="Account" asp-action="Profile">Xin chào, @username</a>
-                        
-                        <a class="nav-item nav-link" asp-area="" asp-controller="Account" asp-action="Logout">@RouteDisplayName.LogoutPage</a>
-                    }
-                    else
-                    {
-                        <a class="nav-item nav-link" asp-area="" asp-controller="Account" asp-action="Login">@RouteDisplayName.LoginPage</a>
-                    }
+                    
                 </div>
-                <a href="https://htmlcodex.com/downloading/?item=3387" class="btn btn-primary rounded-pill py-2 px-4">Buy Pro Version</a>
+                @if (username != null)
+                {
+                    <a class="nav-item nav-link" asp-area="" asp-controller="Account" asp-action="Profile">Xin chào, @username</a>
+                        
+                    <a class="btn btn-primary rounded-pill py-2 px-4"
+                       asp-area=""
+                       asp-controller="Account"
+                       asp-action="Logout">@RouteDisplayName.LogoutPage</a>
+                }
+                else
+                {
+                    <a class="btn btn-primary rounded-pill py-2 px-4"
+                       asp-area=""
+                       asp-controller="Account"
+                       asp-action="Login">@RouteDisplayName.LoginPage</a>
+                }
             </div>
         </nav>
     </div>
