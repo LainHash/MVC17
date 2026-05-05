@@ -34,6 +34,8 @@ namespace MVC17.Mappings
             CreateMap<UpdateStorageDTO, Storage>()
                 .ForMember(dest => dest.ProductSku, opt => opt.Ignore())
                 .ReverseMap();
+
+            CreateMap<VwTrendingLaptop, TrendingLaptopVM>();
         }
     }
 }

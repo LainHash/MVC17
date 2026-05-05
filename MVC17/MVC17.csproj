@@ -7,6 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="ViewComponents\TrendingLaptop.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="ViewComponents\TrendingLaptop.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="16.1.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.26" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.26" />

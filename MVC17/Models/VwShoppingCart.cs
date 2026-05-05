@@ -9,8 +9,6 @@ public partial class VwShoppingCart
 
     public string? SessionId { get; set; }
 
-    public int CartItemId { get; set; }
-
     public int ProductId { get; set; }
 
     public string ProductName { get; set; } = null!;
@@ -22,4 +20,6 @@ public partial class VwShoppingCart
     public DateTime AddedDate { get; set; }
 
     public decimal? LineTotal { get; set; }
+
+    public int CartItemId { get; set; }
 }

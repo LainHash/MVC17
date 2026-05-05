@@ -7,8 +7,6 @@ public partial class VwLaptopSpec
 {
     public int LaptopId { get; set; }
 
-    public int ProductSkuId { get; set; }
-
     public string LaptopType { get; set; } = null!;
 
     public string LaptopName { get; set; } = null!;
@@ -82,4 +80,6 @@ public partial class VwLaptopSpec
     public int CpuSpeed { get; set; }
 
     public int Turbo { get; set; }
+
+    public int ProductSkuId { get; set; }
 }

@@ -4,70 +4,6 @@
     ViewData["Title"] = "Details";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-@* 
-<h1>Details</h1>
-
-<div>
-    <h4>Product</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ProductUuid)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ProductUuid)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ProductName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ProductName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Description)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Description)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CategoryName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CategoryName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CompanyName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CompanyName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ImageUrl)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ImageUrl)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.UnitPrice)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.UnitPrice)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.UnitsInStock)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.UnitsInStock)
-        </dd>
-    </dl>
-</div>
-<hr />
-<h2>Product Specifications</h2>
-@await Component.InvokeAsync("ProductSpec", new { vm = Model })
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.ProductId">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div> *@
 
 <!-- Product Details Section -->
 <div class="container-fluid product-details-section py-5">
@@ -104,7 +40,7 @@
                     <div class="mt-4">
                         <div class="d-flex gap-2 mb-3">
                             <span class="badge @(Model.UnitsInStock > 0 ? "bg-success" : "bg-danger") px-3 py-2 fs-6">
-                                @if(Model.UnitsInStock > 0)
+                                @if (Model.UnitsInStock > 0)
                                 {
                                     <i class="fas fa-check-circle me-2"></i>
                                     <span>Còn hàng(@Model.UnitsInStock)</span>
@@ -128,7 +64,7 @@
                         <h2 class="product-detail-title mb-3">@Model.ProductName</h2>
                         <div class="d-flex align-items-baseline gap-3 mb-4">
                             <h3 class="price-display text-primary fw-bold">
-                                @Model.UnitPrice.ToString("N0") 
+                                @Model.UnitPrice.ToString("N0")
                                 <span class="text-secondary" style="font-size: 0.8em;">đ</span>
                             </h3>
                             <small class="text-muted">
@@ -222,16 +158,27 @@
                 <div class="details-actions pt-4 border-top">
                     <div class="row g-2">
                         <div class="col-md-6">
-                            <a asp-action="Edit" asp-route-id="@Model.ProductId"
-                               class="btn btn-primary btn-lg w-100 rounded-pill">
-                                <i class="fas fa-edit me-2"></i>Chỉnh sửa
+                            <a asp-controller="Order"
+                                   asp-action="Checkout"
+                                   asp-route-productId="@Model.ProductId"
+                                   class="btn btn-primary btn-lg w-100 rounded-pill">
+                                Mua ngay
                             </a>
                         </div>
                         <div class="col-md-6">
-                            <a asp-action="Delete" asp-route-id="@Model.ProductId"
-                               class="btn btn-danger btn-lg w-100 rounded-pill">
-                                <i class="fas fa-trash me-2"></i>Xóa
-                            </a>
+                            <form asp-controller="Cart"
+                                  asp-action="Add"
+                                  method="post"
+                                  class="add-to-cart-form d-inline">
+                                <input type="hidden" name="id" value="@Model.ProductId" />
+                                <input type="hidden" name="quantity" value="1" />
+
+                                <button type="submit"
+                                        class="btn btn-outline-primary btn-sm"
+                                        title="Thêm vào giỏ hàng">
+                                    Thêm vào giỏ hàng
+                                </button>
+                            </form>
                         </div>
                     </div>
                     <div class="row mt-3">
@@ -242,9 +189,9 @@
                         </div>
                     </div>
                 </div>
-                </div>
             </div>
         </div>
     </div>
 </div>
-</div>
+
+<partial name="_CartModal" />
