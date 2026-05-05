@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MVC17.Data;
 using MVC17.Models;
 using MVC17.ViewModels;
@@ -17,12 +18,12 @@ namespace MVC17.ViewComponents
             _mapper = mapper;
         }
 
-        public IViewComponentResult Invoke()
+        public async Task<IViewComponentResult> InvokeAsync()
         {
-            var laptops = _context.VwTrendingLaptops
-                .OrderByDescending(l => l.CreatedInvoices)
-                .Take(5);
-            var vm = _mapper.Map<List<TrendingLaptopVM>>(laptops);
+            var products = await _context.VwTrendingProducts
+                .OrderByDescending(x => x.CreatedInvoices)
+                .ToListAsync();
+            var vm = _mapper.Map<List<TrendingProductVM>>(products);
             return View(vm);
         }
     }

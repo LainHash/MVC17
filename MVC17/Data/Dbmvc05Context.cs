@@ -88,7 +88,7 @@ public partial class Dbmvc05Context : DbContext
 
     public virtual DbSet<VwStorageSpec> VwStorageSpecs { get; set; }
 
-    public virtual DbSet<VwTrendingLaptop> VwTrendingLaptops { get; set; }
+    public virtual DbSet<VwTrendingProduct> VwTrendingProducts { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
@@ -822,41 +822,13 @@ public partial class Dbmvc05Context : DbContext
                 .IsUnicode(false);
         });
 
-        modelBuilder.Entity<VwTrendingLaptop>(entity =>
+        modelBuilder.Entity<VwTrendingProduct>(entity =>
         {
             entity
                 .HasNoKey()
-                .ToView("vw_TrendingLaptops");
+                .ToView("vw_TrendingProducts");
 
-            entity.Property(e => e.CategoryName)
-                .HasMaxLength(255)
-                .IsUnicode(false);
-            entity.Property(e => e.CompanyName)
-                .HasMaxLength(255)
-                .IsUnicode(false);
-            entity.Property(e => e.CpuName)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.GpuName)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.LaptopType)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.Os)
-                .HasMaxLength(50)
-                .IsUnicode(false)
-                .HasColumnName("OS");
             entity.Property(e => e.ProductName)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.RamName)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.ScreenResolution)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.StorageName)
                 .HasMaxLength(100)
                 .IsUnicode(false);
             entity.Property(e => e.UnitPrice).HasColumnType("decimal(15, 2)");
