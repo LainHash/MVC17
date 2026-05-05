@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace MVC17.Models
+namespace MVC17.ViewModels
 {
     public class CheckoutVM
     {
