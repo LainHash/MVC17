@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MVC17.Data;
 using MVC17.Helpers.Constants.Sessions;
 using MVC17.Models;
+using System.Security.Claims;
 
 public class CartController : Controller
 {
@@ -15,7 +16,7 @@ public class CartController : Controller
 
     public async Task<IActionResult> Index()
     {
-        var userId = HttpContext.Session.GetInt32(SessionConstants.userId);
+        var userId = GetUserId();
         var sessionId = HttpContext.Session.GetString(SessionConstants.sessionId);
 
         var cart = await _context.VwShoppingCarts
@@ -61,6 +62,7 @@ public class CartController : Controller
                 ProductId = id,
                 Quantity = quantity,
                 UnitPrice = product.UnitPrice,
+                LineTotal = product.UnitPrice * quantity,
                 AddedDate = DateTime.Now
             };
 
@@ -75,6 +77,7 @@ public class CartController : Controller
 
             item.Quantity = newQty;
             item.UnitPrice = product.UnitPrice;
+            item.LineTotal = product.UnitPrice * newQty;
         }
 
         await _context.SaveChangesAsync();
@@ -151,7 +154,10 @@ public class CartController : Controller
 
     private int? GetUserId()
     {
-        return HttpContext.Session.GetInt32(SessionConstants.userId);
+        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (int.TryParse(userIdString, out int userId))
+            return userId;
+        return null;
     }
 
     private async Task<ShoppingCart?> GetCartAsync()

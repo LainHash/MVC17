@@ -57,9 +57,6 @@ namespace MVC17.Controllers
                     Expires = DateTime.Now.AddMinutes(120) 
                 });
 
-                HttpContext.Session.SetInt32(SessionConstants.userId, user.UserId);
-                HttpContext.Session.SetString(SessionConstants.email, user.Email);
-                HttpContext.Session.SetString(SessionConstants.username, user.Username);
                 
                 await MergeCartAsync(user.UserId);
                 return RedirectToAction("Index", "Home");
