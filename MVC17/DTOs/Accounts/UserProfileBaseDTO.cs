@@ -22,7 +22,7 @@ namespace MVC17.DTOs.Accounts
         [DataType(DataType.Date)]
         public DateOnly Dob { get; set; }
 
-        [Display(Name = "Thành Phố")]
+        [Display(Name = "Tỉnh/Thành Phố")]
         [Required(ErrorMessage = "Thành phố là bắt buộc")]
         public string City { get; set; } = null!;
 

@@ -78,17 +78,17 @@
 <script>
     window.onload = function () {
 
-    var successMessage = '@TempData["Success"]';
-    var errorMessage = '@TempData["Error"]';
+        var successMessage = '@TempData["Success"]';
+        var errorMessage = '@TempData["Error"]';
 
-    if (successMessage) {
-    var successModal = new bootstrap.Modal(document.getElementById('successModal'));
-    successModal.show();
-    }
+        if (successMessage) {
+            var successModal = new bootstrap.Modal(document.getElementById('successModal'));
+            successModal.show();
+        }
 
-    if (errorMessage) {
-    var errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
-    errorModal.show();
-    }
+        if (errorMessage) {
+            var errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+            errorModal.show();
+        }
     };
 </script>

@@ -222,4 +222,10 @@ public class CartController : Controller
 
         return deletedCount;
     }
+
+    private bool TryGetCurrentUserId(out int userId)
+    {
+        var raw = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        return int.TryParse(raw, out userId);
+    }
 }

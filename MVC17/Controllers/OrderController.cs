@@ -2,7 +2,9 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 using MVC17.Data;
+using MVC17.Helpers.Constants.Orders;
 using MVC17.Models;
 using MVC17.ViewModels;
 using System.Security.Claims;
@@ -20,7 +22,6 @@ namespace MVC17.Controllers
             _mapper = mapper;
         }
 
-        // ─── Public Actions ────────────────────────────────────────────────────
 
         public async Task<IActionResult> Index()
         {
@@ -48,27 +49,43 @@ namespace MVC17.Controllers
         [Authorize]
         public async Task<IActionResult> Checkout(int? productId, int quantity = 1, bool isBuyMany = false)
         {
-            if (quantity <= 0) quantity = 1;
+            if (quantity <= 0)
+            {
+                quantity = 1;
+            }
 
             if (!TryGetCurrentUserId(out int userId))
+            {
                 return RedirectToAction("Login", "Account");
+            }
 
             var customer = await GetCustomerWithPiAsync(userId);
             if (customer == null)
+            {
                 return BadRequest("Không tìm thấy thông tin khách hàng.");
+            }
 
             var model = BuildCheckoutModelBase(customer, isBuyMany);
 
             if (!isBuyMany)
             {
-                if (productId == null) return BadRequest("Thiếu sản phẩm.");
+                if (productId == null)
+                {
+                    return BadRequest("Thiếu sản phẩm.");
+                }
                 var error = await FillSingleProductAsync(model, productId.Value, quantity);
-                if (error != null) return error;
+                if (error != null)
+                {
+                    return error;
+                }
             }
             else
             {
                 var error = await FillCartItemsAsync(model, userId);
-                if (error != null) return error;
+                if (error != null)
+                {
+                    return error;
+                }
             }
 
             return View(model);
@@ -84,7 +101,9 @@ namespace MVC17.Controllers
 
             var customer = await GetCustomerWithUserAsync(userId);
             if (customer == null)
+            {
                 return BadRequest("Không tìm thấy thông tin khách hàng.");
+            }
 
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
@@ -124,7 +143,6 @@ namespace MVC17.Controllers
             return View();
         }
 
-        // ─── Private Helpers ───────────────────────────────────────────────────
 
         private bool TryGetCurrentUserId(out int userId)
         {
@@ -132,25 +150,33 @@ namespace MVC17.Controllers
             return int.TryParse(raw, out userId);
         }
 
-        private Task<Customer?> GetCustomerWithPiAsync(int userId) =>
-            _context.Customers
+        private Task<Customer?> GetCustomerWithPiAsync(int userId)
+        {
+            return _context.Customers
                 .Include(c => c.Pi)
                 .FirstOrDefaultAsync(c => c.UserId == userId && c.IsDeleted != true);
+        }
 
-        private Task<Customer?> GetCustomerWithUserAsync(int userId) =>
-            _context.Customers
-                .Include(c => c.User)
-                .FirstOrDefaultAsync(c => c.UserId == userId && c.IsDeleted != true);
-
-        private static CheckoutVM BuildCheckoutModelBase(Customer customer, bool isBuyMany) => new()
+        private Task<Customer?> GetCustomerWithUserAsync(int userId)
         {
-            IsBuyMany = isBuyMany,
-            FullName = customer.Pi != null ? $"{customer.Pi.FirstName} {customer.Pi.LastName}" : "",
-            Phone = customer.Pi?.Phone ?? "",
-            Email = customer.Pi?.Email ?? "",
-            Address = customer.Pi?.Address ?? "",
-            ShippingFee = 0
-        };
+            return _context.Customers
+                .Include(c => c.User)
+                .Include(c => c.Pi)
+                .FirstOrDefaultAsync(c => c.UserId == userId && c.IsDeleted != true);
+        }
+
+        private static CheckoutVM BuildCheckoutModelBase(Customer customer, bool isBuyMany)
+        {
+            return new CheckoutVM()
+            {
+                IsBuyMany = isBuyMany,
+                FullName = customer.Pi != null ? $"{customer.Pi.FirstName} {customer.Pi.LastName}" : "",
+                Phone = customer.Pi?.Phone ?? "",
+                Email = customer.Pi?.Email ?? "",
+                Address = customer.Pi?.Address ?? "",
+                ShippingFee = 0
+            };
+        }
 
         private async Task<IActionResult?> FillSingleProductAsync(CheckoutVM model, int productId, int quantity)
         {
@@ -159,7 +185,10 @@ namespace MVC17.Controllers
                 .Include(p => p.Image)
                 .FirstOrDefaultAsync(p => p.ProductId == productId);
 
-            if (product == null) return NotFound("Sản phẩm không tồn tại.");
+            if (product == null)
+            {
+                return NotFound("Sản phẩm không tồn tại.");
+            }
 
             var unitPrice = product.ProductSku.UnitPrice;
             var lineTotal = unitPrice * quantity;
@@ -191,7 +220,10 @@ namespace MVC17.Controllers
                 .FirstOrDefaultAsync(c => c.UserId == userId);
 
             if (cart == null || cart.CartItems == null || !cart.CartItems.Any())
-                return BadRequest("Giỏ hàng trống.");
+            {
+                ViewData["Error"] = "Giỏ hàng trống!";
+                return RedirectToAction("CheckoutResult");
+            }
 
             model.Items = cart.CartItems.Select(item => new CheckoutItemVM
             {
@@ -207,6 +239,25 @@ namespace MVC17.Controllers
             return null;
         }
 
+        private static Invoice CreateInvoiceBase(Customer customer, decimal amount)
+        {
+            return new Invoice()
+            {
+                InvoiceUuid = Guid.NewGuid(),
+                CustomerId = customer.CustomerId,
+                OrderDate = DateOnly.FromDateTime(DateTime.Now),
+                RequiredDate = DateOnly.FromDateTime(DateTime.Now.AddDays(Distances.CalculateShippingDays(customer.Pi.City))),
+                Status = "Pending",
+                Subtotal = amount,
+                ProductDiscount = 0,
+                ShippingFee = Distances.CalculateShippingFee(customer.Pi.City),
+                ShippingDiscount = 0,
+                TotalAmount = amount,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now
+            };
+        }
+
         private async Task<IActionResult?> ProcessSingleProductCheckoutAsync(Customer customer, CheckoutVM model)
         {
             var productId = model.ProductId ?? 0;
@@ -216,7 +267,10 @@ namespace MVC17.Controllers
                 .Include(p => p.ProductSku)
                 .FirstOrDefaultAsync(p => p.ProductId == productId);
 
-            if (product == null) return NotFound("Sản phẩm không tồn tại.");
+            if (product == null)
+            {
+                return NotFound("Sản phẩm không tồn tại.");
+            }
 
             var unitPrice = product.ProductSku.UnitPrice;
             var lineTotal = unitPrice * quantity;
@@ -227,7 +281,7 @@ namespace MVC17.Controllers
                 return RedirectToAction("CheckoutResult");
             }
 
-            var invoice = CreateInvoiceBase(customer.CustomerId, lineTotal);
+            var invoice = CreateInvoiceBase(customer, lineTotal);
             customer.User.Balance -= (int)lineTotal;
 
             _context.Invoices.Add(invoice);
@@ -261,7 +315,7 @@ namespace MVC17.Controllers
                 return RedirectToAction("CheckoutResult");
             }
 
-            var invoice = CreateInvoiceBase(customer.CustomerId, subtotal);
+            var invoice = CreateInvoiceBase(customer, subtotal);
             _context.Invoices.Add(invoice);
             await _context.SaveChangesAsync();
 
@@ -280,20 +334,6 @@ namespace MVC17.Controllers
             return null;
         }
 
-        private static Invoice CreateInvoiceBase(int customerId, decimal amount) => new()
-        {
-            InvoiceUuid = Guid.NewGuid(),
-            CustomerId = customerId,
-            OrderDate = DateOnly.FromDateTime(DateTime.Now),
-            RequiredDate = DateOnly.FromDateTime(DateTime.Now.AddDays(3)),
-            Status = "Pending",
-            Subtotal = amount,
-            ProductDiscount = 0,
-            ShippingFee = 0,
-            ShippingDiscount = 0,
-            TotalAmount = amount,
-            CreatedAt = DateTime.Now,
-            UpdatedAt = DateTime.Now
-        };
+        
     }
 }

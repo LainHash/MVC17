@@ -45,8 +45,8 @@ namespace MVC17.Controllers
             {
                 if (!user.IsActive)
                 {
-                    ViewBag.Error = "Tài khoản chưa được xác nhận email. Vui lòng kiểm tra hộp thư của bạn.";
-                    return View();
+                    ViewData["Error"] = "Tài khoản chưa được xác nhận email. Vui lòng kiểm tra hộp thư của bạn.";
+                    return RedirectToAction("LoginMessages");
                 }
 
                 var tokenString = GenerateJwtToken(user);
@@ -61,8 +61,8 @@ namespace MVC17.Controllers
                 await MergeCartAsync(user.UserId);
                 return RedirectToAction("Index", "Home");
             }
-            ViewBag.Error = "Sai email hoặc mật khẩu";
-            return View();
+            ViewData["Error"] = "Sai email hoặc mật khẩu";
+            return RedirectToAction("LoginMessages");
         }
 
         public ActionResult Logout()
@@ -151,11 +151,11 @@ namespace MVC17.Controllers
         [Authorize]
         public async Task<IActionResult> Profile()
         {
-            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+            if (!TryGetCurrentUserId(out int userId))
             {
-                return RedirectToAction("Login");
+                return RedirectToAction("Login", "Account");
             }
+
 
             var customer = await _context.VwCustomerProfiles
                 .FirstOrDefaultAsync(c => c.UserId == userId);
@@ -169,10 +169,9 @@ namespace MVC17.Controllers
         [Authorize]
         public async Task<IActionResult> Edit()
         {
-            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+            if (!TryGetCurrentUserId(out int userId))
             {
-                return RedirectToAction("Login");
+                return RedirectToAction("Login", "Account");
             }
 
             var customer = await _context.VwCustomerProfiles
@@ -207,11 +206,10 @@ namespace MVC17.Controllers
                 ViewBag.Genders = new SelectList(UserProfileConstants.Genders, "Key", "Value");
                 return View(dto);
             }
-            
-            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+
+            if (!TryGetCurrentUserId(out int userId))
             {
-                return RedirectToAction("Login");
+                return RedirectToAction("Login", "Account");
             }
 
             var customer = await _context.Customers
@@ -233,10 +231,9 @@ namespace MVC17.Controllers
         [Authorize]
         public IActionResult ChangePassword()
         {
-            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+            if (!TryGetCurrentUserId(out int userId))
             {
-                return RedirectToAction("Login");
+                return RedirectToAction("Login", "Account");
             }
 
             return View(new ChangePasswordDTO());
@@ -252,10 +249,9 @@ namespace MVC17.Controllers
                 return View(dto);
             }
 
-            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+            if (!TryGetCurrentUserId(out int userId))
             {
-                return RedirectToAction("Login");
+                return RedirectToAction("Login", "Account");
             }
 
             var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
@@ -366,6 +362,12 @@ namespace MVC17.Controllers
                 signingCredentials: credentials);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        private bool TryGetCurrentUserId(out int userId)
+        {
+            var raw = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return int.TryParse(raw, out userId);
         }
     }
 }
