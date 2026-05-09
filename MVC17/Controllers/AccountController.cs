@@ -45,8 +45,8 @@ namespace MVC17.Controllers
             {
                 if (!user.IsActive)
                 {
-                    ViewData["Error"] = "Tài khoản chưa được xác nhận email. Vui lòng kiểm tra hộp thư của bạn.";
-                    return RedirectToAction("LoginMessages");
+                    TempData["Error"] = "Tài khoản chưa được xác nhận email. Vui lòng kiểm tra hộp thư của bạn.";
+                    return View();
                 }
 
                 var tokenString = GenerateJwtToken(user);
@@ -62,7 +62,7 @@ namespace MVC17.Controllers
                 return RedirectToAction("Index", "Home");
             }
             ViewData["Error"] = "Sai email hoặc mật khẩu";
-            return RedirectToAction("LoginMessages");
+            return View();
         }
 
         public ActionResult Logout()

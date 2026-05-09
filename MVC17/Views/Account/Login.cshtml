@@ -41,3 +41,42 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
+
+@if (TempData["Error"] != null)
+{
+    <div class="modal fade" id="errorModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-danger">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">Thông báo</h5>
+                    <button type="button"
+                            class="btn-close btn-close-white"
+                            data-bs-dismiss="modal">
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @TempData["Error"]
+                </div>
+                <div class="modal-footer">
+                    <button type="button"
+                            class="btn btn-danger"
+                            data-bs-dismiss="modal">
+                        Đóng
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var modal = new bootstrap.Modal(
+                document.getElementById('errorModal')
+            );
+            modal.show();
+        });
+    </script>
+}

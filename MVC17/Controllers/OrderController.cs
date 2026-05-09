@@ -122,7 +122,7 @@ namespace MVC17.Controllers
                 await transaction.CommitAsync();
 
                 TempData["Success"] = "Thanh toán thành công!";
-                return RedirectToAction("CheckoutResult");
+                return View(model);
             }
             catch
             {
@@ -174,7 +174,7 @@ namespace MVC17.Controllers
                 Phone = customer.Pi?.Phone ?? "",
                 Email = customer.Pi?.Email ?? "",
                 Address = customer.Pi?.Address ?? "",
-                ShippingFee = 0
+                ShippingFee = Distances.CalculateShippingFee(customer.Pi.City)
             };
         }
 
@@ -222,7 +222,7 @@ namespace MVC17.Controllers
             if (cart == null || cart.CartItems == null || !cart.CartItems.Any())
             {
                 ViewData["Error"] = "Giỏ hàng trống!";
-                return RedirectToAction("CheckoutResult");
+                return View(model);
             }
 
             model.Items = cart.CartItems.Select(item => new CheckoutItemVM
@@ -239,7 +239,7 @@ namespace MVC17.Controllers
             return null;
         }
 
-        private static Invoice CreateInvoiceBase(Customer customer, decimal amount)
+        private static Invoice CreateInvoiceBase(Customer customer, decimal subtotal, decimal shippingFee)
         {
             return new Invoice()
             {
@@ -248,11 +248,11 @@ namespace MVC17.Controllers
                 OrderDate = DateOnly.FromDateTime(DateTime.Now),
                 RequiredDate = DateOnly.FromDateTime(DateTime.Now.AddDays(Distances.CalculateShippingDays(customer.Pi.City))),
                 Status = "Pending",
-                Subtotal = amount,
+                Subtotal = subtotal,
                 ProductDiscount = 0,
-                ShippingFee = Distances.CalculateShippingFee(customer.Pi.City),
+                ShippingFee = shippingFee,
                 ShippingDiscount = 0,
-                TotalAmount = amount,
+                TotalAmount = subtotal + shippingFee, 
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now
             };
@@ -274,18 +274,21 @@ namespace MVC17.Controllers
 
             var unitPrice = product.ProductSku.UnitPrice;
             var lineTotal = unitPrice * quantity;
+            var shippingFee = Distances.CalculateShippingFee(customer.Pi.City);
 
-            if (customer.User.Balance < lineTotal)
-            {
-                TempData["Error"] = "Số dư không đủ để thanh toán.";
-                return RedirectToAction("CheckoutResult");
-            }
-
-            var invoice = CreateInvoiceBase(customer, lineTotal);
-            customer.User.Balance -= (int)lineTotal;
+            var invoice = CreateInvoiceBase(customer, lineTotal, shippingFee);
+            
 
             _context.Invoices.Add(invoice);
             await _context.SaveChangesAsync();
+
+            
+            if (customer.User.Balance < invoice.TotalAmount)
+            {
+                TempData["Error"] = "Số dư không đủ để thanh toán.";
+                return View(model);
+            }
+            customer.User.Balance -= invoice.TotalAmount;
 
             _context.InvoiceDetails.Add(new InvoiceDetail
             {
@@ -308,16 +311,19 @@ namespace MVC17.Controllers
                 return BadRequest("Giỏ hàng trống.");
 
             var subtotal = cart.CartItems.Sum(x => x.LineTotal);
+            var shippingFee = Distances.CalculateShippingFee(customer.Pi.City);
+            
+
+            var invoice = CreateInvoiceBase(customer, subtotal, shippingFee);
+            _context.Invoices.Add(invoice);
+            await _context.SaveChangesAsync();
 
             if (customer.User.Balance < subtotal)
             {
                 TempData["Error"] = "Số dư không đủ để thanh toán.";
-                return RedirectToAction("CheckoutResult");
+                return View();
             }
-
-            var invoice = CreateInvoiceBase(customer, subtotal);
-            _context.Invoices.Add(invoice);
-            await _context.SaveChangesAsync();
+            customer.User.Balance -= invoice.TotalAmount;
 
             _context.InvoiceDetails.AddRange(cart.CartItems.Select(item => new InvoiceDetail
             {

@@ -1,8 +1,12 @@
 ﻿@using MVC17.Helpers.Constants.Globals
-@using Microsoft.AspNetCore.Http
-
 @{
-    var username = Context.Session.GetString("Username");
+    // Lấy JWT từ cookie
+    var jwt = Context.Request.Cookies["jwt"];
+
+    // Nếu muốn lấy username từ claim trong User (khi đã cấu hình JwtBearer/Cookie Authentication)
+    var username = User.Identity?.IsAuthenticated == true
+        ? User.Identity.Name
+        : null;
 }
 
 

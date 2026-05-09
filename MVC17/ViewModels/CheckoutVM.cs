@@ -16,8 +16,10 @@ namespace MVC17.ViewModels
 
         public List<CheckoutItemVM> Items { get; set; } = new List<CheckoutItemVM>();
         public decimal Subtotal { get; set; }
+        public float ProductDiscount { get; set; }
         public decimal ShippingFee { get; set; }
-        public decimal TotalAmount => Subtotal + ShippingFee;
+        public float ShippingDiscount { get; set; }
+        public decimal TotalAmount => Subtotal * (1 - (decimal)ProductDiscount) + ShippingFee * (1 - (decimal)ShippingDiscount);
     }
 
     public class CheckoutItemVM
