@@ -15,7 +15,7 @@ public partial class User
 
     public string PasswordHash { get; set; } = null!;
 
-    public int Balance { get; set; }
+    public decimal Balance { get; set; }
 
     public int RoleId { get; set; }
 

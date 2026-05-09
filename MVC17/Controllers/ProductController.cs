@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using MailKit.Search;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -25,27 +26,16 @@ namespace MVC17.Controllers
         public async Task<IActionResult> Index(string filterString = "", int categoryId = 0, int supplierId = 0, int orderBy = 0, int page = 1, int itemPerPage = 15)
         {
             var query = _context.VwProducts;
-            
+
             var products = await query
                 .ToListAsync();
 
             var vm = _mapper.Map<List<ProductVM>>(products);
 
             vm = ProductFilterring(vm, filterString, categoryId, supplierId, orderBy);
+            vm = ProductPaginating(vm, page, itemPerPage);
 
-            int totalPages = (int)Math.Ceiling((double)vm.Count() / itemPerPage);
-            vm = vm.Skip((page - 1) * itemPerPage).Take(itemPerPage).ToList();
-
-            var supplierByCategory = _context.Suppliers.Where(s => categoryId == 0 || s.Products.Any(p => p.CategoryId == categoryId))
-                .ToList();
-
-            ViewBag.Categories = new SelectList(_context.Categories, "CategoryId", "CategoryName", categoryId);
-            ViewBag.Suppliers = new SelectList(supplierByCategory, "SupplierId", "CompanyName", supplierId);
-            ViewBag.OrderTypes = new SelectList(ProductConstants.sortDict, "Key", "Value", orderBy);
-
-            ViewData["ActivePage"] = page;
-            ViewData["TotalPages"] = totalPages;
-            ViewData["CurrentFilter"] = filterString;
+            await LoadIndexViewBags(categoryId, supplierId, orderBy);
 
             return View(vm);
         }
@@ -59,12 +49,12 @@ namespace MVC17.Controllers
 
             var product = await _context.VwProducts
                 .FirstOrDefaultAsync(m => m.ProductId == id);
-            if (product == null) 
+            if (product == null)
             {
                 return NotFound("Sản phẩm không tồn tại!");
             }
 
-            if(product.IsDeleted)
+            if (product.IsDeleted)
             {
                 return NotFound("Sản phẩm này đã bị xóa!");
             }
@@ -83,14 +73,7 @@ namespace MVC17.Controllers
 
         public IActionResult Create(int categoryId = 0)
         {
-            ViewBag.Categories = new SelectList(_context.Categories, "CategoryId", "CategoryName", categoryId);
-            ViewBag.Suppliers = new SelectList(_context.Suppliers, "SupplierId", "CompanyName");
-            ViewBag.Cpus = new SelectList(_context.VwCpuSpecs, "CpuId", "CpuName");
-            ViewBag.Gpus = new SelectList(_context.VwGpuSpecs, "GpuId", "GpuName");
-            ViewBag.Rams = new SelectList(_context.VwRamSpecs, "RamId", "RamName");
-            ViewBag.Storages = new SelectList(_context.VwStorageSpecs, "StorageId", "StorageName");
-
-            ViewBag.SelectedCategory = categoryId;
+            LoadCreateViewBags(categoryId);
 
             var dto = new CreateProductDTO()
             {
@@ -145,14 +128,14 @@ namespace MVC17.Controllers
                 .Include(ps => ps.Laptop)
                     .ThenInclude(l => l.LaptopComponent)
                 .FirstOrDefaultAsync(ps => ps.ProductId == id);
-            if (sku == null) 
+            if (sku == null)
             {
                 return BadRequest();
             }
 
             var dto = GetUpdateProduct(product, sku);
 
-            
+
             LoadEditViewBags(dto);
 
 
@@ -252,6 +235,27 @@ namespace MVC17.Controllers
             return _context.Products.Any(e => e.ProductId == id);
         }
 
+        private void GetCategoryViewBags(int categoryId)
+        {
+            var categories = _context.Categories.ToList();
+            ViewBag.Categories = new SelectList(categories.Select(c => new
+            {
+                c.CategoryId,
+                CategoryNameVi = CategoryConstants.CategoryTranslations.ContainsKey(c.CategoryName)
+                                        ? CategoryConstants.CategoryTranslations[c.CategoryName]
+                                        : c.CategoryName
+            }),
+                "CategoryId",
+                "CategoryNameVi",
+                categoryId);
+        }
+        private void GetSupplierViewBags(int categoryId, int supplierId)
+        {
+            var supplierByCategory = _context.Suppliers.Where(s => categoryId == 0 || s.Products.Any(p => p.CategoryId == categoryId))
+                .ToList();
+            ViewBag.Suppliers = new SelectList(supplierByCategory, "SupplierId", "CompanyName", supplierId);
+        }
+
         private List<ProductVM> ProductFilterring(List<ProductVM> products, string filterString = "", int categoryId = 0, int supplierId = 0, int orderBy = 0)
         {
             if (categoryId > 0)
@@ -287,40 +291,74 @@ namespace MVC17.Controllers
                     p.CompanyName.Contains(filterString)
                 ).ToList();
 
+            ViewData["CurrentFilter"] = filterString;
+
             return products;
         }
 
+        private async Task LoadIndexViewBags(int categoryId, int supplierId, int orderBy)
+        {
+            GetCategoryViewBags(categoryId);
+            GetSupplierViewBags(categoryId, supplierId);
+            ViewBag.OrderTypes = new SelectList(ProductConstants.sortDict, "Key", "Value", orderBy);
+
+        }
+
+        private List<ProductVM> ProductPaginating(List<ProductVM> vm, int page, int itemPerPage)
+        {
+            int totalPages = (int)Math.Ceiling((double)vm.Count() / itemPerPage);
+
+            vm = vm.Skip((page - 1) * itemPerPage).Take(itemPerPage).ToList();
+
+            ViewData["ActivePage"] = page;
+            ViewData["TotalPages"] = totalPages;
+
+            return vm;
+
+        }
         private async Task<ProductVM> GetProductSpec(ProductVM vm)
         {
             switch (vm.CategoryId)
             {
-                case CategoryType.Laptop:
+                case CategoryConstants.Laptop:
                     vm.Laptop = await _context.VwLaptopSpecs
                         .FirstOrDefaultAsync(x => x.ProductSkuId == vm.ProductSkuId);
                     break;
 
-                case CategoryType.CPU:
+                case CategoryConstants.CPU:
                     vm.Cpu = await _context.VwCpuSpecs
                         .FirstOrDefaultAsync(x => x.ProductSkuId == vm.ProductSkuId);
                     break;
 
-                case CategoryType.GPU:
+                case CategoryConstants.GPU:
                     vm.Gpu = await _context.VwGpuSpecs
                         .FirstOrDefaultAsync(x => x.ProductSkuId == vm.ProductSkuId);
                     break;
 
-                case CategoryType.Storage:
+                case CategoryConstants.Storage:
                     vm.Storage = await _context.VwStorageSpecs
                         .FirstOrDefaultAsync(x => x.ProductSkuId == vm.ProductSkuId);
                     break;
 
-                case CategoryType.RAM:
+                case CategoryConstants.RAM:
                     vm.Ram = await _context.VwRamSpecs
                         .FirstOrDefaultAsync(x => x.ProductSkuId == vm.ProductSkuId);
                     break;
             }
 
             return vm;
+        }
+
+        private void LoadCreateViewBags(int categoryId)
+        {
+            GetCategoryViewBags(categoryId);
+            ViewBag.Suppliers = new SelectList(_context.Suppliers, "SupplierId", "CompanyName");
+            ViewBag.Cpus = new SelectList(_context.VwCpuSpecs, "CpuId", "CpuName");
+            ViewBag.Gpus = new SelectList(_context.VwGpuSpecs, "GpuId", "GpuName");
+            ViewBag.Rams = new SelectList(_context.VwRamSpecs, "RamId", "RamName");
+            ViewBag.Storages = new SelectList(_context.VwStorageSpecs, "StorageId", "StorageName");
+
+            ViewBag.SelectedCategory = categoryId;
         }
 
         private Product PostCreateProduct(CreateProductDTO dto)
@@ -438,7 +476,7 @@ namespace MVC17.Controllers
 
         private void LoadEditViewBags(UpdateProductDTO dto)
         {
-            ViewBag.Categories = new SelectList(_context.Categories, "CategoryId", "CategoryName", dto.CategoryId);
+            GetCategoryViewBags(dto.CategoryId);
             ViewBag.Suppliers = new SelectList(_context.Suppliers, "SupplierId", "CompanyName", dto.SupplierId);
 
             if (dto.Laptop != null)
@@ -449,5 +487,7 @@ namespace MVC17.Controllers
                 ViewBag.Storages = new SelectList(_context.VwStorageSpecs, "StorageId", "StorageName", dto.Laptop.StorageId);
             }
         }
+
+
     }
 }

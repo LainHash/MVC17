@@ -2,15 +2,15 @@
 @using MVC17.Helpers.Constants.Products
 @{
     var Laptops = Model
-    .Where(p => p.CategoryId == CategoryType.Laptop)
+    .Where(p => p.CategoryId == CategoryConstants.Laptop)
     .Take(5);
 
     var Cpus = Model
-    .Where(p => p.CategoryId == CategoryType.CPU)
+    .Where(p => p.CategoryId == CategoryConstants.CPU)
     .Take(5);
 
     var Gpus = Model
-    .Where(p => p.CategoryId == CategoryType.GPU)
+    .Where(p => p.CategoryId == CategoryConstants.GPU)
     .Take(5);
 }
 

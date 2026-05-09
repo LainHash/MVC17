@@ -444,6 +444,7 @@ public partial class Dbmvc05Context : DbContext
 
             entity.HasOne(d => d.Image).WithMany(p => p.Products)
                 .HasForeignKey(d => d.ImageId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Products__ImageI__1446FBA6");
 
             entity.HasOne(d => d.Supplier).WithMany(p => p.Products)
@@ -580,6 +581,7 @@ public partial class Dbmvc05Context : DbContext
 
             entity.HasIndex(e => e.Email, "UQ__Users__A9D1053457A931B2").IsUnique();
 
+            entity.Property(e => e.Balance).HasColumnType("decimal(15, 2)");
             entity.Property(e => e.Email)
                 .HasMaxLength(100)
                 .IsUnicode(false);

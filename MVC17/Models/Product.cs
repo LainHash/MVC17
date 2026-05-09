@@ -17,7 +17,7 @@ public partial class Product
 
     public int SupplierId { get; set; }
 
-    public int? ImageId { get; set; }
+    public int ImageId { get; set; }
 
     public bool IsDeleted { get; set; }
 
@@ -29,7 +29,7 @@ public partial class Product
 
     public virtual Category Category { get; set; } = null!;
 
-    public virtual Image? Image { get; set; }
+    public virtual Image Image { get; set; } = null!;
 
     public virtual ICollection<InvoiceDetail> InvoiceDetails { get; set; } = new List<InvoiceDetail>();
 

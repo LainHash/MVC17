@@ -126,26 +126,22 @@ namespace MVC17.Controllers
 
         // ─── Private Helpers ───────────────────────────────────────────────────
 
-        /// <summary>Đọc userId từ JWT claim. Trả về false nếu chưa đăng nhập.</summary>
         private bool TryGetCurrentUserId(out int userId)
         {
             var raw = User.FindFirstValue(ClaimTypes.NameIdentifier);
             return int.TryParse(raw, out userId);
         }
 
-        /// <summary>Lấy customer kèm PersonalInformation (dùng cho Checkout GET).</summary>
         private Task<Customer?> GetCustomerWithPiAsync(int userId) =>
             _context.Customers
                 .Include(c => c.Pi)
                 .FirstOrDefaultAsync(c => c.UserId == userId && c.IsDeleted != true);
 
-        /// <summary>Lấy customer kèm User/Balance (dùng cho Checkout POST).</summary>
         private Task<Customer?> GetCustomerWithUserAsync(int userId) =>
             _context.Customers
                 .Include(c => c.User)
                 .FirstOrDefaultAsync(c => c.UserId == userId && c.IsDeleted != true);
 
-        /// <summary>Dựng phần thông tin khách hàng của CheckoutVM.</summary>
         private static CheckoutVM BuildCheckoutModelBase(Customer customer, bool isBuyMany) => new()
         {
             IsBuyMany = isBuyMany,
@@ -156,7 +152,6 @@ namespace MVC17.Controllers
             ShippingFee = 0
         };
 
-        /// <summary>Điền thông tin 1 sản phẩm vào CheckoutVM. Trả về IActionResult nếu có lỗi.</summary>
         private async Task<IActionResult?> FillSingleProductAsync(CheckoutVM model, int productId, int quantity)
         {
             var product = await _context.Products
@@ -187,7 +182,6 @@ namespace MVC17.Controllers
             return null;
         }
 
-        /// <summary>Điền danh sách sản phẩm từ giỏ hàng vào CheckoutVM. Trả về IActionResult nếu có lỗi.</summary>
         private async Task<IActionResult?> FillCartItemsAsync(CheckoutVM model, int userId)
         {
             var cart = await _context.ShoppingCarts
@@ -213,7 +207,6 @@ namespace MVC17.Controllers
             return null;
         }
 
-        /// <summary>Tạo đơn hàng cho luồng mua 1 sản phẩm (BuyOne).</summary>
         private async Task<IActionResult?> ProcessSingleProductCheckoutAsync(Customer customer, CheckoutVM model)
         {
             var productId = model.ProductId ?? 0;
@@ -251,7 +244,6 @@ namespace MVC17.Controllers
             return null;
         }
 
-        /// <summary>Tạo đơn hàng cho luồng mua từ giỏ hàng (BuyMany).</summary>
         private async Task<IActionResult?> ProcessCartCheckoutAsync(Customer customer, int userId)
         {
             var cart = await _context.ShoppingCarts
@@ -288,7 +280,6 @@ namespace MVC17.Controllers
             return null;
         }
 
-        /// <summary>Factory tạo Invoice với các trường chung.</summary>
         private static Invoice CreateInvoiceBase(int customerId, decimal amount) => new()
         {
             InvoiceUuid = Guid.NewGuid(),
