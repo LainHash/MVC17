@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;
 using MVC17.Data;
+using MVC17.DTOs.Orders;
 using MVC17.Helpers.Constants.Orders;
 using MVC17.Models;
 using MVC17.ViewModels;
@@ -65,7 +66,15 @@ namespace MVC17.Controllers
                 return BadRequest("Không tìm thấy thông tin khách hàng.");
             }
 
-            var model = BuildCheckoutModelBase(customer, isBuyMany);
+            var model = new CheckoutDTO()
+            {
+                IsBuyMany = isBuyMany,
+                FullName = customer.Pi != null ? $"{customer.Pi.FirstName} {customer.Pi.LastName}" : "",
+                Phone = customer.Pi?.Phone ?? "",
+                Email = customer.Pi?.Email ?? "",
+                Address = customer.Pi?.Address ?? "",
+                ShippingFee = Distances.CalculateShippingFee(customer.Pi.City)
+            };
 
             if (!isBuyMany)
             {
@@ -94,7 +103,7 @@ namespace MVC17.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize]
-        public async Task<IActionResult> Checkout(CheckoutVM model)
+        public async Task<IActionResult> Checkout(CheckoutDTO model)
         {
             if (!TryGetCurrentUserId(out int userId))
                 return RedirectToAction("Login", "Account");
@@ -165,20 +174,7 @@ namespace MVC17.Controllers
                 .FirstOrDefaultAsync(c => c.UserId == userId && c.IsDeleted != true);
         }
 
-        private static CheckoutVM BuildCheckoutModelBase(Customer customer, bool isBuyMany)
-        {
-            return new CheckoutVM()
-            {
-                IsBuyMany = isBuyMany,
-                FullName = customer.Pi != null ? $"{customer.Pi.FirstName} {customer.Pi.LastName}" : "",
-                Phone = customer.Pi?.Phone ?? "",
-                Email = customer.Pi?.Email ?? "",
-                Address = customer.Pi?.Address ?? "",
-                ShippingFee = Distances.CalculateShippingFee(customer.Pi.City)
-            };
-        }
-
-        private async Task<IActionResult?> FillSingleProductAsync(CheckoutVM model, int productId, int quantity)
+        private async Task<IActionResult?> FillSingleProductAsync(CheckoutDTO model, int productId, int quantity)
         {
             var product = await _context.Products
                 .Include(p => p.ProductSku)
@@ -198,7 +194,7 @@ namespace MVC17.Controllers
             model.Subtotal = lineTotal;
             model.Items =
             [
-                new CheckoutItemVM
+                new CheckoutItemDTO
                 {
                     ProductId   = product.ProductId,
                     ProductName = product.ProductName,
@@ -211,7 +207,7 @@ namespace MVC17.Controllers
             return null;
         }
 
-        private async Task<IActionResult?> FillCartItemsAsync(CheckoutVM model, int userId)
+        private async Task<IActionResult?> FillCartItemsAsync(CheckoutDTO model, int userId)
         {
             var cart = await _context.ShoppingCarts
                 .Include(c => c.CartItems)
@@ -225,7 +221,7 @@ namespace MVC17.Controllers
                 return View(model);
             }
 
-            model.Items = cart.CartItems.Select(item => new CheckoutItemVM
+            model.Items = cart.CartItems.Select(item => new CheckoutItemDTO
             {
                 ProductId = item.ProductId,
                 ProductName = item.Product.ProductName,
@@ -258,7 +254,7 @@ namespace MVC17.Controllers
             };
         }
 
-        private async Task<IActionResult?> ProcessSingleProductCheckoutAsync(Customer customer, CheckoutVM model)
+        private async Task<IActionResult?> ProcessSingleProductCheckoutAsync(Customer customer, CheckoutDTO model)
         {
             var productId = model.ProductId ?? 0;
             var quantity = model.Quantity ?? 1;

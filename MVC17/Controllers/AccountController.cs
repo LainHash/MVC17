@@ -289,6 +289,12 @@ namespace MVC17.Controllers
             return RedirectToAction("Login");
         }
 
+        [HttpGet]
+        public async Task<IActionResult> OrderHistory()
+        {
+            return View();
+        }
+
         private async Task MergeCartAsync(int userId)
         {
             var sessionId = HttpContext.Session.GetString(SessionConstants.sessionId);

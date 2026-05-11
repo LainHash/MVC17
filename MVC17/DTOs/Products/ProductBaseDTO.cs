@@ -26,7 +26,8 @@ namespace MVC17.DTOs.Products
         [Display(Name = "URL Hình Ảnh")]
         [StringLength(500)]
         [Url(ErrorMessage = "URL hình Ảnh không hợp lệ")]
-        public string? ImageUrl { get; set; }
+        [Required(ErrorMessage = "URL hình ảnh là bắt buộc")]
+        public string ImageUrl { get; set; } = null!;
 
         [Display(Name = "Giá Đơn Vị")]
         [DisplayFormat(DataFormatString = "{0:N0}")]
