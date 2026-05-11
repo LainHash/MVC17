@@ -13,7 +13,7 @@ public partial class Invoice
 
     public int? EmployeeId { get; set; }
 
-    public DateOnly OrderDate { get; set; }
+    public DateOnly OrderedDate { get; set; }
 
     public DateOnly RequiredDate { get; set; }
 

@@ -14,6 +14,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
+using MVC17.ViewModels;
 
 namespace MVC17.Controllers
 {
@@ -50,18 +51,18 @@ namespace MVC17.Controllers
                 }
 
                 var tokenString = GenerateJwtToken(user);
-                Response.Cookies.Append("jwt", tokenString, new CookieOptions 
-                { 
-                    HttpOnly = true, 
-                    SameSite = SameSiteMode.Strict, 
-                    Expires = DateTime.Now.AddMinutes(120) 
+                Response.Cookies.Append("jwt", tokenString, new CookieOptions
+                {
+                    HttpOnly = true,
+                    SameSite = SameSiteMode.Strict,
+                    Expires = DateTime.Now.AddMinutes(120)
                 });
 
-                
+
                 await MergeCartAsync(user.UserId);
                 return RedirectToAction("Index", "Home");
             }
-            ViewData["Error"] = "Sai email hoặc mật khẩu";
+            ViewData["Error"] = "Sai email hoặc mật khẩu.";
             return View();
         }
 
@@ -121,7 +122,7 @@ namespace MVC17.Controllers
             await _context.SaveChangesAsync();
 
             var confirmationLink = Url.Action("ConfirmEmail", "Account", new { userId = customer.User.UserId, token = customer.User.UserUuid }, Request.Scheme);
-            await _emailService.SendEmailAsync(customer.User.Email, "Xác nhận đăng ký tài khoản", 
+            await _emailService.SendEmailAsync(customer.User.Email, "Xác nhận đăng ký tài khoản",
                 $"Vui lòng click vào link sau để xác nhận đăng ký: <a href='{confirmationLink}'>Xác nhận</a>");
 
             TempData["Success"] = "Đăng ký thành công. Vui lòng kiểm tra email để xác nhận.";
@@ -137,7 +138,7 @@ namespace MVC17.Controllers
             {
                 TempData["Error"] = "Link xác nhận không hợp lệ hoặc đã hết hạn.";
                 return RedirectToAction("Login");
-                
+
             }
 
             user.IsActive = true;
@@ -199,7 +200,7 @@ namespace MVC17.Controllers
         [Authorize]
         public async Task<IActionResult> Edit(UpdateAccountDTO dto)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 ViewBag.Cities = new SelectList(UserProfileConstants.Cities);
                 ViewBag.Countries = new SelectList(UserProfileConstants.Countries);
@@ -290,9 +291,24 @@ namespace MVC17.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> OrderHistory()
         {
-            return View();
+            if (!TryGetCurrentUserId(out int userId))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var customer = await GetCustomerAsync(userId);
+            if (customer == null)
+            {
+                return BadRequest("Không tìm thấy thông tin khách hàng.");
+            }
+
+            var invoice = await GetInvoiceAsync(customer.CustomerId);
+            var orderHistory = _mapper.Map<List<OrderHistoryVM>>(invoice);
+
+            return View(orderHistory);
         }
 
         private async Task MergeCartAsync(int userId)
@@ -316,7 +332,7 @@ namespace MVC17.Controllers
             if (userCart == null)
             {
                 guestCart.UserId = userId;
-                guestCart.SessionId = null; 
+                guestCart.SessionId = null;
 
                 await _context.SaveChangesAsync();
                 return;
@@ -374,6 +390,21 @@ namespace MVC17.Controllers
         {
             var raw = User.FindFirstValue(ClaimTypes.NameIdentifier);
             return int.TryParse(raw, out userId);
+        }
+
+        private Task<Customer?> GetCustomerAsync(int userId)
+        {
+            return _context.Customers
+                .Include(c => c.User)
+                .Include(c => c.Pi)
+                .FirstOrDefaultAsync(c => c.UserId == userId && c.IsDeleted != true);
+        }
+
+        private Task<List<Invoice>> GetInvoiceAsync(int customerId)
+        {
+            return _context.Invoices
+                .Where(iv => iv.CustomerId == customerId)
+                .ToListAsync();
         }
     }
 }

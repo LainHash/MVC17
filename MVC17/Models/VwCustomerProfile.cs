@@ -35,7 +35,7 @@ public partial class VwCustomerProfile
 
     public string AccountEmail { get; set; } = null!;
 
-    public int Balance { get; set; }
-
     public string RoleName { get; set; } = null!;
+
+    public decimal Balance { get; set; }
 }

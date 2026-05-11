@@ -4,6 +4,7 @@ namespace MVC17.DTOs.Orders
 {
     public class CheckoutDTO
     {
+        public int InvoiceId { get; set; }
         public bool IsBuyMany { get; set; }
         public int? ProductId { get; set; }
         public int? Quantity { get; set; }
@@ -11,6 +12,9 @@ namespace MVC17.DTOs.Orders
         public string FullName { get; set; } = null!;
         public string Phone { get; set; } = null!;
         public string Email { get; set; } = null!;
+
+        public string Country { get; set; } = null!;
+        public string City { get; set; } = null!;
         public string Address { get; set; } = null!;
 
         public List<CheckoutItemDTO> Items { get; set; } = new List<CheckoutItemDTO>();

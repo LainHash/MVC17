@@ -1,1 +1,8 @@
-﻿
+﻿@model IEnumerable<MVC17.ViewModels.OrderHistoryVM>
+
+@foreach (var item in Model)
+{
+    <p>@item.InvoiceId</p>
+    <p>@item.OrderedDate.ToString("dd/MM/yyyy")</p>
+    <p>@item.TotalAmount.ToString("N0")</p>
+}

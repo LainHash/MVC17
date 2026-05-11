@@ -41,6 +41,18 @@
                         </div>
 
                         <div class="mb-3">
+                            <label asp-for="Country" class="form-label">Quốc gia</label>
+                            <input asp-for="Country" class="form-control" required />
+                            <span asp-validation-for="Country" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="City" class="form-label">Tỉnh/Thành phố</label>
+                            <input asp-for="City" class="form-control" required />
+                            <span asp-validation-for="City" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
                             <label asp-for="Address" class="form-label">Địa chỉ</label>
                             <textarea asp-for="Address" class="form-control" rows="3" required></textarea>
                             <span asp-validation-for="Address" class="text-danger"></span>
@@ -132,6 +144,11 @@
                 </div>
 
                 <div class="modal-footer">
+                    <a asp-controller="Account"
+                           asp-action="OrderHistory"
+                           class="btn btn-danger">
+                        Lịch sử đặt hàng
+                    </a>
                     <a asp-controller="Home"
                            asp-action="Index"
                            class="btn btn-success">

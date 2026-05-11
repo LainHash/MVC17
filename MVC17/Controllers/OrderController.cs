@@ -72,6 +72,8 @@ namespace MVC17.Controllers
                 FullName = customer.Pi != null ? $"{customer.Pi.FirstName} {customer.Pi.LastName}" : "",
                 Phone = customer.Pi?.Phone ?? "",
                 Email = customer.Pi?.Email ?? "",
+                Country = customer.Pi?.Country ?? "",
+                City = customer.Pi?.City ?? "",
                 Address = customer.Pi?.Address ?? "",
                 ShippingFee = Distances.CalculateShippingFee(customer.Pi.City)
             };
@@ -106,7 +108,9 @@ namespace MVC17.Controllers
         public async Task<IActionResult> Checkout(CheckoutDTO model)
         {
             if (!TryGetCurrentUserId(out int userId))
+            {
                 return RedirectToAction("Login", "Account");
+            }
 
             var customer = await GetCustomerWithUserAsync(userId);
             if (customer == null)
@@ -241,14 +245,14 @@ namespace MVC17.Controllers
             {
                 InvoiceUuid = Guid.NewGuid(),
                 CustomerId = customer.CustomerId,
-                OrderDate = DateOnly.FromDateTime(DateTime.Now),
+                OrderedDate = DateOnly.FromDateTime(DateTime.Now),
                 RequiredDate = DateOnly.FromDateTime(DateTime.Now.AddDays(Distances.CalculateShippingDays(customer.Pi.City))),
                 Status = "Pending",
                 Subtotal = subtotal,
                 ProductDiscount = 0,
                 ShippingFee = shippingFee,
                 ShippingDiscount = 0,
-                TotalAmount = subtotal + shippingFee, 
+                TotalAmount = subtotal + shippingFee,
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now
             };
@@ -273,12 +277,12 @@ namespace MVC17.Controllers
             var shippingFee = Distances.CalculateShippingFee(customer.Pi.City);
 
             var invoice = CreateInvoiceBase(customer, lineTotal, shippingFee);
-            
+
 
             _context.Invoices.Add(invoice);
             await _context.SaveChangesAsync();
 
-            
+
             if (customer.User.Balance < invoice.TotalAmount)
             {
                 TempData["Error"] = "Số dư không đủ để thanh toán.";
@@ -308,7 +312,7 @@ namespace MVC17.Controllers
 
             var subtotal = cart.CartItems.Sum(x => x.LineTotal);
             var shippingFee = Distances.CalculateShippingFee(customer.Pi.City);
-            
+
 
             var invoice = CreateInvoiceBase(customer, subtotal, shippingFee);
             _context.Invoices.Add(invoice);
@@ -336,6 +340,6 @@ namespace MVC17.Controllers
             return null;
         }
 
-        
+
     }
 }

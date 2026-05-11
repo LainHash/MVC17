@@ -80,6 +80,8 @@ public partial class Dbmvc05Context : DbContext
 
     public virtual DbSet<VwLaptopSpec> VwLaptopSpecs { get; set; }
 
+    public virtual DbSet<VwOrderedItem> VwOrderedItems { get; set; }
+
     public virtual DbSet<VwProduct> VwProducts { get; set; }
 
     public virtual DbSet<VwRamSpec> VwRamSpecs { get; set; }
@@ -624,6 +626,7 @@ public partial class Dbmvc05Context : DbContext
             entity.Property(e => e.AccountEmail)
                 .HasMaxLength(100)
                 .IsUnicode(false);
+            entity.Property(e => e.Balance).HasColumnType("decimal(15, 2)");
             entity.Property(e => e.CitizenIdentityCard)
                 .HasMaxLength(20)
                 .IsUnicode(false);
@@ -754,6 +757,25 @@ public partial class Dbmvc05Context : DbContext
             entity.Property(e => e.StorageType)
                 .HasMaxLength(10)
                 .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<VwOrderedItem>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("vw_OrderedItem");
+
+            entity.Property(e => e.CategoryName)
+                .HasMaxLength(255)
+                .IsUnicode(false);
+            entity.Property(e => e.CompanyName)
+                .HasMaxLength(255)
+                .IsUnicode(false);
+            entity.Property(e => e.LineTotal).HasColumnType("decimal(15, 2)");
+            entity.Property(e => e.ProductName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UnitPrice).HasColumnType("decimal(15, 2)");
         });
 
         modelBuilder.Entity<VwProduct>(entity =>
