@@ -115,102 +115,68 @@
             </div>
         </div>
     </form>
-</div>
 
-@if (TempData["Success"] != null || TempData["Error"] != null)
-{
-    <div class="container mt-5">
-    </div>
-
-    <!-- Success Modal -->
-    <div class="modal fade" id="successModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-success">
-
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title">
-                        Thanh toán thành công
-                    </h5>
-                </div>
-
-                <div class="modal-body text-center">
-                    <h4 class="text-success mb-3">
-                        ✔ Đặt hàng thành công
-                    </h4>
-
-                    <p>
-                        @TempData["Success"]
-                    </p>
-                </div>
-
-                <div class="modal-footer">
-                    <a asp-controller="Account"
-                           asp-action="OrderHistory"
-                           class="btn btn-danger">
+    @* Thông báo đặt hàng thành công *@
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show d-flex align-items-start gap-3 mt-4 p-4 rounded-3 shadow-sm" role="alert">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor"
+                 class="bi bi-check-circle-fill flex-shrink-0 mt-1" viewBox="0 0 16 16">
+                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417
+                         5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99
+                         a.75.75 0 0 0-.01-1.05z" />
+            </svg>
+            <div class="flex-grow-1">
+                <h5 class="alert-heading mb-1">✔ Đặt hàng thành công!</h5>
+                <p class="mb-3">@TempData["Success"]</p>
+                <div class="d-flex gap-2">
+                    <a asp-controller="Account" asp-action="OrderHistory" class="btn btn-outline-success btn-sm">
                         Lịch sử đặt hàng
                     </a>
-                    <a asp-controller="Home"
-                           asp-action="Index"
-                           class="btn btn-success">
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-success btn-sm">
                         Về trang chủ
                     </a>
                 </div>
-
             </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
         </div>
-    </div>
-
-    <!-- Error Modal -->
-    <div class="modal fade" id="errorModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-danger">
-
-                <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title">
-                        Thanh toán thất bại
-                    </h5>
-                </div>
-
-                <div class="modal-body text-center">
-                    <h4 class="text-danger mb-3">
-                        ✖ Thanh toán thất bại
-                    </h4>
-
-                    <p>
-                        @TempData["Error"]
-                    </p>
-                </div>
-
-                <div class="modal-footer">
-                    <a asp-controller="Cart"
-                           asp-action="Index"
-                           class="btn btn-danger">
-                        Quay lại giỏ hàng
-                    </a>
-                </div>
-
-            </div>
-        </div>
-    </div>
-}
-
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-<script>
-    window.onload = function () {
-
-    var successMessage = '@TempData["Success"]';
-    var errorMessage = '@TempData["Error"]';
-
-    if (successMessage) {
-    var successModal = new bootstrap.Modal(document.getElementById('successModal'));
-    successModal.show();
     }
 
-    if (errorMessage) {
-    var errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
-    errorModal.show();
+    @* Thông báo lỗi thanh toán (số dư không đủ, v.v.) *@
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show d-flex align-items-start gap-3 mt-4 p-4 rounded-3 shadow-sm" role="alert">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor"
+                 class="bi bi-exclamation-triangle-fill flex-shrink-0 mt-1" viewBox="0 0 16 16">
+                <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98
+                         1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995
+                         l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0
+                         1 1 0 2 1 1 0 0 1 0-2z" />
+            </svg>
+            <div class="flex-grow-1">
+                <h5 class="alert-heading mb-1">✖ Thanh toán thất bại</h5>
+                <p class="mb-3">@TempData["Error"]</p>
+                <a asp-controller="Cart" asp-action="Index" class="btn btn-outline-danger btn-sm">
+                    Quay lại giỏ hàng
+                </a>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+        </div>
     }
-    };
-</script>
+
+    @* Cảnh báo từ ViewData (ví dụ: giỏ hàng trống) *@
+    @if (ViewData["Error"] != null)
+    {
+        <div class="alert alert-warning alert-dismissible fade show d-flex align-items-center gap-2 mt-4" role="alert">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                 class="bi bi-info-circle-fill flex-shrink-0" viewBox="0 0 16 16">
+                <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533
+                         .194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703
+                         0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081
+                         .082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z" />
+            </svg>
+            <div>@ViewData["Error"]</div>
+            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Đóng"></button>
+        </div>
+    }
+</div>

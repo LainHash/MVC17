@@ -37,6 +37,11 @@ namespace MVC17.Controllers
 
             await LoadIndexViewBags(categoryId, supplierId, orderBy);
 
+
+            ViewData["CurrentCategory"] = categoryId;
+            ViewData["CurrentSupplier"] = supplierId;
+            ViewData["CurrentOrderBy"] = orderBy;
+
             return View(vm);
         }
 
@@ -248,6 +253,7 @@ namespace MVC17.Controllers
                 "CategoryId",
                 "CategoryNameVi",
                 categoryId);
+
         }
         private void GetSupplierViewBags(int categoryId, int supplierId)
         {

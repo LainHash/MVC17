@@ -1,91 +1,149 @@
-﻿@model IEnumerable<MVC17.Models.VwShoppingCart>
+@model IEnumerable<MVC17.Models.VwShoppingCart>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Giỏ hàng của bạn";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    decimal totalCartValue = Model?.Sum(x => x.LineTotal ?? 0) ?? 0;
 }
 
-<h1>Index</h1>
+<div class="container mt-5 mb-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="mb-0"><i class="fas fa-shopping-cart text-primary me-2"></i> Giỏ hàng của bạn</h2>
+        </div>
+    </div>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.ProductName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Quantity)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UnitPrice)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.LineTotal)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.AddedDate)
-            </th>
-            <th></th>
-            <th></th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ProductName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Quantity)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.UnitPrice)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.LineTotal)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.AddedDate)
-                </td>
-                <td>
-                    <form asp-action="UpdateItemQuantity" asp-controller="Cart" method="post" class="d-flex gap-2">
-                        @Html.AntiForgeryToken()
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center gap-2 mb-4" role="alert">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0" viewBox="0 0 16 16">
+                <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
+            </svg>
+            <div>@TempData["Error"]</div>
+            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Đóng"></button>
+        </div>
+    }
 
-                        <input type="hidden" name="cartItemId" value="@item.CartItemId" />
+    @if (!Model.Any())
+    {
+        <div class="row">
+            <div class="col-12 text-center py-5">
+                <i class="fas fa-cart-arrow-down fa-5x text-muted mb-3"></i>
+                <h4 class="text-muted">Giỏ hàng của bạn đang trống</h4>
+                <p class="mb-4">Có vẻ như bạn chưa thêm sản phẩm nào vào giỏ hàng.</p>
+                <a asp-controller="Home" asp-action="Index" class="btn btn-primary btn-lg rounded-pill px-4">
+                    <i class="fas fa-arrow-left me-2"></i>Tiếp tục mua sắm
+                </a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <!-- Cột giỏ hàng -->
+            <div class="col-lg-8 mb-4">
+                <div class="card shadow-sm border-0 rounded-3">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table align-middle mb-0">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th scope="col" class="py-3 ps-4">Sản phẩm</th>
+                                        <th scope="col" class="py-3 text-center">Đơn giá</th>
+                                        <th scope="col" class="py-3 text-center" style="width: 150px;">Số lượng</th>
+                                        <th scope="col" class="py-3 text-end">Thành tiền</th>
+                                        <th scope="col" class="py-3 pe-4 text-center"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model)
+                                    {
+                                        <tr>
+                                            <td class="ps-4">
+                                                <div class="d-flex align-items-center">
+                                                    <!-- Nếu có ImageUrl, thêm thẻ img ở đây. Tạm thời dùng icon nếu chưa có -->
+                                                    <div class="bg-light rounded p-2 me-3 text-center" style="width: 60px; height: 60px;">
+                                                        <i class="fas fa-laptop fs-3 text-secondary mt-2"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="mb-0 text-dark fw-bold">@item.ProductName</h6>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="text-center">
+                                                @item.UnitPrice.ToString("N0") đ
+                                            </td>
+                                            <td>
+                                                <form asp-action="UpdateItemQuantity" asp-controller="Cart" method="post" class="d-flex justify-content-center">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="cartItemId" value="@item.CartItemId" />
+                                                    <div class="input-group input-group-sm" style="width: 120px;">
+                                                        <!-- Nút trừ (tuỳ chọn thêm JS để trigger submit) -->
+                                                        <button class="btn btn-outline-secondary" type="button" onclick="this.parentNode.querySelector('input[type=number]').stepDown(); this.parentNode.parentNode.submit();">
+                                                            <i class="fas fa-minus"></i>
+                                                        </button>
+                                                        <input type="number" name="quantity" value="@item.Quantity" min="1" class="form-control text-center" onchange="this.form.submit()" />
+                                                        <!-- Nút cộng -->
+                                                        <button class="btn btn-outline-secondary" type="button" onclick="this.parentNode.querySelector('input[type=number]').stepUp(); this.parentNode.parentNode.submit();">
+                                                            <i class="fas fa-plus"></i>
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </td>
+                                            <td class="text-end fw-bold text-danger">
+                                                @((item.LineTotal ?? 0).ToString("N0")) đ
+                                            </td>
+                                            <td class="pe-4 text-center">
+                                                <form asp-action="RemoveItem" asp-controller="Cart" method="post" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="cartItemId" value="@item.CartItemId" />
+                                                    <button type="submit" class="btn btn-outline-danger btn-sm rounded-circle" title="Xóa khỏi giỏ hàng">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                        <input type="number"
-                               name="quantity"
-                               value="@item.Quantity"
-                               min="0"
-                               class="form-control"
-                               style="width:80px;"
-                               onchange="this.form.submit()" />
-                    </form>
-                </td>
-                <td>
-                    <a asp-controller="Order"
-                       asp-action="Checkout"
-                       asp-route-productId="@item.ProductId"
-                       asp-route-quantity="1"
-                       asp-route-isBuyMany="false"
-                       class="btn btn-outline-primary btn-sm"
-                       title="Mua"> Mua ngay </a>
-                </td>
-                <td>
-                    <form asp-action="RemoveItem" asp-controller="Cart" method="post">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="cartItemId" value="@item.CartItemId" />
-                        <button type="submit" class="btn btn-danger">Remove</button>
-                    </form>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
-<a asp-controller="Order"
-       asp-action="Checkout"
-       asp-route-isBuyMany="true">
-    Thanh toán
-</a>
+            <!-- Cột tóm tắt thanh toán -->
+            <div class="col-lg-4">
+                <div class="card shadow-sm border-0 rounded-3">
+                    <div class="card-header bg-primary text-white py-3 rounded-top-3">
+                        <h5 class="mb-0 text-white"><i class="fas fa-receipt me-2"></i> Tóm tắt đơn hàng</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="text-muted">Tổng phụ</span>
+                            <span>@totalCartValue.ToString("N0") đ</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="text-muted">Giảm giá</span>
+                            <span class="text-success">0 đ</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between mb-4">
+                            <strong class="fs-5">Tổng cộng</strong>
+                            <strong class="fs-5 text-danger">@totalCartValue.ToString("N0") đ</strong>
+                        </div>
+
+                        <a asp-controller="Order" asp-action="Checkout" asp-route-isBuyMany="true" class="btn btn-primary w-100 btn-lg rounded-pill fw-bold">
+                            Tiến hành thanh toán <i class="fas fa-arrow-right ms-2"></i>
+                        </a>
+                        
+                        <div class="text-center mt-3">
+                            <a asp-controller="Home" asp-action="Index" class="text-decoration-none text-muted small">
+                                <i class="fas fa-arrow-left me-1"></i> Tiếp tục mua sắm
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

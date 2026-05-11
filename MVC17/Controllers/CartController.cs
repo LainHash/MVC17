@@ -97,7 +97,10 @@ public class CartController : Controller
             .FirstOrDefaultAsync(x => x.CartItemId == cartItemId);
 
         if (item == null)
-            return NotFound();
+        {
+            TempData["Error"] = "Không tìm thấy sản phẩm trong giỏ hàng.";
+            return RedirectToAction(nameof(Index));
+        }
 
         if (quantity <= 0)
         {
@@ -110,10 +113,16 @@ public class CartController : Controller
             .FirstOrDefaultAsync(x => x.ProductSkuId == item.ProductId);
 
         if (product == null)
-            return NotFound();
+        {
+            TempData["Error"] = "Sản phẩm không tồn tại hoặc đã ngừng kinh doanh.";
+            return RedirectToAction(nameof(Index));
+        }
 
         if (quantity > product.UnitsInStock)
-            return BadRequest("Not enough stock.");
+        {
+            TempData["Error"] = $"Số lượng yêu cầu vượt quá số lượng tồn kho. Chỉ còn {product.UnitsInStock} sản phẩm.";
+            return RedirectToAction(nameof(Index));
+        }
 
         item.Quantity = quantity;
         item.UnitPrice = product.UnitPrice;
@@ -131,7 +140,10 @@ public class CartController : Controller
             .FirstOrDefaultAsync(x => x.CartItemId == cartItemId);
 
         if (item == null)
-            return NotFound();
+        {
+            TempData["Error"] = "Không tìm thấy sản phẩm trong giỏ hàng để xoá.";
+            return RedirectToAction(nameof(Index));
+        }
 
         _context.CartItems.Remove(item);
         await _context.SaveChangesAsync();
