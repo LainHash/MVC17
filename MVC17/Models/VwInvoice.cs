@@ -15,23 +15,25 @@ public partial class VwInvoice
 
     public int InvoiceId { get; set; }
 
-    public DateOnly? OrderedDate { get; set; }
+    public DateOnly OrderedDate { get; set; }
 
-    public DateOnly? RequiredDate { get; set; }
+    public DateOnly RequiredDate { get; set; }
 
     public DateOnly? ShippedDate { get; set; }
 
-    public string? Status { get; set; }
-
-    public decimal? Subtotal { get; set; }
+    public string Status { get; set; } = null!;
 
     public double? ProductDiscount { get; set; }
 
     public double? ShippingDiscount { get; set; }
 
-    public decimal? ShippingFee { get; set; }
-
-    public double? TotalAmount { get; set; }
+    public decimal ShippingFee { get; set; }
 
     public string? Note { get; set; }
+
+    public Guid InvoiceUuid { get; set; }
+
+    public decimal Subtotal { get; set; }
+
+    public decimal TotalAmount { get; set; }
 }

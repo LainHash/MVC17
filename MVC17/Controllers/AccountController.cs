@@ -374,7 +374,8 @@ namespace MVC17.Controllers
             {
                 new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
                 new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Name, user.Username)
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.Role, user.RoleId.ToString())
             };
 
             var token = new JwtSecurityToken(_config["Jwt:Issuer"],

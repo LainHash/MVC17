@@ -13,7 +13,7 @@
     <div class="container">
         <nav class="navbar navbar-expand-lg navbar-light">
             <a href="" class="navbar-brand p-0">
-                <h1 class="display-6 text-primary"><i class="fas fa-car-alt me-3"></i></i>Cental</h1>
+                <h1 class="display-6 text-primary"><i class="fas fa-car-alt me-3"></i>TechStore</h1>
                 <!-- <img src="img/logo.png" alt="Logo"> -->
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
@@ -21,35 +21,47 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarCollapse">
                 <div class="navbar-nav mx-auto py-0">
-                    <a asp-controller="Home" asp-action="Index" class="nav-item nav-link">@RouteDisplayName.HomePage</a>
+                    <a asp-controller="Home"
+                           asp-action="Index"
+                           class="nav-item nav-link">
+                        @RouteDisplayName.HomePage
+                    </a>
                     @await Component.InvokeAsync("CategoryMenu")
-                    <a class="nav-item nav-link" asp-controller="Cart" asp-action="Index">@RouteDisplayName.ShoppingCartPage</a>
-                    <a class="nav-link nav-item" asp-controller="Order" asp-action="Index">Hóa đơn</a>
+                    <a class="nav-item nav-link"
+                           asp-controller="Cart"
+                           asp-action="Index">
+                        @RouteDisplayName.ShoppingCartPage
+                    </a>
                     
                 </div>
                 @if (username != null)
                 {
                     <div class="dropdown">
-                        <a class="btn btn-primary rounded-pill py-2 px-4" asp-area="" asp-controller="Account" asp-action="Profile">Xin chào, @username</a>
+                        <a class="btn btn-primary rounded-pill py-2 px-4"
+                               asp-area=""
+                               asp-controller="Account"
+                               asp-action="Profile">
+                            Xin chào, @username
+                        </a>
                         <ul class="dropdown-menu">
                             <li>
-                                <a class="dropdown-item d-flex justify-content-between align-items-center" asp-area="" asp-controller="Account" asp-action="OrderHistory">Lịch sử giao dịch</a>
+                                <a class="dropdown-item d-flex justify-content-between align-items-center"
+                                       asp-area=""
+                                       asp-controller="Account"
+                                       asp-action="OrderHistory">
+                                    @RouteDisplayName.OrderHistory
+                                </a>
                             </li>
                             <li>
                                 <a class="dropdown-item d-flex justify-content-between align-items-center"
-                                   asp-area=""
-                                   asp-controller="Account"
-                                   asp-action="Logout">@RouteDisplayName.LogoutPage</a>
+                                       asp-area=""
+                                       asp-controller="Account"
+                                       asp-action="Logout">
+                                    @RouteDisplayName.LogoutPage
+                                </a>
                             </li>
                         </ul>
                     </div>
-                    @* <a class="nav-item nav-link" asp-area="" asp-controller="Account" asp-action="Profile">Xin chào, @username</a>
-                    <a class="nav-item nav-link" asp-area="" asp-controller="Account" asp-action="OrderHistory">Lịch sử giao dịch</a>
-                        
-                    <a class="btn btn-primary rounded-pill py-2 px-4"
-                       asp-area=""
-                       asp-controller="Account"
-                       asp-action="Logout">@RouteDisplayName.LogoutPage</a> *@
                 }
                 else
                 {

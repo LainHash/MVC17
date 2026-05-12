@@ -683,7 +683,8 @@ public partial class Dbmvc05Context : DbContext
                 .IsFixedLength();
             entity.Property(e => e.ShippingFee).HasColumnType("decimal(15, 2)");
             entity.Property(e => e.Status).HasMaxLength(50);
-            entity.Property(e => e.Subtotal).HasColumnType("decimal(38, 2)");
+            entity.Property(e => e.Subtotal).HasColumnType("decimal(15, 2)");
+            entity.Property(e => e.TotalAmount).HasColumnType("decimal(15, 2)");
         });
 
         modelBuilder.Entity<VwInvoiceDetail>(entity =>

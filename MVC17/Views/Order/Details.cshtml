@@ -1,4 +1,5 @@
 @model MVC17.Models.VwInvoice
+@using MVC17.Helpers.Constants.Orders
 
 @{
     ViewData["Title"] = "Order Details";
@@ -6,7 +7,7 @@
 
 <div class="container py-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Chi tiết đơn hàng #@Model.InvoiceId</h2>
+        <h2>Chi tiết đơn hàng #@Model.InvoiceUuid</h2>
         <a asp-action="OrderHistory" asp-controller="Account" class="btn btn-outline-secondary">
             <i class="fas fa-arrow-left"></i> Quay lại lịch sử
         </a>
@@ -84,8 +85,9 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between mb-3 align-items-center">
                         <span class="text-muted">Trạng thái:</span>
-                        <span class="badge @(Model.Status == "Hoàn thành" ? "bg-success" : Model.Status == "Đang xử lý" ? "bg-warning text-dark" : "bg-primary") px-3 py-2 rounded-pill">
-                            @Html.DisplayFor(model => model.Status)
+                        <span class="badge @InvoiceStatuses.GetStatusStyle(Model.Status) px-3 py-2 rounded-pill">
+                            
+                            @InvoiceStatuses.GetStatusVi(Model.Status)
                         </span>
                     </div>
                     <hr class="text-muted" />
@@ -93,18 +95,14 @@
                         <span class="text-muted">Mã KH:</span>
                         <span class="fw-semibold">@Html.DisplayFor(model => model.CustomerCode)</span>
                     </div>
-                    <div class="d-flex justify-content-between mb-2">
-                        <span class="text-muted">Mã NV:</span>
-                        <span class="fw-semibold">@Html.DisplayFor(model => model.EmployeeCode)</span>
-                    </div>
                     <hr class="text-muted" />
                     <div class="d-flex justify-content-between mb-2">
                         <span class="text-muted">Ngày đặt hàng:</span>
-                        <span>@(Model.OrderedDate?.ToString("dd/MM/yyyy") ?? "-")</span>
+                        <span>@(Model.OrderedDate.ToString("dd/MM/yyyy") ?? "-")</span>
                     </div>
                     <div class="d-flex justify-content-between mb-2">
                         <span class="text-muted">Ngày yêu cầu:</span>
-                        <span>@(Model.RequiredDate?.ToString("dd/MM/yyyy") ?? "-")</span>
+                        <span>@(Model.RequiredDate.ToString("dd/MM/yyyy") ?? "-")</span>
                     </div>
                     <div class="d-flex justify-content-between mb-2">
                         <span class="text-muted">Ngày giao hàng:</span>
