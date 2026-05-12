@@ -16,12 +16,16 @@
     new WOW().init();
 
 
-    // Sticky Navbar
+    // Sticky Navbar & Sidebar Logic
     $(window).scroll(function () {
         if ($(this).scrollTop() > 200) {
-            $('.sticky-top').addClass('shadow-sm').css('top', '0px');
+            // Khi cuộn xuống quá 200px: Ẩn navbar, hiện sidebar
+            $('.sticky-top').css('top', '-150px');
+            $('#left-sidebar').addClass('show');
         } else {
-            $('.sticky-top').removeClass('shadow-sm').css('top', '-100px');
+            // Khi ở trên cùng: Hiện navbar bình thường, ẩn sidebar
+            $('.sticky-top').css('top', '0px');
+            $('#left-sidebar').removeClass('show');
         }
     });
 

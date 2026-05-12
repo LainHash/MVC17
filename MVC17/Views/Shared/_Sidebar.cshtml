@@ -1,0 +1,71 @@
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+}
+
+<style>
+    /* Fixed Sidebar style */
+    #left-sidebar {
+        position: fixed;
+        top: 30%;
+        left: -80px; /* Hidden initially */
+        width: 60px;
+        background-color: #fff;
+        z-index: 1040;
+        transition: left 0.3s ease-in-out;
+        border-radius: 0 10px 10px 0;
+        box-shadow: 2px 2px 15px rgba(0,0,0,0.15);
+    }
+    
+        #left-sidebar.show {
+            left: 0;
+        }
+
+        #left-sidebar .sidebar-link {
+            display: block;
+            padding: 15px 0;
+            text-align: center;
+            color: #333;
+            transition: all 0.3s;
+        }
+
+            #left-sidebar .sidebar-link:hover {
+                background-color: var(--bs-primary);
+                color: #fff;
+            }
+    
+            #left-sidebar .sidebar-link:first-child {
+                border-top-right-radius: 10px;
+            }
+    
+            #left-sidebar .sidebar-link:last-child {
+                border-bottom-right-radius: 10px;
+            }
+</style>
+
+<div id="left-sidebar">
+    <a class="sidebar-link @(currentController == "Home" && currentAction == "Index" ? "active" : "")"
+           title="Trang chủ"
+           asp-controller="Home"
+           asp-action="Index">
+        <i class="fas fa-home fa-lg"></i>
+    </a>
+    <a class="sidebar-link @(currentController == "Product" && currentAction == "Index" ? "active" : "")"
+           title="Sản phẩm"
+           asp-controller="Product"
+           asp-action="Index">
+        <i class="fas fa-box fa-lg"></i>
+    </a>
+    <a class="sidebar-link @(currentController == "Cart" && currentAction == "Index" ? "active" : "")"
+           title="Giỏ hàng"
+           asp-controller="Cart"
+           asp-action="Index">
+        <i class="fas fa-shopping-cart fa-lg"></i>
+    </a>
+    <a class="sidebar-link @(currentController == "Account" && currentAction == "Profile" ? "active" : "")"
+           title="Tài khoản"
+           asp-controller="Account"
+           asp-action="Profile">
+        <i class="fas fa-user fa-lg"></i>
+    </a>
+</div>

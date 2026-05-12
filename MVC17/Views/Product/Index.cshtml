@@ -5,41 +5,42 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<form asp-action="Index" method="get" class="mb-3" id="filter-form">
-    <div class="input-group mb-2">
-        <select class="form-select"
-                name="categoryId"
-                asp-items="ViewBag.Categories">
-            <option value="0">-- Tất cả loại --</option>
-        </select>
+<div class="card shadow-sm mb-4 border-0 bg-light">
+    <div class="card-body p-3">
+        <form asp-action="Index" method="get" id="filter-form">
+            <div class="row g-2 align-items-center">
+                <div class="col-12 col-md-3">
+                    <input type="text"
+                           name="filterString"
+                           value="@ViewData["CurrentFilter"]"
+                           class="form-control"
+                           placeholder="Nhập tên sản phẩm..." />
+                </div>
+                <div class="col-12 col-md-3">
+                    <select class="form-select"
+                            name="categoryId"
+                            asp-items="ViewBag.Categories">
+                        <option value="0">-- Tất cả loại --</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-3">
+                    <select class="form-select"
+                            name="supplierId"
+                            asp-items="ViewBag.Suppliers">
+                        <option value="0">-- Tất cả NCC --</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-3">
+                    <select class="form-select"
+                            name="orderBy"
+                            asp-items="ViewBag.OrderTypes">
+                        <option value="">-- Sắp xếp --</option>
+                    </select>
+                </div>
+            </div>
+        </form>
     </div>
-
-    <div class="row mb-3">
-        <div class="col">
-            <input type="text"
-                   name="filterString"
-                   value="@ViewData["CurrentFilter"]"
-                   class="form-control"
-                   placeholder="Nhập tên sản phẩm..." />
-        </div>
-
-        <div class="col">
-            <select class="form-select"
-                    name="supplierId"
-                    asp-items="ViewBag.Suppliers">
-                <option value="0">-- Tất cả NCC --</option>
-            </select>
-        </div>
-
-        <div class="col">
-            <select class="form-select"
-                    name="orderBy"
-                    asp-items="ViewBag.OrderTypes">
-                <option value="">-- Sắp xếp --</option>
-            </select>
-        </div>
-    </div>
-</form>
+</div>
 
 <div id="product-list-container">
     <partial name="_ProductListPartial" model="Model" view-data="ViewData" />
