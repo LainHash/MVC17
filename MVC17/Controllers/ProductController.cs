@@ -1,5 +1,4 @@
 using AutoMapper;
-using MailKit.Search;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -105,8 +104,12 @@ namespace MVC17.Controllers
                 return View(dto);
             }
 
-            await _productService.CreateProductAsync(dto);
-            return RedirectToAction(nameof(Index));
+            var result = await _productService.CreateProductAsync(dto);
+            return Json(new
+            {
+                success = true,
+                message = result.Message
+            });
         }
 
         public async Task<IActionResult> Edit(int? id)
@@ -163,13 +166,17 @@ namespace MVC17.Controllers
                 return View(dto);
             }
 
-            var success = await _productService.UpdateProductAsync(id, dto);
-            if (!success)
+            var result = await _productService.UpdateProductAsync(id, dto);
+            if (!result.Success)
             {
                 return NotFound();
             }
 
-            return RedirectToAction("Details", new { id = id });
+            return Json(new
+            {
+                success = true,
+                message = result.Message
+            });
         }
 
         public async Task<IActionResult> Delete(int? id)
@@ -200,13 +207,17 @@ namespace MVC17.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var success = await _productService.DeleteProductAsync(id);
-            if (!success)
+            var result = await _productService.DeleteProductAsync(id);
+            if (!result.Success)
             {
                 return NotFound();
             }
 
-            return RedirectToAction(nameof(Index));
+            return Json(new
+            {
+                success = true,
+                message = result.Message
+            });
         }
 
 

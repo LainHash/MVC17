@@ -34,7 +34,7 @@ namespace MVC17.Services.Implementations
             return product;
         }
 
-        public async Task<bool> CreateProductAsync(CreateProductDTO dto)
+        public async Task<(bool Success, string Message)> CreateProductAsync(CreateProductDTO dto)
         {
             var product = new Product()
             {
@@ -78,10 +78,10 @@ namespace MVC17.Services.Implementations
 
             _context.Add(product);
             await _context.SaveChangesAsync();
-            return true;
+            return (true, "Thêm sản phẩm thành công.");
         }
 
-        public async Task<bool> UpdateProductAsync(int id, UpdateProductDTO dto)
+        public async Task<(bool Success, string Message)> UpdateProductAsync(int id, UpdateProductDTO dto)
         {
             var product = await _context.Products
                 .Include(p => p.Image)
@@ -97,17 +97,13 @@ namespace MVC17.Services.Implementations
 
             if (product == null)
             {
-                return false;
+                return (false, "Sản phẩm không tồn tại");
             }
 
             product.ProductName = dto.ProductName;
             product.Description = dto.Description;
             product.SupplierId = dto.SupplierId;
-            if (product.Image != null)
-            {
-                product.Image.ImageUrl = dto.ImageUrl ?? "~img/NotFoundImage.png";
-            }
-            else if (dto.ImageUrl != null)
+            if (dto.ImageUrl != null)
             {
                 product.Image = new Image { ImageUrl = dto.ImageUrl };
             }
@@ -125,7 +121,7 @@ namespace MVC17.Services.Implementations
 
                 if (dto.Laptop != null)
                 {
-                    if (sku.Laptop == null) 
+                    if (sku.Laptop == null)
                     {
                         sku.Laptop = new Laptop { LaptopComponent = new LaptopComponent() };
                     }
@@ -153,13 +149,13 @@ namespace MVC17.Services.Implementations
             try
             {
                 await _context.SaveChangesAsync();
-                return true;
+                return (true, "Sửa sản phẩm thành công.");
             }
             catch (DbUpdateConcurrencyException)
             {
                 if (!_context.Products.Any(e => e.ProductId == id))
                 {
-                    return false;
+                    return (false, "Sản phẩm không tồn tại.");
                 }
                 else
                 {
@@ -168,7 +164,7 @@ namespace MVC17.Services.Implementations
             }
         }
 
-        public async Task<bool> DeleteProductAsync(int id)
+        public async Task<(bool Success, string Message)> DeleteProductAsync(int id)
         {
             var product = await _context.Products.FindAsync(id);
             if (product != null)
@@ -176,9 +172,9 @@ namespace MVC17.Services.Implementations
                 product.IsDeleted = true;
                 _context.Products.Update(product);
                 await _context.SaveChangesAsync();
-                return true;
+                return (true, "Xóa sản phẩm thành công.");
             }
-            return false;
+            return (false, "Xóa sản phẩm thất bại.");
         }
     }
 }

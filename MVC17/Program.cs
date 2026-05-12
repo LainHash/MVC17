@@ -67,6 +67,7 @@ builder.Services.AddDbContext<Dbmvc05Context>(option => option.UseSqlServer(myCo
 //Service Scope
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ICartService, CartService>();
 
 var app = builder.Build();
 

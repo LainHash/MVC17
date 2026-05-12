@@ -8,8 +8,8 @@ namespace MVC17.Services.Interfaces
     {
         Task<IEnumerable<VwProduct>> GetAllAsync();
         Task<VwProduct?> GetByIdAsync(int id);
-        Task<bool> CreateProductAsync(CreateProductDTO dto);
-        Task<bool> UpdateProductAsync(int id, UpdateProductDTO dto);
-        Task<bool> DeleteProductAsync(int id);
+        Task<(bool Success, string Message)> CreateProductAsync(CreateProductDTO dto);
+        Task<(bool Success, string Message)> UpdateProductAsync(int id, UpdateProductDTO dto);
+        Task<(bool Success, string Message)> DeleteProductAsync(int id);
     }
 }
