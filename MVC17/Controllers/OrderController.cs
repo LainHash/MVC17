@@ -24,6 +24,7 @@ namespace MVC17.Controllers
         }
 
 
+        [Authorize(Policy = "Manager")]
         public async Task<IActionResult> Index()
         {
             var invoices = await _context.VwInvoices
@@ -32,6 +33,7 @@ namespace MVC17.Controllers
             return View(invoices);
         }
 
+        [Authorize(Policy = "Manager")]
         public async Task<IActionResult> Details(int id)
         {
             var invoice = await _context.VwInvoices
@@ -47,7 +49,7 @@ namespace MVC17.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Policy = "Customer")]
         public async Task<IActionResult> Checkout(int? productId, int quantity = 1, bool isBuyMany = false)
         {
             if (quantity <= 0)
@@ -104,7 +106,7 @@ namespace MVC17.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize]
+        [Authorize(Policy = "Customer")]
         public async Task<IActionResult> Checkout(CheckoutDTO model)
         {
             if (!TryGetCurrentUserId(out int userId))
@@ -145,6 +147,7 @@ namespace MVC17.Controllers
             
         }
 
+        [Authorize(Policy = "Customer")]
         public async Task<IActionResult> Success(int id)
         {
             var invoice = await _context.Invoices
@@ -153,9 +156,31 @@ namespace MVC17.Controllers
         }
 
         [HttpGet]
-        public IActionResult CheckoutResult()
+        [Authorize(Policy = "Customer")]
+        public async Task<IActionResult> CheckoutResult(int id)
         {
-            return View();
+            if (!TryGetCurrentUserId(out int userId))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var customer = await GetCustomerWithPiAsync(userId);
+            if (customer == null)
+            {
+                return NotFound("Không tìm thấy thông tin khách hàng.");
+            }
+
+            var invoice = await _context.VwInvoices
+                .FirstOrDefaultAsync(iv => iv.InvoiceId == id && iv.CustomerId == customer.CustomerId);
+
+            if (invoice == null)
+                return NotFound();
+
+            ViewBag.InvoiceDetails = await _context.VwInvoiceDetails
+                .Where(ivd => ivd.InvoiceId == id)
+                .ToListAsync();
+
+            return View(invoice);
         }
 
 

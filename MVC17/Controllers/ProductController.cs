@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -83,6 +84,7 @@ namespace MVC17.Controllers
             return View(vm);
         }
 
+        [Authorize(Policy = "Manager")]
         public IActionResult Create(int categoryId = 0)
         {
             LoadCreateViewBags(categoryId);
@@ -97,6 +99,7 @@ namespace MVC17.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "Manager")]
         public async Task<IActionResult> Create(CreateProductDTO dto)
         {
             if (!ModelState.IsValid)
@@ -112,6 +115,7 @@ namespace MVC17.Controllers
             });
         }
 
+        [Authorize(Policy = "Manager")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -158,6 +162,7 @@ namespace MVC17.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "Manager")]
         public async Task<IActionResult> Edit(int id, UpdateProductDTO dto)
         {
             if (!ModelState.IsValid)
@@ -179,6 +184,7 @@ namespace MVC17.Controllers
             });
         }
 
+        [Authorize(Policy = "Manager")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -205,6 +211,7 @@ namespace MVC17.Controllers
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "Manager")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var result = await _productService.DeleteProductAsync(id);

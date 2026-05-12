@@ -2,14 +2,14 @@
 @using MVC17.Helpers.Constants.Orders
 
 @{
-    ViewData["Title"] = "Order Details";
+    ViewData["Title"] = "Chi tiết đơn hàng";
 }
 
 <div class="container py-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Chi tiết đơn hàng #@Model.InvoiceUuid</h2>
-        <a asp-action="Index" asp-controller="Order" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left"></i> Quay lại danh sách
+        <a asp-action="OrderHistory" asp-controller="Account" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Quay lại lịch sử
         </a>
     </div>
 
@@ -86,7 +86,6 @@
                     <div class="d-flex justify-content-between mb-3 align-items-center">
                         <span class="text-muted">Trạng thái:</span>
                         <span class="badge @InvoiceStatuses.GetStatusStyle(Model.Status) px-3 py-2 rounded-pill">
-                            
                             @InvoiceStatuses.GetStatusVi(Model.Status)
                         </span>
                     </div>

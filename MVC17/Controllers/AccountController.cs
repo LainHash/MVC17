@@ -149,7 +149,7 @@ namespace MVC17.Controllers
             return RedirectToAction("Login");
         }
 
-        [Authorize]
+        [Authorize(Policy = "Customer")]
         public async Task<IActionResult> Profile()
         {
             if (!TryGetCurrentUserId(out int userId))
@@ -167,7 +167,7 @@ namespace MVC17.Controllers
             return View(customer);
         }
 
-        [Authorize]
+        [Authorize(Policy = "Customer")]
         public async Task<IActionResult> Edit()
         {
             if (!TryGetCurrentUserId(out int userId))
@@ -197,7 +197,7 @@ namespace MVC17.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize]
+        [Authorize(Policy = "Customer")]
         public async Task<IActionResult> Edit(UpdateAccountDTO dto)
         {
             if (!ModelState.IsValid)
@@ -229,7 +229,7 @@ namespace MVC17.Controllers
             return RedirectToAction("Profile");
         }
 
-        [Authorize]
+        [Authorize(Policy = "Customer")]
         public IActionResult ChangePassword()
         {
             if (!TryGetCurrentUserId(out int userId))
@@ -242,7 +242,7 @@ namespace MVC17.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize]
+        [Authorize(Policy = "Customer")]
         public async Task<IActionResult> ChangePassword(ChangePasswordDTO dto)
         {
             if (!ModelState.IsValid)
@@ -291,7 +291,7 @@ namespace MVC17.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Policy = "Customer")]
         public async Task<IActionResult> OrderHistory()
         {
             if (!TryGetCurrentUserId(out int userId))

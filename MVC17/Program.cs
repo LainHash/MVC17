@@ -58,7 +58,15 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("Customer", policy => policy.RequireClaim(System.Security.Claims.ClaimTypes.Role, "1"));
+    options.AddPolicy("Manager", policy => policy.RequireAssertion(context =>
+    {
+        var roleClaim = context.User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+        return roleClaim != null && roleClaim != "1";
+    }));
+});
 
 //Connection String
 var myConnectionString = builder.Configuration.GetConnectionString("MyConnectString");
