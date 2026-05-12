@@ -27,7 +27,7 @@ namespace MVC17.Controllers
         public async Task<IActionResult> Index()
         {
             var invoices = await _context.VwInvoices
-                .OrderByDescending(iv => iv.OrderDate)
+                .OrderByDescending(iv => iv.OrderedDate)
                 .ToListAsync();
             return View(invoices);
         }
@@ -121,7 +121,7 @@ namespace MVC17.Controllers
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                IActionResult? earlyReturn = model.IsBuyMany
+                var (earlyReturn, invoiceId) = model.IsBuyMany
                     ? await ProcessCartCheckoutAsync(customer, userId)
                     : await ProcessSingleProductCheckoutAsync(customer, model);
 
@@ -135,18 +135,20 @@ namespace MVC17.Controllers
                 await transaction.CommitAsync();
 
                 TempData["Success"] = "Thanh toán thành công!";
-                return View(model);
+                return RedirectToAction("Success", new { id = invoiceId });
             }
             catch
             {
                 await transaction.RollbackAsync();
                 throw;
             }
+            
         }
 
         public async Task<IActionResult> Success(int id)
         {
-            var invoice = await _context.Invoices.FirstOrDefaultAsync(iv => iv.InvoiceId == id);
+            var invoice = await _context.Invoices
+                .FirstOrDefaultAsync(iv => iv.InvoiceId == id);
             return View(invoice);
         }
 
@@ -258,7 +260,7 @@ namespace MVC17.Controllers
             };
         }
 
-        private async Task<IActionResult?> ProcessSingleProductCheckoutAsync(Customer customer, CheckoutDTO model)
+        private async Task<(IActionResult? ErrorResult, int? InvoiceId)> ProcessSingleProductCheckoutAsync(Customer customer, CheckoutDTO model)
         {
             var productId = model.ProductId ?? 0;
             var quantity = model.Quantity ?? 1;
@@ -269,7 +271,7 @@ namespace MVC17.Controllers
 
             if (product == null)
             {
-                return NotFound("Sản phẩm không tồn tại.");
+                return (NotFound("Sản phẩm không tồn tại."), null);
             }
 
             var unitPrice = product.ProductSku.UnitPrice;
@@ -286,7 +288,7 @@ namespace MVC17.Controllers
             if (customer.User.Balance < invoice.TotalAmount)
             {
                 TempData["Error"] = "Số dư không đủ để thanh toán.";
-                return View(model);
+                return (View(model), null);
             }
             customer.User.Balance -= invoice.TotalAmount;
 
@@ -298,17 +300,17 @@ namespace MVC17.Controllers
                 UnitPrice = unitPrice,
                 LineTotal = lineTotal
             });
-            return null;
+            return (null, invoice.InvoiceId);
         }
 
-        private async Task<IActionResult?> ProcessCartCheckoutAsync(Customer customer, int userId)
+        private async Task<(IActionResult? ErrorResult, int? InvoiceId)> ProcessCartCheckoutAsync(Customer customer, int userId)
         {
             var cart = await _context.ShoppingCarts
                 .Include(c => c.CartItems)
                 .FirstOrDefaultAsync(c => c.UserId == userId);
 
             if (cart == null || cart.CartItems == null || !cart.CartItems.Any())
-                return BadRequest("Giỏ hàng trống.");
+                return (BadRequest("Giỏ hàng trống."), null);
 
             var subtotal = cart.CartItems.Sum(x => x.LineTotal);
             var shippingFee = Distances.CalculateShippingFee(customer.Pi.City);
@@ -321,7 +323,7 @@ namespace MVC17.Controllers
             if (customer.User.Balance < subtotal)
             {
                 TempData["Error"] = "Số dư không đủ để thanh toán.";
-                return View();
+                return (View(), null);
             }
             customer.User.Balance -= invoice.TotalAmount;
 
@@ -337,7 +339,7 @@ namespace MVC17.Controllers
             _context.CartItems.RemoveRange(cart.CartItems);
             cart.Subtotal = 0;
             cart.UpdatedAt = DateTime.Now;
-            return null;
+            return (null, invoice.InvoiceId);
         }
 
 

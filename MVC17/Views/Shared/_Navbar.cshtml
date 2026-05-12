@@ -29,13 +29,27 @@
                 </div>
                 @if (username != null)
                 {
-                    <a class="nav-item nav-link" asp-area="" asp-controller="Account" asp-action="Profile">Xin chào, @username</a>
+                    <div class="dropdown">
+                        <a class="btn btn-primary rounded-pill py-2 px-4" asp-area="" asp-controller="Account" asp-action="Profile">Xin chào, @username</a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item d-flex justify-content-between align-items-center" asp-area="" asp-controller="Account" asp-action="OrderHistory">Lịch sử giao dịch</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item d-flex justify-content-between align-items-center"
+                                   asp-area=""
+                                   asp-controller="Account"
+                                   asp-action="Logout">@RouteDisplayName.LogoutPage</a>
+                            </li>
+                        </ul>
+                    </div>
+                    @* <a class="nav-item nav-link" asp-area="" asp-controller="Account" asp-action="Profile">Xin chào, @username</a>
                     <a class="nav-item nav-link" asp-area="" asp-controller="Account" asp-action="OrderHistory">Lịch sử giao dịch</a>
                         
                     <a class="btn btn-primary rounded-pill py-2 px-4"
                        asp-area=""
                        asp-controller="Account"
-                       asp-action="Logout">@RouteDisplayName.LogoutPage</a>
+                       asp-action="Logout">@RouteDisplayName.LogoutPage</a> *@
                 }
                 else
                 {

@@ -9,13 +9,13 @@ public partial class VwInvoice
 
     public string? CustomerCode { get; set; }
 
-    public int EmployeeId { get; set; }
+    public int? EmployeeId { get; set; }
 
-    public string EmployeeCode { get; set; } = null!;
+    public string? EmployeeCode { get; set; }
 
     public int InvoiceId { get; set; }
 
-    public DateOnly? OrderDate { get; set; }
+    public DateOnly? OrderedDate { get; set; }
 
     public DateOnly? RequiredDate { get; set; }
 
