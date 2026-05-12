@@ -1,23 +1,15 @@
-﻿@model List<MVC17.ViewModels.ProductVM>
+@model List<MVC17.ViewModels.ProductVM>
 
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    int totalPages = (int)(ViewData["TotalPages"] ?? 1);
-    int activePage = (int)(ViewData["ActivePage"] ?? 1);
-    int indexPage = 1;
-
-    int currentCategory = (int)(ViewData["CurrentCategory"] ?? 0);
-    int currentSupplier = (int)(ViewData["CurrentSupplier"] ?? 0);
-    int currentOrderBy = (int)(ViewData["CurrentOrderBy"] ?? 0);
 }
 
-<form asp-action="Index" method="get" class="mb-3">
+<form asp-action="Index" method="get" class="mb-3" id="filter-form">
     <div class="input-group mb-2">
         <select class="form-select"
                 name="categoryId"
-                asp-items="ViewBag.Categories"
-                onchange="this.form.submit()">
+                asp-items="ViewBag.Categories">
             <option value="0">-- Tất cả loại --</option>
         </select>
     </div>
@@ -25,18 +17,16 @@
     <div class="row mb-3">
         <div class="col">
             <input type="text"
-                   name="searchString"
+                   name="filterString"
                    value="@ViewData["CurrentFilter"]"
                    class="form-control"
-                   placeholder="Nhập tên sản phẩm..."
-                   onchange="this.form.submit()" />
+                   placeholder="Nhập tên sản phẩm..." />
         </div>
 
         <div class="col">
             <select class="form-select"
                     name="supplierId"
-                    asp-items="ViewBag.Suppliers"
-                    onchange="this.form.submit()">
+                    asp-items="ViewBag.Suppliers">
                 <option value="0">-- Tất cả NCC --</option>
             </select>
         </div>
@@ -44,22 +34,59 @@
         <div class="col">
             <select class="form-select"
                     name="orderBy"
-                    asp-items="ViewBag.OrderTypes"
-                    onchange="this.form.submit()">
+                    asp-items="ViewBag.OrderTypes">
                 <option value="">-- Sắp xếp --</option>
             </select>
         </div>
     </div>
 </form>
 
-@await Html.PartialAsync("_ProductGrid", Model)
+<div id="product-list-container">
+    <partial name="_ProductListPartial" model="Model" view-data="ViewData" />
+</div>
 
-@await Component.InvokeAsync("Pagination", new
-{
-    active = activePage,
-    index = indexPage,
-    total = totalPages,
-    categoryId = currentCategory,
-    supplierId = currentSupplier,
-    orderBy = currentOrderBy
-})
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            function loadProducts(url) {
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    success: function (result) {
+                        $('#product-list-container').html(result);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Lỗi khi tải sản phẩm: ", error);
+                    }
+                });
+            }
+
+            var debounceTimer;
+            $('#filter-form select, #filter-form input').on('change input', function () {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(function() {
+                    var form = $('#filter-form');
+                    var url = form.attr('action') + '?' + form.serialize();
+                    loadProducts(url);
+                }, 400); // 400ms delay cho AJAX
+            });
+
+            $(document).on('click', '#product-list-container .pagination a.page-link', function (e) {
+                e.preventDefault();
+                var url = $(this).attr('href');
+                
+                // Trích xuất filterString từ form và nối vào url phân trang 
+                // bởi vì Component Pagination có thể không chứa chuỗi tìm kiếm này
+                var filterString = $('input[name="filterString"]').val();
+                if (filterString) {
+                    url += (url.indexOf('?') > -1 ? '&' : '?') + 'filterString=' + encodeURIComponent(filterString);
+                }
+
+                loadProducts(url);
+            });
+        });
+    </script>
+}

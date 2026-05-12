@@ -1,0 +1,22 @@
+@model List<MVC17.ViewModels.ProductVM>
+
+@{
+    int totalPages = (int)(ViewData["TotalPages"] ?? 1);
+    int activePage = (int)(ViewData["ActivePage"] ?? 1);
+    int indexPage = 1;
+    int currentCategory = (int)(ViewData["CurrentCategory"] ?? 0);
+    int currentSupplier = (int)(ViewData["CurrentSupplier"] ?? 0);
+    int currentOrderBy = (int)(ViewData["CurrentOrderBy"] ?? 0);
+}
+
+@await Html.PartialAsync("_ProductGrid", Model)
+
+@await Component.InvokeAsync("Pagination", new
+{
+    active = activePage,
+    index = indexPage,
+    total = totalPages,
+    categoryId = currentCategory,
+    supplierId = currentSupplier,
+    orderBy = currentOrderBy
+})

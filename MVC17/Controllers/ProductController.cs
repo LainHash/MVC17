@@ -45,6 +45,11 @@ namespace MVC17.Controllers
             ViewData["CurrentSupplier"] = supplierId;
             ViewData["CurrentOrderBy"] = orderBy;
 
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_ProductListPartial", vm);
+            }
+
             return View(vm);
         }
 
