@@ -2,8 +2,9 @@ using MailKit.Net.Smtp;
 using MailKit.Security;
 using MimeKit;
 using Microsoft.Extensions.Configuration;
+using MVC17.Services.Interfaces;
 
-namespace MVC17.Services
+namespace MVC17.Services.Implementations
 {
     public class EmailService : IEmailService
     {

@@ -8,13 +8,13 @@ using MVC17.DTOs.Accounts.Update;
 using MVC17.Helpers.Constants.Auths.Accounts;
 using MVC17.Helpers.Constants.Sessions;
 using MVC17.Models;
-using MVC17.Services;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using MVC17.ViewModels;
+using MVC17.Services.Interfaces;
 
 namespace MVC17.Controllers
 {

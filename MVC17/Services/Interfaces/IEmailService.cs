@@ -1,4 +1,4 @@
-namespace MVC17.Services
+namespace MVC17.Services.Interfaces
 {
     public interface IEmailService
     {

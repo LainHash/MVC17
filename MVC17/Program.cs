@@ -3,19 +3,21 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using MVC17.Data;
 using System.Text;
-using MVC17.Services;
+using MVC17.Services.Implementations;
+using MVC17.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-builder.Services.AddScoped<IEmailService, EmailService>();
 
+//Auto Mapper
 builder.Services.AddAutoMapper(cfg =>
 {
     cfg.AddMaps(typeof(Program).Assembly);
 });
 
+//Session Section
 builder.Services.AddSession(options =>
 {
     options.Cookie.Name = ".NetCore.Session";
@@ -24,6 +26,7 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
+//Auth Section
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -57,8 +60,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
+//Connection String
 var myConnectionString = builder.Configuration.GetConnectionString("MyConnectString");
 builder.Services.AddDbContext<Dbmvc05Context>(option => option.UseSqlServer(myConnectionString));
+
+//Service Scope
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IProductService, ProductService>();
 
 var app = builder.Build();
 

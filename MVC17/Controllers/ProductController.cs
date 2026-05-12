@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using MailKit.Search;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -9,6 +9,7 @@ using MVC17.DTOs.Products.Update;
 using MVC17.Helpers.Constants.Products;
 using MVC17.Models;
 using MVC17.ViewModels;
+using MVC17.Services.Interfaces;
 
 namespace MVC17.Controllers
 {
@@ -16,11 +17,13 @@ namespace MVC17.Controllers
     {
         private readonly Dbmvc05Context _context;
         private readonly IMapper _mapper;
+        private readonly IProductService _productService;
 
-        public ProductController(Dbmvc05Context context, IMapper mapper)
+        public ProductController(Dbmvc05Context context, IMapper mapper, IProductService productService)
         {
             _context = context;
             _mapper = mapper;
+            _productService = productService;
         }
 
         public async Task<IActionResult> Index(string filterString = "", int categoryId = 0, int supplierId = 0, int orderBy = 0, int page = 1, int itemPerPage = 15)
@@ -35,7 +38,7 @@ namespace MVC17.Controllers
             vm = ProductFilterring(vm, filterString, categoryId, supplierId, orderBy);
             vm = ProductPaginating(vm, page, itemPerPage);
 
-            await LoadIndexViewBags(categoryId, supplierId, orderBy);
+            LoadIndexViewBags(categoryId, supplierId, orderBy);
 
 
             ViewData["CurrentCategory"] = categoryId;
@@ -96,10 +99,8 @@ namespace MVC17.Controllers
             {
                 return View(dto);
             }
-            var product = PostCreateProduct(dto);
 
-            _context.Add(product);
-            await _context.SaveChangesAsync();
+            await _productService.CreateProductAsync(dto);
             return RedirectToAction(nameof(Index));
         }
 
@@ -151,49 +152,19 @@ namespace MVC17.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, UpdateProductDTO dto)
         {
-            var product = await _context.Products
-                .Include(p => p.Image)
-                .FirstOrDefaultAsync(p => p.ProductId == id);
-            var sku = await _context.ProductSkus
-                .Include(ps => ps.Cpu)
-                .Include(ps => ps.Gpu)
-                .Include(ps => ps.Ram)
-                .Include(ps => ps.Storage)
-                .Include(ps => ps.Laptop)
-                    .ThenInclude(l => l.LaptopComponent)
-                .FirstOrDefaultAsync(ps => ps.ProductId == id);
-
-            if (product == null)
-            {
-                return NotFound();
-            }
-
             if (!ModelState.IsValid)
             {
                 LoadEditViewBags(dto);
                 return View(dto);
-
             }
 
-            try
+            var success = await _productService.UpdateProductAsync(id, dto);
+            if (!success)
             {
-                product = PostUpdateProduct(dto, product, sku);
-
-                await _context.SaveChangesAsync();
+                return NotFound();
             }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ProductExists(product.ProductId))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-            return RedirectToAction("Details", new { id = product.ProductId });
 
+            return RedirectToAction("Details", new { id = id });
         }
 
         public async Task<IActionResult> Delete(int? id)
@@ -224,21 +195,16 @@ namespace MVC17.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var product = await _context.Products.FindAsync(id);
-            if (product != null)
+            var success = await _productService.DeleteProductAsync(id);
+            if (!success)
             {
-                product.IsDeleted = true;
-                _context.Products.Update(product);
+                return NotFound();
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool ProductExists(int id)
-        {
-            return _context.Products.Any(e => e.ProductId == id);
-        }
+
 
         private void GetCategoryViewBags(int categoryId)
         {
@@ -302,7 +268,7 @@ namespace MVC17.Controllers
             return products;
         }
 
-        private async Task LoadIndexViewBags(int categoryId, int supplierId, int orderBy)
+        private void LoadIndexViewBags(int categoryId, int supplierId, int orderBy)
         {
             GetCategoryViewBags(categoryId);
             GetSupplierViewBags(categoryId, supplierId);
@@ -367,51 +333,6 @@ namespace MVC17.Controllers
             ViewBag.SelectedCategory = categoryId;
         }
 
-        private Product PostCreateProduct(CreateProductDTO dto)
-        {
-            var product = new Product()
-            {
-                ProductName = dto.ProductName,
-                CategoryId = dto.CategoryId,
-                SupplierId = dto.SupplierId,
-                Description = dto.Description,
-                Image = new Image()
-                {
-                    ImageUrl = dto.ImageUrl ?? null,
-                },
-                ProductSku = new ProductSku()
-                {
-                    UnitPrice = dto.UnitPrice,
-                    UnitsInStock = dto.UnitsInStock,
-                    Cpu = dto.Cpu != null ? _mapper.Map<Cpu>(dto.Cpu) : null,
-                    Gpu = dto.Gpu != null ? _mapper.Map<Gpu>(dto.Gpu) : null,
-                    Ram = dto.Ram != null ? _mapper.Map<Ram>(dto.Ram) : null,
-                    Storage = dto.Storage != null ? _mapper.Map<Storage>(dto.Storage) : null
-                }
-            };
-
-
-            if (dto.Laptop != null)
-            {
-                product.ProductSku.Laptop = new Laptop()
-                {
-                    LaptopType = dto.Laptop.LaptopType,
-                    Os = dto.Laptop.Os,
-                    ScreenResolution = dto.Laptop.ScreenResolution,
-                    Weight = dto.Laptop.Weight,
-                    Length = dto.Laptop.Length,
-                    LaptopComponent = new LaptopComponent()
-                    {
-                        CpuId = dto.Laptop.CpuId,
-                        GpuId = dto.Laptop.GpuId,
-                        RamId = dto.Laptop.RamId,
-                        StorageId = dto.Laptop.StorageId
-                    }
-                };
-            }
-            return product;
-        }
-
         private UpdateProductDTO GetUpdateProduct(Product product, ProductSku sku)
         {
             var dto = new UpdateProductDTO()
@@ -441,43 +362,6 @@ namespace MVC17.Controllers
                 } : null
             };
             return dto;
-        }
-
-        private Product PostUpdateProduct(UpdateProductDTO dto, Product product, ProductSku sku)
-        {
-            product.ProductName = dto.ProductName;
-            product.Description = dto.Description;
-            product.SupplierId = dto.SupplierId;
-            product.Image.ImageUrl = dto.ImageUrl ?? "~img/NotFoundImage.png";
-
-            sku.UnitPrice = dto.UnitPrice;
-            sku.UnitsInStock = dto.UnitsInStock;
-            sku.Discontinued = dto.Discontinued;
-
-            sku.Cpu = dto.Cpu != null ? _mapper.Map(dto.Cpu, sku.Cpu) : null;
-            sku.Gpu = dto.Gpu != null ? _mapper.Map(dto.Gpu, sku.Gpu) : null;
-            sku.Ram = dto.Ram != null ? _mapper.Map(dto.Ram, sku.Ram) : null;
-            sku.Storage = dto.Storage != null ? _mapper.Map(dto.Storage, sku.Storage) : null;
-
-            if (dto.Laptop != null)
-            {
-                sku.Laptop.LaptopType = dto.Laptop.LaptopType;
-                sku.Laptop.Os = dto.Laptop.Os;
-                sku.Laptop.ScreenResolution = dto.Laptop.ScreenResolution;
-                sku.Laptop.Weight = dto.Laptop.Weight;
-                sku.Laptop.Length = dto.Laptop.Length;
-                sku.Laptop.LaptopComponent.CpuId = dto.Laptop.CpuId;
-                sku.Laptop.LaptopComponent.GpuId = dto.Laptop.GpuId;
-                sku.Laptop.LaptopComponent.RamId = dto.Laptop.RamId;
-                sku.Laptop.LaptopComponent.StorageId = dto.Laptop.StorageId;
-            }
-            else
-            {
-                sku.Laptop = null;
-            }
-            product.ProductSku = sku;
-
-            return product;
         }
 
         private void LoadEditViewBags(UpdateProductDTO dto)
