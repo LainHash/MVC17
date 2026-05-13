@@ -3,40 +3,62 @@
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var catItems = ViewBag.CategoriesList as List<MVC17.ViewModels.DropdownItemVM> ?? new List<MVC17.ViewModels.DropdownItemVM>();
+    var supItems = ViewBag.SuppliersList as List<MVC17.ViewModels.DropdownItemVM> ?? new List<MVC17.ViewModels.DropdownItemVM>();
+
+    var orderTypes = ViewBag.OrderTypes as IEnumerable<SelectListItem>;
+    var orderItems = orderTypes?.Select(o => new MVC17.ViewModels.DropdownItemVM { Value = o.Value, Text = o.Text }).ToList() ?? new List<MVC17.ViewModels.DropdownItemVM>();
 }
 
-<div class="card shadow-sm mb-4 border-0 bg-light">
-    <div class="card-body p-3">
+<div class="card shadow-sm mb-4 border-0"
+     style="background: linear-gradient(to right, #f8f9fa, #ffffff);">
+    <div class="card-body p-4">
         <form asp-action="Index" method="get" id="filter-form">
-            <div class="row g-2 align-items-center">
+            <div class="row g-3 align-items-center">
                 <div class="col-12 col-md-3">
-                    <input type="text"
-                           name="filterString"
-                           value="@ViewData["CurrentFilter"]"
-                           class="form-control"
-                           placeholder="Nhập tên sản phẩm..." />
+                    <div class="input-group shadow-sm">
+                        <span class="input-group-text bg-white border-end-0 text-muted"
+                              style="border-top-left-radius: 50rem; border-bottom-left-radius: 50rem;">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text"
+                               name="filterString"
+                               value="@ViewData["CurrentFilter"]"
+                               class="form-control border-start-0 ps-0 shadow-none"
+                               style="border-top-right-radius: 50rem; border-bottom-right-radius: 50rem;"
+                               placeholder="Tìm kiếm sản phẩm..." />
+                    </div>
                 </div>
-                <div class="col-12 col-md-3">
-                    <select class="form-select"
-                            name="categoryId"
-                            asp-items="ViewBag.Categories">
-                        <option value="0">-- Tất cả loại --</option>
-                    </select>
-                </div>
-                <div class="col-12 col-md-3">
-                    <select class="form-select"
-                            name="supplierId"
-                            asp-items="ViewBag.Suppliers">
-                        <option value="0">-- Tất cả NCC --</option>
-                    </select>
-                </div>
-                <div class="col-12 col-md-3">
-                    <select class="form-select"
-                            name="orderBy"
-                            asp-items="ViewBag.OrderTypes">
-                        <option value="">-- Sắp xếp --</option>
-                    </select>
-                </div>
+
+                @await Component.InvokeAsync("FilterDropdown", new MVC17.ViewModels.FilterDropdownVM
+                {
+                    Name = "categoryId",
+                    IconClass = "fas fa-list-ul",
+                    DefaultText = "-- Tất cả danh mục --",
+                    CurrentValue = (ViewData["CurrentCategory"] ?? 0).ToString(),
+                    Items = catItems,
+                    ShowBadge = true
+                })
+
+                @await Component.InvokeAsync("FilterDropdown", new MVC17.ViewModels.FilterDropdownVM
+                {
+                    Name = "supplierId",
+                    IconClass = "fas fa-building",
+                    DefaultText = "-- Tất cả nhà cung cấp --",
+                    CurrentValue = (ViewData["CurrentSupplier"] ?? 0).ToString(),
+                    Items = supItems,
+                    ShowBadge = true
+                })
+
+                @await Component.InvokeAsync("FilterDropdown", new MVC17.ViewModels.FilterDropdownVM
+                {
+                    Name = "orderBy",
+                    IconClass = "fas fa-sort-amount-down",
+                    DefaultText = "-- Sắp xếp theo --",
+                    CurrentValue = (ViewData["CurrentOrder"] ?? "").ToString(),
+                    Items = orderItems,
+                    ShowBadge = false
+                })
             </div>
         </form>
     </div>
@@ -66,20 +88,68 @@
             }
 
             var debounceTimer;
-            $('#filter-form select, #filter-form input').on('change input', function () {
+            $('#filter-form select, #filter-form input').on('change input', function (e) {
+                var isCategoryChange = e.target.id === 'categoryId';
+                
                 clearTimeout(debounceTimer);
                 debounceTimer = setTimeout(function() {
                     var form = $('#filter-form');
-                    var url = form.attr('action') + '?' + form.serialize();
-                    loadProducts(url);
+                    
+                    if (isCategoryChange) {
+                        var catId = $('#categoryId').val();
+                        $.ajax({
+                            url: '/Product/GetSuppliersJson',
+                            type: 'GET',
+                            data: { categoryId: catId },
+                            success: function(data) {
+                                var dropdown = $('#btnSupplier').siblings('.dropdown-menu');
+                                dropdown.empty();
+                                
+                                var allHtml = '<li><a class="dropdown-item d-flex justify-content-between align-items-center custom-dropdown-item py-2" href="#" data-val="0" data-text="-- Tất cả nhà cung cấp --" data-target="supplierId" data-display="btnSupplier"><span class="fw-bold text-primary">-- Tất cả nhà cung cấp --</span></a></li>';
+                                dropdown.append(allHtml);
+
+                                data.forEach(function(sup) {
+                                    var itemHtml = '<li><a class="dropdown-item d-flex justify-content-between align-items-center custom-dropdown-item py-2" href="#" data-val="' + sup.supplierId + '" data-text="' + sup.companyName + '" data-target="supplierId" data-display="btnSupplier"><span class="">' + sup.companyName + '</span><span class="badge bg-light text-dark rounded-pill">' + sup.productCount + '</span></a></li>';
+                                    dropdown.append(itemHtml);
+                                });
+
+                                $('#supplierId').val(0);
+                                $('#btnSupplier').text('-- Tất cả nhà cung cấp --');
+                                
+                                var url = form.attr('action') + '?' + form.serialize();
+                                loadProducts(url);
+                            }
+                        });
+                    } else {
+                        var url = form.attr('action') + '?' + form.serialize();
+                        loadProducts(url);
+                    }
                 }, 400); // 400ms delay cho AJAX
+            });
+
+            $(document).on('click', '.custom-dropdown-item', function (e) {
+                e.preventDefault();
+                var val = $(this).data('val');
+                var text = $(this).data('text');
+                var targetId = $(this).data('target');
+                var displayId = $(this).data('display');
+                
+                $('#' + targetId).val(val).trigger('change');
+                $('#' + displayId).text(text);
+
+                // Update active state
+                $(this).closest('.dropdown-menu').find('.custom-dropdown-item span.fw-bold').removeClass('fw-bold text-primary');
+                $(this).closest('.dropdown-menu').find('.custom-dropdown-item span.badge.bg-primary').removeClass('bg-primary').addClass('bg-light text-dark');
+                
+                $(this).find('span').first().addClass('fw-bold text-primary');
+                $(this).find('span.badge').removeClass('bg-light text-dark').addClass('bg-primary');
             });
 
             $(document).on('click', '#product-list-container .pagination a.page-link', function (e) {
                 e.preventDefault();
                 var url = $(this).attr('href');
                 
-                // Trích xuất filterString từ form và nối vào url phân trang 
+                // Trích xuất filterString từ form và nối vào url phân trang
                 // bởi vì Component Pagination có thể không chứa chuỗi tìm kiếm này
                 var filterString = $('input[name="filterString"]').val();
                 if (filterString) {

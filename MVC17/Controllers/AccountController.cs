@@ -33,6 +33,16 @@ namespace MVC17.Controllers
             _emailService = emailService;
         }
 
+        [Authorize(Policy = "Manager")]
+        public async Task<IActionResult> Index()
+        {
+            var accounts = await _context.Users
+                .Include(u => u.Role)
+                .OrderByDescending(u => u.UserId)
+                .ToListAsync();
+            return View(accounts);
+        }
+
         public async Task<IActionResult> Login(string email, string password)
         {
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))

@@ -53,6 +53,29 @@ namespace MVC17.Controllers
             return View(vm);
         }
 
+        [Authorize(Policy = "Manager")]
+        public async Task<IActionResult> AdminIndex(string filterString = "", int categoryId = 0, int supplierId = 0, int orderBy = 0, int page = 1, int itemPerPage = 15)
+        {
+            var query = _context.VwProducts;
+            var products = await query.ToListAsync();
+            var vm = _mapper.Map<List<ProductVM>>(products);
+
+            vm = ProductFilterring(vm, filterString, categoryId, supplierId, orderBy);
+            vm = ProductPaginating(vm, page, itemPerPage);
+
+            LoadIndexViewBags(categoryId, supplierId, orderBy);
+            ViewData["CurrentCategory"] = categoryId;
+            ViewData["CurrentSupplier"] = supplierId;
+            ViewData["CurrentOrderBy"] = orderBy;
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_AdminProductListPartial", vm);
+            }
+
+            return View(vm);
+        }
+
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -195,14 +218,14 @@ namespace MVC17.Controllers
             var product = await _context.VwProducts
                 .FirstOrDefaultAsync(m => m.ProductId == id);
 
-            if (product.IsDeleted != null && product.IsDeleted == true)
-            {
-                return NotFound("Sản phẩm này đã bị xóa!");
-            }
-
             if (product == null)
             {
                 return NotFound();
+            }
+
+            if (product.IsDeleted)
+            {
+                return NotFound("Sản phẩm này đã bị xóa!");
             }
 
             var vm = _mapper.Map<ProductVM>(product);
@@ -231,24 +254,57 @@ namespace MVC17.Controllers
 
         private void GetCategoryViewBags(int categoryId)
         {
-            var categories = _context.Categories.ToList();
-            ViewBag.Categories = new SelectList(categories.Select(c => new
-            {
-                c.CategoryId,
-                CategoryNameVi = CategoryConstants.CategoryTranslations.ContainsKey(c.CategoryName)
-                                        ? CategoryConstants.CategoryTranslations[c.CategoryName]
-                                        : c.CategoryName
-            }),
-                "CategoryId",
-                "CategoryNameVi",
-                categoryId);
+            var categories = _context.Categories
+                .Select(c => new {
+                    c.CategoryId,
+                    c.CategoryName,
+                    ProductCount = c.Products.Count(p => p.IsDeleted != true)
+                })
+                .ToList();
 
+            ViewBag.CategoriesList = categories.Select(c => new DropdownItemVM
+            {
+                Value = c.CategoryId.ToString(),
+                Text = CategoryConstants.CategoryTranslations.ContainsKey(c.CategoryName)
+                    ? CategoryConstants.CategoryTranslations[c.CategoryName]
+                    : c.CategoryName,
+                Count = c.ProductCount
+            }).ToList();
         }
         private void GetSupplierViewBags(int categoryId, int supplierId)
         {
-            var supplierByCategory = _context.Suppliers.Where(s => categoryId == 0 || s.Products.Any(p => p.CategoryId == categoryId))
+            var supplierByCategory = _context.Suppliers
+                .Select(s => new {
+                    s.SupplierId,
+                    s.CompanyName,
+                    ProductCount = s.Products.Count(p => (categoryId == 0 || p.CategoryId == categoryId) && p.IsDeleted != true)
+                })
+                .Where(s => categoryId == 0 || s.ProductCount > 0)
+                .OrderByDescending(s => s.ProductCount)
                 .ToList();
-            ViewBag.Suppliers = new SelectList(supplierByCategory, "SupplierId", "CompanyName", supplierId);
+
+            ViewBag.SuppliersList = supplierByCategory.Select(s => new DropdownItemVM
+            {
+                Value = s.SupplierId.ToString(),
+                Text = s.CompanyName,
+                Count = s.ProductCount
+            }).ToList();
+        }
+
+        [HttpGet]
+        public IActionResult GetSuppliersJson(int categoryId = 0)
+        {
+            var supplierByCategory = _context.Suppliers
+                .Select(s => new {
+                    s.SupplierId,
+                    s.CompanyName,
+                    ProductCount = s.Products.Count(p => (categoryId == 0 || p.CategoryId == categoryId) && p.IsDeleted != true)
+                })
+                .Where(s => categoryId == 0 || s.ProductCount > 0)
+                .OrderByDescending(s => s.ProductCount)
+                .ToList();
+
+            return Json(supplierByCategory);
         }
 
         private List<ProductVM> ProductFilterring(List<ProductVM> products, string filterString = "", int categoryId = 0, int supplierId = 0, int orderBy = 0)
@@ -281,9 +337,9 @@ namespace MVC17.Controllers
 
             products = products
                 .Where(
-                    p => p.ProductName.Contains(filterString) ||
-                    p.CategoryName.Contains(filterString) ||
-                    p.CompanyName.Contains(filterString)
+                    p => p.ProductName.ToLower().Contains(filterString.ToLower()) ||
+                    p.CategoryName.ToLower().Contains(filterString.ToLower()) ||
+                    p.CompanyName.ToLower().Contains(filterString.ToLower())
                 ).ToList();
 
             ViewData["CurrentFilter"] = filterString;

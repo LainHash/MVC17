@@ -1,4 +1,4 @@
-﻿@using MVC17.Helpers.Constants.Globals
+@using MVC17.Helpers.Constants.Globals
 @{
     var jwt = Context.Request.Cookies["jwt"];
 
@@ -24,20 +24,54 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarCollapse">
                 <div class="navbar-nav mx-auto py-0">
-                    <a class="nav-item nav-link @(currentController == "Home" && currentAction == "Index" ? "active" : "")"
-                           asp-controller="Home"
+@using System.Security.Claims
+                    @{
+                        var roleClaim = User.FindFirstValue(ClaimTypes.Role);
+                        bool isManager = User.Identity?.IsAuthenticated == true && roleClaim != "1";
+                    }
+
+                    @if (isManager)
+                    {
+                        <a class="nav-item nav-link @(currentController == "Product" && currentAction == "AdminIndex" ? "active" : "")"
+                           asp-controller="Product"
+                           asp-action="AdminIndex">
+                            <i class="fas fa-boxes fa-lg"></i>
+                            Quản lý sản phẩm
+                        </a>
+                        <a class="nav-item nav-link @(currentController == "Order" && currentAction == "Index" ? "active" : "")"
+                           asp-controller="Order"
                            asp-action="Index">
-                        <i class="fas fa-home fa-lg"></i>
-                        @RouteDisplayName.HomePage
-                    </a>
-                    @await Component.InvokeAsync("CategoryMenu")
-                    <a class="nav-item nav-link @(currentController == "Cart" && currentAction == "Index" ? "active" : "")"
-                           asp-controller="Cart"
+                            <i class="fas fa-file-invoice-dollar fa-lg"></i>
+                            Quản lý hóa đơn
+                        </a>
+                        <a class="nav-item nav-link @(currentController == "Account" && currentAction == "Index" ? "active" : "")"
+                           asp-controller="Account"
                            asp-action="Index">
-                        <i class="fas fa-shopping-cart fa-lg"></i>
-                        @RouteDisplayName.ShoppingCartPage
-                    </a>
-                    
+                            <i class="fas fa-users-cog fa-lg"></i>
+                            Quản lý tài khoản
+                        </a>
+                        <a class="nav-item nav-link @(currentAction == "Statistics" ? "active" : "")"
+                           href="#">
+                            <i class="fas fa-chart-line fa-lg"></i>
+                            Thống kê doanh thu
+                        </a>
+                    }
+                    else
+                    {
+                        <a class="nav-item nav-link @(currentController == "Home" && currentAction == "Index" ? "active" : "")"
+                               asp-controller="Home"
+                               asp-action="Index">
+                            <i class="fas fa-home fa-lg"></i>
+                            @RouteDisplayName.HomePage
+                        </a>
+                        @await Component.InvokeAsync("CategoryMenu")
+                        <a class="nav-item nav-link @(currentController == "Cart" && currentAction == "Index" ? "active" : "")"
+                               asp-controller="Cart"
+                               asp-action="Index">
+                            <i class="fas fa-shopping-cart fa-lg"></i>
+                            @RouteDisplayName.ShoppingCartPage
+                        </a>
+                    }
                 </div>
                 @if (username != null)
                 {
