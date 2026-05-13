@@ -18,4 +18,6 @@ public partial class VwsRevenueByCategory
     public int? CompletedOrders { get; set; }
 
     public int? TotalQuantity { get; set; }
+
+    public string CategoryName { get; set; } = null!;
 }

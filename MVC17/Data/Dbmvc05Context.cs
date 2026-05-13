@@ -938,6 +938,9 @@ public partial class Dbmvc05Context : DbContext
                 .HasNoKey()
                 .ToView("vws_RevenueByCategories");
 
+            entity.Property(e => e.CategoryName)
+                .HasMaxLength(255)
+                .IsUnicode(false);
             entity.Property(e => e.TotalRevenue).HasColumnType("decimal(38, 2)");
         });
 
@@ -989,6 +992,9 @@ public partial class Dbmvc05Context : DbContext
                 .HasNoKey()
                 .ToView("vws_RevenueBySuppliers");
 
+            entity.Property(e => e.CompanyName)
+                .HasMaxLength(255)
+                .IsUnicode(false);
             entity.Property(e => e.TotalRevenue).HasColumnType("decimal(38, 2)");
         });
 
