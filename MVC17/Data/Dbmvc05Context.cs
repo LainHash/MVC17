@@ -92,6 +92,32 @@ public partial class Dbmvc05Context : DbContext
 
     public virtual DbSet<VwTrendingProduct> VwTrendingProducts { get; set; }
 
+    public virtual DbSet<VwsCancelledOrder> VwsCancelledOrders { get; set; }
+
+    public virtual DbSet<VwsCompletedOrder> VwsCompletedOrders { get; set; }
+
+    public virtual DbSet<VwsLowStockProduct> VwsLowStockProducts { get; set; }
+
+    public virtual DbSet<VwsPendingOrder> VwsPendingOrders { get; set; }
+
+    public virtual DbSet<VwsRefundedOrder> VwsRefundedOrders { get; set; }
+
+    public virtual DbSet<VwsRevenueByCategory> VwsRevenueByCategories { get; set; }
+
+    public virtual DbSet<VwsRevenueByCustomer> VwsRevenueByCustomers { get; set; }
+
+    public virtual DbSet<VwsRevenueByEmployee> VwsRevenueByEmployees { get; set; }
+
+    public virtual DbSet<VwsRevenueByProduct> VwsRevenueByProducts { get; set; }
+
+    public virtual DbSet<VwsRevenueBySupplier> VwsRevenueBySuppliers { get; set; }
+
+    public virtual DbSet<VwsShippingOrder> VwsShippingOrders { get; set; }
+
+    public virtual DbSet<VwsTotalCustomer> VwsTotalCustomers { get; set; }
+
+    public virtual DbSet<VwsTotalProduct> VwsTotalProducts { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
         => optionsBuilder.UseSqlServer("Data Source=localhost; Initial Catalog=DBMVC05; Persist Security Info=True; User ID=sa; Password=123456; Trust Server Certificate=True;");
@@ -857,6 +883,136 @@ public partial class Dbmvc05Context : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false);
             entity.Property(e => e.UnitPrice).HasColumnType("decimal(15, 2)");
+        });
+
+        modelBuilder.Entity<VwsCancelledOrder>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("vws_CancelledOrders");
+
+            entity.Property(e => e.TotalRevenue).HasColumnType("decimal(38, 2)");
+        });
+
+        modelBuilder.Entity<VwsCompletedOrder>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("vws_CompletedOrders");
+
+            entity.Property(e => e.TotalRevenue).HasColumnType("decimal(38, 2)");
+        });
+
+        modelBuilder.Entity<VwsLowStockProduct>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("vws_LowStockProducts");
+
+            entity.Property(e => e.ProductName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<VwsPendingOrder>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("vws_PendingOrders");
+
+            entity.Property(e => e.TotalRevenue).HasColumnType("decimal(38, 2)");
+        });
+
+        modelBuilder.Entity<VwsRefundedOrder>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("vws_RefundedOrders");
+
+            entity.Property(e => e.TotalRevenue).HasColumnType("decimal(38, 2)");
+        });
+
+        modelBuilder.Entity<VwsRevenueByCategory>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("vws_RevenueByCategories");
+
+            entity.Property(e => e.TotalRevenue).HasColumnType("decimal(38, 2)");
+        });
+
+        modelBuilder.Entity<VwsRevenueByCustomer>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("vws_RevenueByCustomers");
+
+            entity.Property(e => e.CustomerCode)
+                .HasMaxLength(20)
+                .IsFixedLength();
+            entity.Property(e => e.TotalRevenue).HasColumnType("decimal(38, 2)");
+            entity.Property(e => e.Username)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<VwsRevenueByEmployee>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("vws_RevenueByEmployees");
+
+            entity.Property(e => e.EmployeeCode)
+                .HasMaxLength(20)
+                .IsFixedLength();
+            entity.Property(e => e.TotalRevenue).HasColumnType("decimal(38, 2)");
+            entity.Property(e => e.Username)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<VwsRevenueByProduct>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("vws_RevenueByProducts");
+
+            entity.Property(e => e.ProductName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.TotalRevenue).HasColumnType("decimal(38, 2)");
+        });
+
+        modelBuilder.Entity<VwsRevenueBySupplier>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("vws_RevenueBySuppliers");
+
+            entity.Property(e => e.TotalRevenue).HasColumnType("decimal(38, 2)");
+        });
+
+        modelBuilder.Entity<VwsShippingOrder>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("vws_ShippingOrders");
+
+            entity.Property(e => e.TotalRevenue).HasColumnType("decimal(38, 2)");
+        });
+
+        modelBuilder.Entity<VwsTotalCustomer>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("vws_TotalCustomers");
+        });
+
+        modelBuilder.Entity<VwsTotalProduct>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("vws_TotalProducts");
         });
 
         OnModelCreatingPartial(modelBuilder);

@@ -18,6 +18,9 @@
                         <th class="ps-4 fw-semibold border-bottom-0">Hình ảnh</th>
                         <th class="fw-semibold border-bottom-0">Tên sản phẩm</th>
                         <th class="fw-semibold border-bottom-0">Danh mục</th>
+                        <th class="fw-semibold border-bottom-0">Nhà cung cấp</th>
+                        <th class="fw-semibold border-bottom-0">Đã bị xóa</th>
+                        <th class="fw-semibold border-bottom-0">Ngưng phân phối</th>
                         <th class="fw-semibold border-bottom-0">Giá bán</th>
                         <th class="fw-semibold border-bottom-0 text-center">Tồn kho</th>
                         <th class="pe-4 fw-semibold border-bottom-0 text-center">Thao tác</th>
@@ -41,6 +44,15 @@
                             </td>
                             <td>
                                 <span class="badge bg-secondary">@item.CategoryName</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary">@item.CompanyName</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary">@item.IsDeleted</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary">@item.Discontinued</span>
                             </td>
                             <td>
                                 <span class="fw-bold text-danger">@item.UnitPrice.ToString("N0") đ</span>

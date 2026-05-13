@@ -88,7 +88,7 @@ $(document).ready(function () {
         var title = $(this).data('title');
         
         $('#productModalLabel').text(title);
-        $('#productModalContent').html('<div class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+        $('#productModalContent').html('<div class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Đang tải...</span></div></div>');
         
         var modalEl = document.getElementById('productModal');
         var myModal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
