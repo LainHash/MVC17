@@ -1,63 +1,103 @@
-﻿@model MVC17.DTOs.Products.Update.UpdateProductDTO
+@model MVC17.DTOs.Products.Update.UpdateProductDTO
 
 @{
-    ViewData["Title"] = "Edit";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    bool isAjax = Context.Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+    ViewData["Title"] = "Chỉnh sửa Sản phẩm";
+    Layout = isAjax ? null : "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Chính sửa</h1>
+@if (!isAjax)
+{
+    @Html.Raw("<div class=\"container-fluid py-4\">")
+    <h2 class="mb-4 fw-bold text-dark"><i class="fas fa-edit me-2 text-warning"></i>Chỉnh sửa Sản phẩm</h2>
+    @Html.Raw("<div class=\"card shadow-sm border-0 rounded-3 mb-4\">")
+    @Html.Raw("<div class=\"card-body p-4\">")
+}
 
-<h4>Sản phẩm</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input asp-for="CategoryId" hidden/>
+<div class="product-form-container">
+    <form asp-action="Edit" method="post" id="productEditForm">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3"></div>
+        <input asp-for="CategoryId" hidden />
+        
+        <div class="row g-3">
+            <div class="col-md-12">
+                <div class="form-floating mb-2">
+                    <input asp-for="ProductName" class="form-control" placeholder="Tên sản phẩm" />
+                    <label asp-for="ProductName">Tên sản phẩm</label>
+                    <span asp-validation-for="ProductName" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-floating mb-2">
+                    <select asp-for="SupplierId" class="form-select" asp-items="ViewBag.Suppliers">
+                        <option value="">-- Chọn Nhà cung cấp --</option>
+                    </select>
+                    <label asp-for="SupplierId">Nhà cung cấp</label>
+                    <span asp-validation-for="SupplierId" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-floating mb-2">
+                    <input asp-for="ImageUrl" class="form-control" placeholder="URL Hình ảnh" />
+                    <label asp-for="ImageUrl">URL Hình ảnh</label>
+                    <span asp-validation-for="ImageUrl" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-floating mb-2">
+                    <input asp-for="UnitPrice" class="form-control" placeholder="Giá bán" type="number" />
+                    <label asp-for="UnitPrice">Giá bán (VNĐ)</label>
+                    <span asp-validation-for="UnitPrice" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-floating mb-2">
+                    <input asp-for="UnitsInStock" class="form-control" placeholder="Số lượng tồn" type="number" />
+                    <label asp-for="UnitsInStock">Số lượng tồn</label>
+                    <span asp-validation-for="UnitsInStock" class="text-danger small"></span>
+                </div>
+            </div>
             
-            <div class="form-group">
-                <label asp-for="ProductName" class="control-label"></label>
-                <input asp-for="ProductName" class="form-control" />
-                <span asp-validation-for="ProductName" class="text-danger"></span>
+            <div class="col-md-12">
+                <div class="form-floating mb-2">
+                    <textarea asp-for="Description" class="form-control" placeholder="Mô tả sản phẩm" style="height: 100px"></textarea>
+                    <label asp-for="Description">Mô tả sản phẩm</label>
+                    <span asp-validation-for="Description" class="text-danger small"></span>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+
+        <div class="mt-4 pt-3 border-top">
+            <h5 class="fw-bold text-dark mb-3"><i class="fas fa-cogs me-2 text-secondary"></i>Thông số kỹ thuật</h5>
+            <div class="bg-light p-3 rounded-3 border">
+                @await Component.InvokeAsync("UpdateProductSpec", new { dto = Model, categoryId = Model.CategoryId })
             </div>
-            <div class="form-group">
-                <label asp-for="SupplierId" class="control-label"></label>
-                <select asp-for="SupplierId" class="form-control" asp-items="ViewBag.Suppliers"></select>
-                <span asp-validation-for="SupplierId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ImageUrl" class="control-label"></label>
-                <input asp-for="ImageUrl" class="form-control" />
-                <span asp-validation-for="ImageUrl" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UnitPrice" class="control-label"></label>
-                <input asp-for="UnitPrice" class="form-control" />
-                <span asp-validation-for="UnitPrice" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UnitsInStock" class="control-label"></label>
-                <input asp-for="UnitsInStock" class="form-control" />
-                <span asp-validation-for="UnitsInStock" class="text-danger"></span>
-            </div>
-            <br />
-            <h4>Product Specifications</h4>
-            @await Component.InvokeAsync("UpdateProductSpec", new {dto = Model, categoryId = Model.CategoryId})
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
+        </div>
+
+        <div class="d-flex justify-content-end mt-4 pt-3 border-top gap-2">
+            @if (isAjax)
+            {
+                <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Đóng</button>
+            }
+            else
+            {
+                <a asp-action="Index" class="btn btn-light border">Quay lại</a>
+            }
+            <button type="submit" class="btn btn-warning px-4 text-dark fw-bold">
+                <i class="fas fa-save me-1"></i> Lưu thay đổi
+            </button>
+        </div>
+    </form>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+@if (!isAjax)
+{
+    @Html.Raw("</div></div></div>")
+}
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

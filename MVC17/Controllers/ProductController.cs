@@ -117,6 +117,10 @@ namespace MVC17.Controllers
                 CategoryId = categoryId
             };
 
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView(dto);
+            }
             return View(dto);
         }
 
@@ -127,6 +131,11 @@ namespace MVC17.Controllers
         {
             if (!ModelState.IsValid)
             {
+                LoadCreateViewBags(dto.CategoryId);
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    return PartialView(dto);
+                }
                 return View(dto);
             }
 
@@ -179,6 +188,10 @@ namespace MVC17.Controllers
 
             LoadEditViewBags(dto);
 
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView(dto);
+            }
 
             return View(dto);
         }
@@ -191,6 +204,10 @@ namespace MVC17.Controllers
             if (!ModelState.IsValid)
             {
                 LoadEditViewBags(dto);
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    return PartialView(dto);
+                }
                 return View(dto);
             }
 
@@ -229,6 +246,10 @@ namespace MVC17.Controllers
             }
 
             var vm = _mapper.Map<ProductVM>(product);
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView(vm);
+            }
             return View(vm);
         }
 
@@ -270,6 +291,7 @@ namespace MVC17.Controllers
                     : c.CategoryName,
                 Count = c.ProductCount
             }).ToList();
+            ViewBag.Categories = new SelectList(_context.Categories, "CategoryId", "CategoryName", categoryId);
         }
         private void GetSupplierViewBags(int categoryId, int supplierId)
         {
