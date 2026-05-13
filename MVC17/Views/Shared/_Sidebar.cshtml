@@ -68,4 +68,10 @@
            asp-action="Profile">
         <i class="fas fa-user fa-lg"></i>
     </a>
+    <a class="sidebar-link @(currentController == "Statistic" ? "active" : "")"
+           title="Thống kê"
+           asp-controller="Statistic"
+           asp-action="Index">
+        <i class="fas fa-chart-line fa-lg"></i>
+    </a>
 </div>

@@ -24,8 +24,8 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarCollapse">
                 <div class="navbar-nav mx-auto py-0">
-@using System.Security.Claims
-                    @{
+                    @using System.Security.Claims
+                @{
                         var roleClaim = User.FindFirstValue(ClaimTypes.Role);
                         bool isManager = User.Identity?.IsAuthenticated == true && roleClaim != "1";
                     }
@@ -51,7 +51,8 @@
                             Quản lý tài khoản
                         </a>
                         <a class="nav-item nav-link @(currentAction == "Statistics" ? "active" : "")"
-                           href="#">
+                           asp-controller="Statistic"
+                           asp-action="Index">
                             <i class="fas fa-chart-line fa-lg"></i>
                             Thống kê doanh thu
                         </a>
@@ -59,15 +60,15 @@
                     else
                     {
                         <a class="nav-item nav-link @(currentController == "Home" && currentAction == "Index" ? "active" : "")"
-                               asp-controller="Home"
-                               asp-action="Index">
+                           asp-controller="Home"
+                           asp-action="Index">
                             <i class="fas fa-home fa-lg"></i>
                             @RouteDisplayName.HomePage
                         </a>
                         @await Component.InvokeAsync("CategoryMenu")
                         <a class="nav-item nav-link @(currentController == "Cart" && currentAction == "Index" ? "active" : "")"
-                               asp-controller="Cart"
-                               asp-action="Index">
+                           asp-controller="Cart"
+                           asp-action="Index">
                             <i class="fas fa-shopping-cart fa-lg"></i>
                             @RouteDisplayName.ShoppingCartPage
                         </a>
@@ -77,26 +78,26 @@
                 {
                     <div class="dropdown">
                         <a class="btn btn-primary rounded-pill py-2 px-4"
-                               asp-area=""
-                               asp-controller="Account"
-                               asp-action="Profile">
+                           asp-area=""
+                           asp-controller="Account"
+                           asp-action="Profile">
                             Xin chào, @username
                             <i class="fas fa-user fa-lg"></i>
                         </a>
                         <ul class="dropdown-menu">
                             <li>
                                 <a class="dropdown-item d-flex justify-content-between align-items-center"
-                                       asp-area=""
-                                       asp-controller="Account"
-                                       asp-action="OrderHistory">
+                                   asp-area=""
+                                   asp-controller="Account"
+                                   asp-action="OrderHistory">
                                     @RouteDisplayName.OrderHistory
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item d-flex justify-content-between align-items-center"
-                                       asp-area=""
-                                       asp-controller="Account"
-                                       asp-action="Logout">
+                                   asp-area=""
+                                   asp-controller="Account"
+                                   asp-action="Logout">
                                     @RouteDisplayName.LogoutPage
                                 </a>
                             </li>
@@ -106,9 +107,9 @@
                 else
                 {
                     <a class="btn btn-primary rounded-pill py-2 px-4"
-                           asp-area=""
-                           asp-controller="Account"
-                           asp-action="Login">
+                       asp-area=""
+                       asp-controller="Account"
+                       asp-action="Login">
                         @RouteDisplayName.LoginPage
                     </a>
                 }

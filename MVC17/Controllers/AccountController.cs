@@ -152,7 +152,6 @@ namespace MVC17.Controllers
             }
 
             user.IsActive = true;
-            user.UserUuid = null;
             await _context.SaveChangesAsync();
 
             TempData["Success"] = "Xác nhận email thành công. Bạn có thể đăng nhập.";
