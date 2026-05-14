@@ -1,0 +1,99 @@
+@{
+    ViewData["Title"] = "Thống kê đơn hàng";
+}
+
+<link rel="stylesheet" href="~/css/statistic.css" />
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-12 text-center text-lg-start">
+            <h2 class="page-title">Thống Kê Đơn Hàng</h2>
+            <div class="nav-links mt-2">
+                <a href="/Statistic/Index" class="nav-link">Doanh Thu</a>
+                <a href="/Statistic/Orders" class="nav-link active">Đơn Hàng</a>
+                <a href="/Statistic/Products" class="nav-link">Sản Phẩm</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Orders Section -->
+    <div class="section-card">
+        <h3 class="section-title">Tổng Quan Đơn Hàng</h3>
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="stat-box">
+                    <div class="stat-label">Từ Trước Tới Nay</div>
+                    <div class="stat-value" id="totalOrdersAllTime">0</div>
+                    <div class="stat-sub" id="totalQtyAllTime">0 sản phẩm</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-box">
+                    <div class="stat-label">Đơn Hàng Theo Năm</div>
+                    <select id="yearSelect1" class="form-control mb-3"></select>
+                    <div class="stat-value" id="totalOrdersYear">0</div>
+                    <div class="stat-sub" id="totalQtyYear">0 sản phẩm</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-box">
+                    <div class="stat-label">Đơn Hàng Theo Tháng</div>
+                    <div class="select-group">
+                        <select id="yearSelect2" class="form-control"></select>
+                        <select id="monthSelect" class="form-control"></select>
+                    </div>
+                    <div class="stat-value" id="totalOrdersMonth">0</div>
+                    <div class="stat-sub" id="totalQtyMonth">0 sản phẩm</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-box">
+                    <div class="stat-label">Đơn Hàng Hôm Nay</div>
+                    <div class="stat-value" id="totalOrdersToday">0</div>
+                    <div class="stat-sub" id="totalQtyToday">0 sản phẩm</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Status Section -->
+    <div class="section-card">
+        <h3 class="section-title">Phân Loại Trạng Thái</h3>
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="stat-box status-cancelled">
+                    <div class="stat-label">Đơn Hàng Bị Hủy</div>
+                    <div class="stat-value" id="cancelledOrders">0</div>
+                    <div class="stat-sub" id="cancelledQty">0 sản phẩm</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-box status-completed">
+                    <div class="stat-label">Đơn Hàng Thành Công</div>
+                    <div class="stat-value" id="completedOrders">0</div>
+                    <div class="stat-sub" id="completedQty">0 sản phẩm</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-box status-refunded">
+                    <div class="stat-label">Đơn Hàng Hoàn Trả</div>
+                    <div class="stat-value" id="refundedOrders">0</div>
+                    <div class="stat-sub" id="refundedQty">0 sản phẩm</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-box status-info">
+                    <div class="stat-label">Tổng Doanh Thu Ước Tính</div>
+                    <div class="stat-value" id="totalRevenuOrders">0 ₫</div>
+                    <div class="stat-sub">Dựa trên đơn thành công</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="~/js/statistic-orders.js"></script>
+}
+
