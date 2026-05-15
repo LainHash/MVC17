@@ -16,7 +16,6 @@ public class StatisticController : Controller
         _logger = logger;
     }
 
-    #region Views
 
     public IActionResult Index()
     {
@@ -31,13 +30,6 @@ public class StatisticController : Controller
         return View();
     }
 
-    #endregion
-
-    #region Revenue Statistics
-
-    /// <summary>
-    /// Tổng doanh thu từ trước tới nay
-    /// </summary>
     [HttpGet]
     public async Task<IActionResult> GetTotalRevenueAllTime()
     {
@@ -67,9 +59,6 @@ public class StatisticController : Controller
         }
     }
 
-    /// <summary>
-    /// Doanh thu theo năm
-    /// </summary>
     [HttpGet]
     public async Task<IActionResult> GetRevenueByYear(int year)
     {
@@ -96,9 +85,6 @@ public class StatisticController : Controller
         }
     }
 
-    /// <summary>
-    /// Doanh thu theo tháng
-    /// </summary>
     [HttpGet]
     public async Task<IActionResult> GetRevenueByMonth(int year, int month)
     {
@@ -125,9 +111,6 @@ public class StatisticController : Controller
         }
     }
 
-    /// <summary>
-    /// Doanh thu theo danh mục - từ trước tới nay
-    /// </summary>
     [HttpGet]
     public async Task<IActionResult> GetRevenueByCategory()
     {
@@ -153,9 +136,6 @@ public class StatisticController : Controller
         }
     }
 
-    /// <summary>
-    /// Doanh thu theo danh mục - theo năm
-    /// </summary>
     [HttpGet]
     public async Task<IActionResult> GetRevenueByYearCategory(int year)
     {
@@ -182,9 +162,6 @@ public class StatisticController : Controller
         }
     }
 
-    /// <summary>
-    /// Doanh thu theo danh mục - theo tháng
-    /// </summary>
     [HttpGet]
     public async Task<IActionResult> GetRevenueByMonthCategory(int year, int month)
     {
@@ -211,9 +188,6 @@ public class StatisticController : Controller
         }
     }
 
-    /// <summary>
-    /// Doanh thu theo nhà cung cấp - từ trước tới nay
-    /// </summary>
     [HttpGet]
     public async Task<IActionResult> GetRevenueBySupplier()
     {
@@ -239,9 +213,6 @@ public class StatisticController : Controller
         }
     }
 
-    /// <summary>
-    /// Doanh thu theo nhà cung cấp - theo năm
-    /// </summary>
     [HttpGet]
     public async Task<IActionResult> GetRevenueByYearSupplier(int year)
     {
@@ -268,9 +239,6 @@ public class StatisticController : Controller
         }
     }
 
-    /// <summary>
-    /// Doanh thu theo nhà cung cấp - theo tháng
-    /// </summary>
     [HttpGet]
     public async Task<IActionResult> GetRevenueByMonthSupplier(int year, int month)
     {
@@ -297,9 +265,6 @@ public class StatisticController : Controller
         }
     }
 
-    /// <summary>
-    /// Lấy danh sách năm có dữ liệu
-    /// </summary>
     [HttpGet]
     public async Task<IActionResult> GetAvailableYears()
     {
@@ -320,13 +285,6 @@ public class StatisticController : Controller
         }
     }
 
-    #endregion
-
-    #region Order Statistics
-
-    /// <summary>
-    /// Tổng đơn hàng từ trước tới nay
-    /// </summary>
     [HttpGet]
     public async Task<IActionResult> GetTotalOrdersAllTime()
     {
@@ -356,9 +314,6 @@ public class StatisticController : Controller
         }
     }
 
-    /// <summary>
-    /// Tổng đơn hàng theo năm
-    /// </summary>
     [HttpGet]
     public async Task<IActionResult> GetOrdersByYear(int year)
     {
@@ -391,9 +346,6 @@ public class StatisticController : Controller
         }
     }
 
-    /// <summary>
-    /// Tổng đơn hàng theo tháng
-    /// </summary>
     [HttpGet]
     public async Task<IActionResult> GetOrdersByMonth(int year, int month)
     {
@@ -426,9 +378,6 @@ public class StatisticController : Controller
         }
     }
 
-    /// <summary>
-    /// Tổng đơn hàng hôm nay
-    /// </summary>
     [HttpGet]
     public async Task<IActionResult> GetOrdersToday()
     {
@@ -463,9 +412,6 @@ public class StatisticController : Controller
         }
     }
 
-    /// <summary>
-    /// Tổng đơn hàng bị hủy
-    /// </summary>
     [HttpGet]
     public async Task<IActionResult> GetCancelledOrders()
     {
@@ -495,9 +441,6 @@ public class StatisticController : Controller
         }
     }
 
-    /// <summary>
-    /// Tổng đơn hàng thành công
-    /// </summary>
     [HttpGet]
     public async Task<IActionResult> GetCompletedOrders()
     {
@@ -527,9 +470,6 @@ public class StatisticController : Controller
         }
     }
 
-    /// <summary>
-    /// Tổng đơn hàng hoàn trả
-    /// </summary>
     [HttpGet]
     public async Task<IActionResult> GetRefundedOrders()
     {
@@ -559,13 +499,6 @@ public class StatisticController : Controller
         }
     }
 
-    #endregion
-
-    #region Product Statistics
-
-    /// <summary>
-    /// Tổng số sản phẩm từ trước tới nay
-    /// </summary>
     [HttpGet]
     public async Task<IActionResult> GetTotalProductsAllTime()
     {
@@ -583,9 +516,6 @@ public class StatisticController : Controller
         }
     }
 
-    /// <summary>
-    /// Danh sách sản phẩm sắp hết hàng
-    /// </summary>
     [HttpGet]
     public async Task<IActionResult> GetLowStockProducts()
     {
@@ -610,9 +540,6 @@ public class StatisticController : Controller
         }
     }
 
-    /// <summary>
-    /// Danh sách sản phẩm bán chạy (top 10 theo số hóa đơn)
-    /// </summary>
     [HttpGet]
     public async Task<IActionResult> GetTopSellingProducts()
     {
@@ -639,9 +566,6 @@ public class StatisticController : Controller
         }
     }
 
-    /// <summary>
-    /// Danh sách sản phẩm doanh thu cao (top 10)
-    /// </summary>
     [HttpGet]
     public async Task<IActionResult> GetTopRevenueProducts(int? year = null, int? month = null)
     {
@@ -676,9 +600,6 @@ public class StatisticController : Controller
         }
     }
 
-    /// <summary>
-    /// Danh sách sản phẩm ít bán chạy (bottom 10)
-    /// </summary>
     [HttpGet]
     public async Task<IActionResult> GetLowSellingProducts(int? year = null, int? month = null)
     {
@@ -713,5 +634,4 @@ public class StatisticController : Controller
         }
     }
 
-    #endregion
 }

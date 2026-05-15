@@ -48,14 +48,7 @@
                         <div class="col-md-6">
                             <label class="form-label text-muted small">Mã NV hiện tại</label>
                             <p class="fw-bold text-dark">
-                                @if (string.IsNullOrEmpty(Model.EmployeeCode))
-                                {
-                                    <span class="text-muted fst-italic">Chưa xác nhận</span>
-                                }
-                                else
-                                {
-                                    @Model.EmployeeCode
-                                }
+                                @Model.EmployeeCode
                             </p>
                         </div>
                     </div>
@@ -139,6 +132,8 @@
                 <input type="hidden" asp-for="InvoiceId" />
                 <input type="hidden" asp-for="InvoiceUuid" />
                 <input type="hidden" asp-for="CustomerId" />
+                <input type="hidden" asp-for="CustomerCode" />
+                <input type="hidden" asp-for="Status" />
 
                 <!-- Assign Employee -->
                 <div class="card shadow-sm mb-4 border-0">
@@ -150,7 +145,7 @@
                     <div class="card-body">
                         <label asp-for="NewEmployeeId" class="form-label">Chọn nhân viên</label>
                         <select asp-for="NewEmployeeId" class="form-select form-select-lg">
-                            <option value="">-- Không phân công --</option>
+                            <option value="@Model.EmployeeId">-- @Model.EmployeeCode --</option>
                             @foreach (var emp in Model.AvailableEmployees)
                             {
                                 <option value="@emp.EmployeeId">@emp.EmployeeCode - @emp.EmployeeName</option>
@@ -170,7 +165,7 @@
                     <div class="card-body">
                         <label asp-for="NewStatus" class="form-label">Trạng thái mới</label>
                         <select asp-for="NewStatus" class="form-select form-select-lg">
-                            <option value="">-- Giữ nguyên --</option>
+                            <option value="Shipping">-- Đang vận chuyển --</option>
                             @foreach (var status in Model.AvailableStatuses)
                             {
                                 <option value="@status.Status">@status.StatusVi</option>

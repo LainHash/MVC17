@@ -195,6 +195,18 @@ namespace MVC17.Controllers
         [Authorize(Policy = "Manager")]
         public async Task<IActionResult> Confirm(int id)
         {
+            if (!TryGetCurrentUserId(out int userId))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var employee = await _context.Employees
+                .FirstOrDefaultAsync(e => e.UserId == userId);
+            if (employee == null)
+            {
+                return NotFound();
+            }
+
             var invoice = await _context.Invoices
                 .FirstOrDefaultAsync(iv => iv.InvoiceId == id);
             if (invoice == null)
@@ -203,23 +215,31 @@ namespace MVC17.Controllers
             var vwInvoice = await _context.VwInvoices
                 .FirstOrDefaultAsync(iv => iv.InvoiceId == id);
 
+            var customer = await _context.Customers
+                .Include(c => c.Pi)
+                .FirstOrDefaultAsync(c => c.CustomerId == invoice.CustomerId);
+            if (customer == null)
+            {
+                return NotFound();
+            }
+
             var model = new ConfirmOrderDTO
             {
                 InvoiceId = invoice.InvoiceId,
                 InvoiceUuid = invoice.InvoiceUuid,
                 CustomerId = invoice.CustomerId,
                 CustomerCode = vwInvoice?.CustomerCode ?? "",
-                EmployeeCode = vwInvoice?.EmployeeCode,
-                EmployeeId = invoice.EmployeeId,
+                EmployeeCode = employee.EmployeeCode,
+                EmployeeId = employee.EmployeeId,
                 OrderedDate = invoice.OrderedDate,
                 RequiredDate = invoice.RequiredDate,
                 ShippedDate = invoice.ShippedDate,
+                NewShippedDate = DateOnly.FromDateTime(DateTime.Now),
                 Status = invoice.Status,
                 TotalAmount = invoice.TotalAmount,
                 Note = invoice.Note
             };
 
-            // Load invoice details
             var invoiceDetails = await _context.VwInvoiceDetails
                 .Where(ivd => ivd.InvoiceId == id)
                 .ToListAsync();
@@ -236,7 +256,6 @@ namespace MVC17.Controllers
                 LineTotal = ivd.LineTotal
             }).ToList();
 
-            // Load available employees
             model.AvailableEmployees = await _context.Employees
                 .Where(e => e.IsDeleted != true)
                 .Select(e => new EmployeeOption
@@ -247,7 +266,6 @@ namespace MVC17.Controllers
                 })
                 .ToListAsync();
 
-            // Load available statuses
             model.AvailableStatuses = new List<StatusOption>
             {
                 new StatusOption { Status = "Pending", StatusVi = "Đang xử lý" },
@@ -276,9 +294,16 @@ namespace MVC17.Controllers
             if (invoice == null)
                 return NotFound("Không tìm thấy đơn hàng.");
 
+            var customer = await _context.Customers
+                .Include(c => c.Pi)
+                .FirstOrDefaultAsync(c => c.CustomerId == invoice.CustomerId);
+            if(customer == null)
+            {
+                return NotFound();
+            }
+
             try
             {
-                // Update invoice with confirmation details
                 if (model.NewEmployeeId.HasValue && model.NewEmployeeId > 0)
                 {
                     invoice.EmployeeId = model.NewEmployeeId;
@@ -289,10 +314,8 @@ namespace MVC17.Controllers
                     invoice.Status = model.NewStatus;
                 }
 
-                if (model.NewShippedDate.HasValue)
-                {
-                    invoice.ShippedDate = model.NewShippedDate;
-                }
+                invoice.ShippedDate = model.NewShippedDate;
+                invoice.RequiredDate = model.NewShippedDate.AddDays((int)Distances.CalculateShippingDays(customer.Pi.City));
 
                 if (!string.IsNullOrEmpty(model.ConfirmationNote))
                 {

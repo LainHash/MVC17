@@ -405,14 +405,11 @@ namespace MVC17.Controllers
                 return NotFound("Không tìm thấy thông tin nhân viên.");
             }
 
-            // Update User
             employee.User.Username = dto.Username;
             employee.User.Email = dto.Email;
 
-            // Update Employee
             employee.CompanyEmail = dto.CompanyEmail;
 
-            // Update PersonalInformation
             if (employee.Pi != null)
             {
                 employee.Pi.FirstName = dto.FirstName;

@@ -15,19 +15,15 @@ namespace MVC17.DTOs.Orders
         public decimal TotalAmount { get; set; }
         public string? Note { get; set; }
 
-        // Confirmation fields
         public int? NewEmployeeId { get; set; }
         public string? NewStatus { get; set; }
-        public DateOnly? NewShippedDate { get; set; }
+        public DateOnly NewShippedDate { get; set; }
         public string? ConfirmationNote { get; set; }
 
-        // Invoice details
         public List<InvoiceDetailDTO> InvoiceDetails { get; set; } = new List<InvoiceDetailDTO>();
 
-        // Available employees for assignment
         public List<EmployeeOption> AvailableEmployees { get; set; } = new List<EmployeeOption>();
 
-        // Available statuses
         public List<StatusOption> AvailableStatuses { get; set; } = new List<StatusOption>();
     }
 
@@ -38,9 +34,9 @@ namespace MVC17.DTOs.Orders
         public string ProductName { get; set; } = null!;
         public string CategoryName { get; set; } = null!;
         public string CompanyName { get; set; } = null!;
-        public decimal UnitPrice { get; set; }
+        public decimal? UnitPrice { get; set; }
         public int Quantity { get; set; }
-        public decimal LineTotal { get; set; }
+        public decimal? LineTotal { get; set; }
     }
 
     public class EmployeeOption
