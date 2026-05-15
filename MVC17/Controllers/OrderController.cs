@@ -65,7 +65,11 @@ namespace MVC17.Controllers
             var customer = await GetCustomerWithPiAsync(userId);
             if (customer == null)
             {
-                return BadRequest("Không tìm thấy thông tin khách hàng.");
+                return Json(new
+                {
+                    success = false,
+                    message = "Không tìm thấy thông tin khách hàng."
+                });
             }
 
             var model = new CheckoutDTO()
@@ -84,7 +88,11 @@ namespace MVC17.Controllers
             {
                 if (productId == null)
                 {
-                    return BadRequest("Thiếu sản phẩm.");
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Thiếu sản phẩm."
+                    });
                 }
                 var error = await FillSingleProductAsync(model, productId.Value, quantity);
                 if (error != null)
@@ -144,7 +152,7 @@ namespace MVC17.Controllers
                 await transaction.RollbackAsync();
                 throw;
             }
-            
+
         }
 
         [Authorize(Policy = "Customer")]
@@ -214,7 +222,11 @@ namespace MVC17.Controllers
 
             if (product == null)
             {
-                return NotFound("Sản phẩm không tồn tại.");
+                return Json(new
+                {
+                    success = false,
+                    message = "Sản phẩm không tồn tại!."
+                }); ;
             }
 
             var unitPrice = product.ProductSku.UnitPrice;

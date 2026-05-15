@@ -18,7 +18,7 @@
     <form asp-action="Edit" method="post" id="productEditForm">
         <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3"></div>
         <input asp-for="CategoryId" hidden />
-        
+
         <div class="row g-3">
             <div class="col-md-12">
                 <div class="form-floating mb-2">
@@ -57,11 +57,25 @@
             <div class="col-md-6">
                 <div class="form-floating mb-2">
                     <input asp-for="UnitsInStock" class="form-control" placeholder="Số lượng tồn" type="number" />
-                    <label asp-for="UnitsInStock">Số lượng tồn</label>
+                    @if (Model.UnitsInStock < 4)
+                    {
+                        <label class="bg-danger"
+                               asp-for="UnitsInStock">
+                            Số lượng tồn
+                        </label>
+                    }
+                    else
+                    {
+                        <label class="bg-success"
+                               asp-for="UnitsInStock">
+                            Số lượng tồn
+                        </label>
+                    }
+
                     <span asp-validation-for="UnitsInStock" class="text-danger small"></span>
                 </div>
             </div>
-            
+
             <div class="col-md-12">
                 <div class="form-floating mb-2">
                     <textarea asp-for="Description" class="form-control" placeholder="Mô tả sản phẩm" style="height: 100px"></textarea>
@@ -100,5 +114,7 @@
 }
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

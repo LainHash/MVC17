@@ -95,6 +95,10 @@
                         <span class="text-muted">Mã KH:</span>
                         <span class="fw-semibold">@Html.DisplayFor(model => model.CustomerCode)</span>
                     </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Mã NV:</span>
+                        <span class="fw-semibold">@(Model.EmployeeCode ?? "Chưa xác nhận")</span>
+                    </div>
                     <hr class="text-muted" />
                     <div class="d-flex justify-content-between mb-2">
                         <span class="text-muted">Ngày đặt hàng:</span>

@@ -1,5 +1,6 @@
-using Microsoft.AspNetCore.Authorization;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -8,8 +9,8 @@ using MVC17.DTOs.Products.Create;
 using MVC17.DTOs.Products.Update;
 using MVC17.Helpers.Constants.Products;
 using MVC17.Models;
-using MVC17.ViewModels;
 using MVC17.Services.Interfaces;
+using MVC17.ViewModels;
 
 namespace MVC17.Controllers
 {
@@ -150,10 +151,6 @@ namespace MVC17.Controllers
         [Authorize(Policy = "Manager")]
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
 
             var product = await _context.Products
                 .Include(p => p.Image)
@@ -162,13 +159,21 @@ namespace MVC17.Controllers
 
             if (product == null)
             {
-                return NotFound();
+                return Json(new
+                {
+                    success = false,
+                    message = "Sản phẩm không tồn tại!"
+                });
             }
 
-            if (product.IsDeleted == true)
-            {
-                return NotFound("Sản phẩm này đã bị xóa!");
-            }
+            //if (product.IsDeleted == true)
+            //{
+            //    return Json(new
+            //    {
+            //        success = false,
+            //        message = "Sản phẩm đã bị xóa!"
+            //    });
+            //}
 
             var sku = await _context.ProductSkus
                 .Include(ps => ps.Cpu)
@@ -178,10 +183,10 @@ namespace MVC17.Controllers
                 .Include(ps => ps.Laptop)
                     .ThenInclude(l => l.LaptopComponent)
                 .FirstOrDefaultAsync(ps => ps.ProductId == id);
-            if (sku == null)
-            {
-                return BadRequest();
-            }
+            //if (sku == null)
+            //{
+            //    return BadRequest();
+            //}
 
             var dto = GetUpdateProduct(product, sku);
 
@@ -214,7 +219,11 @@ namespace MVC17.Controllers
             var result = await _productService.UpdateProductAsync(id, dto);
             if (!result.Success)
             {
-                return NotFound();
+                return Json(new
+                {
+                    success = false,
+                    message = result.Message
+                });
             }
 
             return Json(new
@@ -237,12 +246,20 @@ namespace MVC17.Controllers
 
             if (product == null)
             {
-                return NotFound();
+                return Json(new
+                {
+                    success = false,
+                    message = "Sản phẩm không tồn tại!"
+                });
             }
 
             if (product.IsDeleted)
             {
-                return NotFound("Sản phẩm này đã bị xóa!");
+                return Json(new
+                {
+                    success = false,
+                    message = "Sản phẩm đã bị xóa!"
+                });
             }
 
             var vm = _mapper.Map<ProductVM>(product);
@@ -261,7 +278,11 @@ namespace MVC17.Controllers
             var result = await _productService.DeleteProductAsync(id);
             if (!result.Success)
             {
-                return NotFound();
+                return Json(new
+                {
+                    success = false,
+                    message = result.Message
+                });
             }
 
             return Json(new

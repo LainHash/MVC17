@@ -19,8 +19,6 @@
                         <th class="fw-semibold border-bottom-0">Tên sản phẩm</th>
                         <th class="fw-semibold border-bottom-0">Danh mục</th>
                         <th class="fw-semibold border-bottom-0">Nhà cung cấp</th>
-                        <th class="fw-semibold border-bottom-0">Đã bị xóa</th>
-                        <th class="fw-semibold border-bottom-0">Ngưng phân phối</th>
                         <th class="fw-semibold border-bottom-0">Giá bán</th>
                         <th class="fw-semibold border-bottom-0 text-center">Tồn kho</th>
                         <th class="pe-4 fw-semibold border-bottom-0 text-center">Thao tác</th>
@@ -31,15 +29,22 @@
                     {
                         <tr>
                             <td class="ps-4">
-                                <img src="@(item.ImageUrl ?? Url.Content("~/img/NotFoundImage.png"))" 
-                                     alt="@item.ProductName" 
-                                     class="img-thumbnail" 
+                                <img src="@(item.ImageUrl ?? Url.Content("~/img/NotFoundImage.png"))"
+                                     alt="@item.ProductName"
+                                     class="img-thumbnail"
                                      style="width: 50px; height: 50px; object-fit: contain;" />
                             </td>
                             <td>
                                 <div class="d-flex flex-column">
                                     <span class="fw-bold text-dark text-truncate" style="max-width: 250px;" title="@item.ProductName">@item.ProductName</span>
                                     <span class="text-muted small">@item.CompanyName</span>
+                                    @if (item.IsDeleted)
+                                    {
+                                        <span class="text-muted small">
+                                            Đã bị xóa.
+                                        </span>
+                                    }
+
                                 </div>
                             </td>
                             <td>
@@ -47,12 +52,6 @@
                             </td>
                             <td>
                                 <span class="badge bg-secondary">@item.CompanyName</span>
-                            </td>
-                            <td>
-                                <span class="badge bg-secondary">@item.IsDeleted</span>
-                            </td>
-                            <td>
-                                <span class="badge bg-secondary">@item.Discontinued</span>
                             </td>
                             <td>
                                 <span class="fw-bold text-danger">@item.UnitPrice.ToString("N0") đ</span>
@@ -77,7 +76,7 @@
                             </td>
                         </tr>
                     }
-                    
+
                     @if (!Model.Any())
                     {
                         <tr>
