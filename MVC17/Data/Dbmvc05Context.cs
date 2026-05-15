@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using MVC17.Models;
 using Microsoft.EntityFrameworkCore;
@@ -119,8 +119,17 @@ public partial class Dbmvc05Context : DbContext
     public virtual DbSet<VwsTotalProduct> VwsTotalProducts { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=localhost; Initial Catalog=DBMVC05; Persist Security Info=True; User ID=sa; Password=123456; Trust Server Certificate=True;");
+    {
+        // Connection string is supplied via Dependency Injection (Program.cs).
+        // This fallback guard is intentionally left without a hardcoded string so
+        // that missing configuration is caught early with a clear error message.
+        if (!optionsBuilder.IsConfigured)
+        {
+            throw new InvalidOperationException(
+                "DbContext is not configured. Ensure the connection string is provided " +
+                "via the SQL_CONNECTION_STRING environment variable or appsettings.json.");
+        }
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

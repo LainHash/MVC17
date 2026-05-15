@@ -1,0 +1,61 @@
+# ============================================================
+# docker-compose.yml — Local development orchestration
+# ============================================================
+# Usage:
+#   cp .env.example .env   # fill in your values
+#   docker-compose up -d   # start app + SQL Server
+#   docker-compose logs -f app
+# ============================================================
+
+services:
+
+  # ----------------------------------------------------------
+  # SQL Server 2019
+  # ----------------------------------------------------------
+  db:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: mvc17_db
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "${SA_PASSWORD}"
+      MSSQL_PID: "Express"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqldata:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P '${SA_PASSWORD}' -Q 'SELECT 1' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+  # ----------------------------------------------------------
+  # ASP.NET Core 8 Application
+  # ----------------------------------------------------------
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mvc17_app
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__MyConnectString: "${SQL_CONNECTION_STRING}"
+      Jwt__Key: "${JWT_SECRET}"
+      Jwt__Issuer: "${JWT_ISSUER:-MyApp}"
+      Jwt__Audience: "${JWT_AUDIENCE:-MyAppUsers}"
+      GmailSettings__Host: "${GMAIL_HOST:-smtp.gmail.com}"
+      GmailSettings__Port: "${GMAIL_PORT:-587}"
+      GmailSettings__SenderEmail: "${GMAIL_SENDER_EMAIL}"
+      GmailSettings__SenderName: "${GMAIL_SENDER_NAME:-DDH}"
+      GmailSettings__AppPassword: "${EMAIL_SMTP_PASSWORD}"
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+volumes:
+  sqldata:

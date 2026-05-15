@@ -1,0 +1,34 @@
+**/.git
+**/.vs
+**/.gitignore
+**/.gitattributes
+
+# Build artifacts
+**/bin
+**/obj
+
+# IDE / OS files
+*.user
+*.suo
+.DS_Store
+Thumbs.db
+
+# Secrets & local config
+.env
+.env.*
+!.env.example
+
+# Documentation (not needed in image)
+*.md
+DEPLOYMENT.md
+PRESENTATION*.md
+QUICK_START_GUIDE.md
+
+# Scripts directory (SQL scripts — not part of app)
+Scripts/
+
+# GitHub Actions
+.github/
+
+# Docker compose files (not needed inside the image)
+docker-compose*.yml
