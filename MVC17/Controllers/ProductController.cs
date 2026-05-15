@@ -27,7 +27,14 @@ namespace MVC17.Controllers
             _productService = productService;
         }
 
-        public async Task<IActionResult> Index(string filterString = "", int categoryId = 0, int supplierId = 0, int orderBy = 0, int page = 1, int itemPerPage = 15)
+        public async Task<IActionResult> Index(
+                string filterString = "", 
+                int categoryId = 0, 
+                int supplierId = 0, 
+                int orderBy = 0, 
+                int page = 1, 
+                int itemPerPage = 15
+            )
         {
             var query = _context.VwProducts;
 
@@ -55,7 +62,14 @@ namespace MVC17.Controllers
         }
 
         [Authorize(Policy = "Manager")]
-        public async Task<IActionResult> AdminIndex(string filterString = "", int categoryId = 0, int supplierId = 0, int orderBy = 0, int page = 1, int itemPerPage = 15)
+        public async Task<IActionResult> AdminIndex(
+                string filterString = "", 
+                int categoryId = 0, 
+                int supplierId = 0, 
+                int orderBy = 0, 
+                int page = 1, 
+                int itemPerPage = 15
+            )
         {
             var query = _context.VwProducts;
             var products = await query.ToListAsync();
@@ -65,9 +79,7 @@ namespace MVC17.Controllers
             vm = ProductPaginating(vm, page, itemPerPage);
 
             LoadIndexViewBags(categoryId, supplierId, orderBy);
-            ViewData["CurrentCategory"] = categoryId;
-            ViewData["CurrentSupplier"] = supplierId;
-            ViewData["CurrentOrderBy"] = orderBy;
+            
 
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
@@ -292,12 +304,28 @@ namespace MVC17.Controllers
             });
         }
 
+        [HttpGet]
+        public IActionResult GetSuppliersJson(int categoryId = 0)
+        {
+            var supplierByCategory = _context.Suppliers
+                .Select(s => new
+                {
+                    s.SupplierId,
+                    s.CompanyName,
+                    ProductCount = s.Products.Count(p => (categoryId == 0 || p.CategoryId == categoryId) && p.IsDeleted != true)
+                })
+                .Where(s => categoryId == 0 || s.ProductCount > 0)
+                .OrderByDescending(s => s.ProductCount)
+                .ToList();
 
+            return Json(supplierByCategory);
+        }
 
         private void GetCategoryViewBags(int categoryId)
         {
             var categories = _context.Categories
-                .Select(c => new {
+                .Select(c => new
+                {
                     c.CategoryId,
                     c.CategoryName,
                     ProductCount = c.Products.Count(p => p.IsDeleted != true)
@@ -314,10 +342,12 @@ namespace MVC17.Controllers
             }).ToList();
             ViewBag.Categories = new SelectList(_context.Categories, "CategoryId", "CategoryName", categoryId);
         }
+
         private void GetSupplierViewBags(int categoryId, int supplierId)
         {
             var supplierByCategory = _context.Suppliers
-                .Select(s => new {
+                .Select(s => new
+                {
                     s.SupplierId,
                     s.CompanyName,
                     ProductCount = s.Products.Count(p => (categoryId == 0 || p.CategoryId == categoryId) && p.IsDeleted != true)
@@ -334,23 +364,47 @@ namespace MVC17.Controllers
             }).ToList();
         }
 
-        [HttpGet]
-        public IActionResult GetSuppliersJson(int categoryId = 0)
+        private void LoadIndexViewBags(int categoryId, int supplierId, int orderBy)
         {
-            var supplierByCategory = _context.Suppliers
-                .Select(s => new {
-                    s.SupplierId,
-                    s.CompanyName,
-                    ProductCount = s.Products.Count(p => (categoryId == 0 || p.CategoryId == categoryId) && p.IsDeleted != true)
-                })
-                .Where(s => categoryId == 0 || s.ProductCount > 0)
-                .OrderByDescending(s => s.ProductCount)
-                .ToList();
-
-            return Json(supplierByCategory);
+            GetCategoryViewBags(categoryId);
+            GetSupplierViewBags(categoryId, supplierId);
+            ViewBag.OrderTypes = new SelectList(ProductConstants.sortDict, "Key", "Value", orderBy);
+            ViewData["CurrentCategory"] = categoryId;
+            ViewData["CurrentSupplier"] = supplierId;
+            ViewData["CurrentOrderBy"] = orderBy;
         }
 
-        private List<ProductVM> ProductFilterring(List<ProductVM> products, string filterString = "", int categoryId = 0, int supplierId = 0, int orderBy = 0)
+        private void LoadCreateViewBags(int categoryId)
+        {
+            GetCategoryViewBags(categoryId);
+            ViewBag.Suppliers = new SelectList(_context.Suppliers, "SupplierId", "CompanyName");
+            ViewBag.Cpus = new SelectList(_context.VwCpuSpecs, "CpuId", "CpuName");
+            ViewBag.Gpus = new SelectList(_context.VwGpuSpecs, "GpuId", "GpuName");
+            ViewBag.Rams = new SelectList(_context.VwRamSpecs, "RamId", "RamName");
+            ViewBag.Storages = new SelectList(_context.VwStorageSpecs, "StorageId", "StorageName");
+
+            ViewBag.SelectedCategory = categoryId;
+        }
+
+        private void LoadEditViewBags(UpdateProductDTO dto)
+        {
+            GetCategoryViewBags(dto.CategoryId);
+            ViewBag.Suppliers = new SelectList(_context.Suppliers, "SupplierId", "CompanyName", dto.SupplierId);
+
+            if (dto.Laptop != null)
+            {
+                ViewBag.Cpus = new SelectList(_context.VwCpuSpecs, "CpuId", "CpuName", dto.Laptop.CpuId);
+                ViewBag.Gpus = new SelectList(_context.VwGpuSpecs, "GpuId", "GpuName", dto.Laptop.GpuId);
+                ViewBag.Rams = new SelectList(_context.VwRamSpecs, "RamId", "RamName", dto.Laptop.RamId);
+                ViewBag.Storages = new SelectList(_context.VwStorageSpecs, "StorageId", "StorageName", dto.Laptop.StorageId);
+            }
+        }
+
+        private List<ProductVM> ProductFilterring(List<ProductVM> products, 
+            string filterString = "", 
+            int categoryId = 0, 
+            int supplierId = 0, 
+            int orderBy = 0)
         {
             if (categoryId > 0)
             {
@@ -390,15 +444,9 @@ namespace MVC17.Controllers
             return products;
         }
 
-        private void LoadIndexViewBags(int categoryId, int supplierId, int orderBy)
-        {
-            GetCategoryViewBags(categoryId);
-            GetSupplierViewBags(categoryId, supplierId);
-            ViewBag.OrderTypes = new SelectList(ProductConstants.sortDict, "Key", "Value", orderBy);
-
-        }
-
-        private List<ProductVM> ProductPaginating(List<ProductVM> vm, int page, int itemPerPage)
+        private List<ProductVM> ProductPaginating(List<ProductVM> vm, 
+            int page, 
+            int itemPerPage)
         {
             int totalPages = (int)Math.Ceiling((double)vm.Count() / itemPerPage);
 
@@ -410,6 +458,8 @@ namespace MVC17.Controllers
             return vm;
 
         }
+
+
         private async Task<ProductVM> GetProductSpec(ProductVM vm)
         {
             switch (vm.CategoryId)
@@ -443,18 +493,6 @@ namespace MVC17.Controllers
             return vm;
         }
 
-        private void LoadCreateViewBags(int categoryId)
-        {
-            GetCategoryViewBags(categoryId);
-            ViewBag.Suppliers = new SelectList(_context.Suppliers, "SupplierId", "CompanyName");
-            ViewBag.Cpus = new SelectList(_context.VwCpuSpecs, "CpuId", "CpuName");
-            ViewBag.Gpus = new SelectList(_context.VwGpuSpecs, "GpuId", "GpuName");
-            ViewBag.Rams = new SelectList(_context.VwRamSpecs, "RamId", "RamName");
-            ViewBag.Storages = new SelectList(_context.VwStorageSpecs, "StorageId", "StorageName");
-
-            ViewBag.SelectedCategory = categoryId;
-        }
-
         private UpdateProductDTO GetUpdateProduct(Product product, ProductSku sku)
         {
             var dto = new UpdateProductDTO()
@@ -485,21 +523,5 @@ namespace MVC17.Controllers
             };
             return dto;
         }
-
-        private void LoadEditViewBags(UpdateProductDTO dto)
-        {
-            GetCategoryViewBags(dto.CategoryId);
-            ViewBag.Suppliers = new SelectList(_context.Suppliers, "SupplierId", "CompanyName", dto.SupplierId);
-
-            if (dto.Laptop != null)
-            {
-                ViewBag.Cpus = new SelectList(_context.VwCpuSpecs, "CpuId", "CpuName", dto.Laptop.CpuId);
-                ViewBag.Gpus = new SelectList(_context.VwGpuSpecs, "GpuId", "GpuName", dto.Laptop.GpuId);
-                ViewBag.Rams = new SelectList(_context.VwRamSpecs, "RamId", "RamName", dto.Laptop.RamId);
-                ViewBag.Storages = new SelectList(_context.VwStorageSpecs, "StorageId", "StorageName", dto.Laptop.StorageId);
-            }
-        }
-
-
     }
 }

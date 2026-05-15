@@ -1,4 +1,4 @@
-﻿@model MVC17.Models.VwInvoice
+@model MVC17.Models.VwInvoice
 
 @{
     ViewData["Title"] = "Đặt hàng thành công";
@@ -57,10 +57,16 @@
 
                     <div class="d-grid gap-2 d-md-flex justify-content-md-center">
                         <a asp-controller="Order"
-                               asp-action="Details"
+                               asp-action="CheckoutResult"
                                asp-route-id="@Model.InvoiceId"
                                class="btn btn-primary btn-lg px-4">
                             Xem chi tiết đơn hàng
+                        </a>
+
+                        <a asp-controller="Account"
+                               asp-action="OrderHistory"
+                               class="btn btn-outline-success btn-lg px-4">
+                            Lịch sử đặt hàng
                         </a>
 
                         <a asp-controller="Home"

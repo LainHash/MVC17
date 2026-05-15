@@ -106,11 +106,18 @@
                 }
                 else
                 {
-                    <a class="btn btn-primary rounded-pill py-2 px-4"
+                    <a class="btn btn-primary rounded-pill py-2 px-4 me-2"
                        asp-area=""
                        asp-controller="Account"
                        asp-action="Login">
                         @RouteDisplayName.LoginPage
+                    </a>
+
+                    <a class="btn btn-outline-primary rounded-pill py-2 px-4"
+                       asp-area=""
+                       asp-controller="Account"
+                       asp-action="Register">
+                        @RouteDisplayName.RegisterPage
                     </a>
                 }
             </div>

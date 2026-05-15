@@ -89,7 +89,10 @@
                         <!-- Country -->
                         <div class="col-md-6 mb-3">
                             <label asp-for="Profile.Country" class="form-label"></label>
-                            <select asp-for="Profile.Country" class="form-select" asp-items="ViewBag.Countries"></select>
+                            <select asp-for="Profile.Country"
+                                    class="form-select"
+                                    asp-items="ViewBag.Countries">
+                            </select>
                         </div>
                     </div>
 
