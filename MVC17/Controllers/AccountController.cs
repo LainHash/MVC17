@@ -320,6 +320,179 @@ namespace MVC17.Controllers
             return View(orderHistory);
         }
 
+        [Authorize(Policy = "Manager")]
+        public async Task<IActionResult> ProfileManager()
+        {
+            if (!TryGetCurrentUserId(out int userId))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var employee = await GetEmployeeAsync(userId);
+            if (employee == null)
+            {
+                return NotFound("Không tìm thấy thông tin nhân viên.");
+            }
+
+            return View(employee);
+        }
+
+        [Authorize(Policy = "Manager")]
+        public async Task<IActionResult> EditManager()
+        {
+            if (!TryGetCurrentUserId(out int userId))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var employee = await _context.Employees
+                .Include(e => e.User)
+                .Include(e => e.Pi)
+                .FirstOrDefaultAsync(e => e.UserId == userId);
+            if (employee == null)
+            {
+                return NotFound("Không tìm thấy thông tin nhân viên.");
+            }
+
+            var dto = new ManagerProfileEditDTO()
+            {
+                EmployeeId = employee.EmployeeId,
+                EmployeeCode = employee.EmployeeCode,
+                Username = employee.User.Username,
+                Email = employee.User.Email,
+                CompanyEmail = employee.CompanyEmail,
+                FirstName = employee.Pi?.FirstName ?? "",
+                LastName = employee.Pi?.LastName ?? "",
+                Gender = employee.Pi?.Gender ?? false,
+                Dob = employee.Pi?.Dob ?? DateOnly.FromDateTime(DateTime.Now),
+                City = employee.Pi?.City ?? "",
+                Country = employee.Pi?.Country ?? "",
+                Address = employee.Pi?.Address ?? "",
+                Phone = employee.Pi?.Phone ?? "",
+                CitizenIdentityCard = employee.Pi?.CitizenIdentityCard ?? ""
+            };
+
+            ViewBag.Cities = new SelectList(UserProfileConstants.Cities);
+            ViewBag.Countries = new SelectList(UserProfileConstants.Countries);
+            ViewBag.Genders = new SelectList(UserProfileConstants.Genders, "Key", "Value");
+            return View(dto);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Policy = "Manager")]
+        public async Task<IActionResult> EditManager(ManagerProfileEditDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Cities = new SelectList(UserProfileConstants.Cities);
+                ViewBag.Countries = new SelectList(UserProfileConstants.Countries);
+                ViewBag.Genders = new SelectList(UserProfileConstants.Genders, "Key", "Value");
+                return View(dto);
+            }
+
+            if (!TryGetCurrentUserId(out int userId))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var employee = await _context.Employees
+                .Include(e => e.User)
+                .Include(e => e.Pi)
+                .FirstOrDefaultAsync(e => e.UserId == userId);
+            if (employee == null)
+            {
+                return NotFound("Không tìm thấy thông tin nhân viên.");
+            }
+
+            // Update User
+            employee.User.Username = dto.Username;
+            employee.User.Email = dto.Email;
+
+            // Update Employee
+            employee.CompanyEmail = dto.CompanyEmail;
+
+            // Update PersonalInformation
+            if (employee.Pi != null)
+            {
+                employee.Pi.FirstName = dto.FirstName;
+                employee.Pi.LastName = dto.LastName;
+                employee.Pi.Gender = dto.Gender;
+                employee.Pi.Dob = dto.Dob;
+                employee.Pi.City = dto.City;
+                employee.Pi.Country = dto.Country;
+                employee.Pi.Address = dto.Address;
+                employee.Pi.Phone = dto.Phone;
+                employee.Pi.Email = dto.Email;
+                employee.Pi.CitizenIdentityCard = dto.CitizenIdentityCard;
+            }
+
+            await _context.SaveChangesAsync();
+            TempData["Success"] = "Cập nhật thông tin thành công.";
+            return RedirectToAction("ProfileManager");
+        }
+
+        [Authorize(Policy = "Manager")]
+        public IActionResult ChangePasswordManager()
+        {
+            if (!TryGetCurrentUserId(out int userId))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            return View(new ChangePasswordDTO());
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Policy = "Manager")]
+        public async Task<IActionResult> ChangePasswordManager(ChangePasswordDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(dto);
+            }
+
+            if (!TryGetCurrentUserId(out int userId))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            if (!BCrypt.Net.BCrypt.Verify(dto.OldPassword, user.PasswordHash))
+            {
+                ModelState.AddModelError(nameof(dto.OldPassword), "Mật khẩu cũ không đúng");
+                return View(dto);
+            }
+
+            if (dto.NewPassword != dto.ConfirmNewPassword)
+            {
+                ModelState.AddModelError(nameof(dto.ConfirmNewPassword), "Xác nhận mật khẩu không khớp");
+                return View(dto);
+            }
+
+            if (dto.OldPassword == dto.NewPassword)
+            {
+                ModelState.AddModelError(nameof(dto.NewPassword), "Mật khẩu mới không được trùng mật khẩu cũ");
+                return View(dto);
+            }
+
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+
+            await _context.SaveChangesAsync();
+
+            Response.Cookies.Delete("jwt");
+            HttpContext.Session.Clear();
+            TempData["Success"] = "Đổi mật khẩu thành công. Vui lòng đăng nhập lại.";
+
+            return RedirectToAction("Login");
+        }
+
         private async Task MergeCartAsync(int userId)
         {
             var sessionId = HttpContext.Session.GetString(SessionConstants.sessionId);
@@ -400,6 +573,14 @@ namespace MVC17.Controllers
         {
             var raw = User.FindFirstValue(ClaimTypes.NameIdentifier);
             return int.TryParse(raw, out userId);
+        }
+
+        private Task<Employee?> GetEmployeeAsync(int userId)
+        {
+            return _context.Employees
+                .Include(e => e.User)
+                .Include(e => e.Pi)
+                .FirstOrDefaultAsync(e => e.UserId == userId);
         }
 
         private Task<Customer?> GetCustomerAsync(int userId)

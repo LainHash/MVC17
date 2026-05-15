@@ -191,6 +191,129 @@ namespace MVC17.Controllers
             return View(invoice);
         }
 
+        [HttpGet]
+        [Authorize(Policy = "Manager")]
+        public async Task<IActionResult> Confirm(int id)
+        {
+            var invoice = await _context.Invoices
+                .FirstOrDefaultAsync(iv => iv.InvoiceId == id);
+            if (invoice == null)
+                return NotFound("Không tìm thấy đơn hàng.");
+
+            var vwInvoice = await _context.VwInvoices
+                .FirstOrDefaultAsync(iv => iv.InvoiceId == id);
+
+            var model = new ConfirmOrderDTO
+            {
+                InvoiceId = invoice.InvoiceId,
+                InvoiceUuid = invoice.InvoiceUuid,
+                CustomerId = invoice.CustomerId,
+                CustomerCode = vwInvoice?.CustomerCode ?? "",
+                EmployeeCode = vwInvoice?.EmployeeCode,
+                EmployeeId = invoice.EmployeeId,
+                OrderedDate = invoice.OrderedDate,
+                RequiredDate = invoice.RequiredDate,
+                ShippedDate = invoice.ShippedDate,
+                Status = invoice.Status,
+                TotalAmount = invoice.TotalAmount,
+                Note = invoice.Note
+            };
+
+            // Load invoice details
+            var invoiceDetails = await _context.VwInvoiceDetails
+                .Where(ivd => ivd.InvoiceId == id)
+                .ToListAsync();
+
+            model.InvoiceDetails = invoiceDetails.Select(ivd => new InvoiceDetailDTO
+            {
+                InvoiceDetailId = ivd.InvoiceDetailId,
+                ProductId = ivd.ProductId,
+                ProductName = ivd.ProductName,
+                CategoryName = ivd.CategoryName,
+                CompanyName = ivd.CompanyName,
+                UnitPrice = ivd.UnitPrice,
+                Quantity = ivd.Quantity,
+                LineTotal = ivd.LineTotal
+            }).ToList();
+
+            // Load available employees
+            model.AvailableEmployees = await _context.Employees
+                .Where(e => e.IsDeleted != true)
+                .Select(e => new EmployeeOption
+                {
+                    EmployeeId = e.EmployeeId,
+                    EmployeeCode = e.EmployeeCode,
+                    EmployeeName = $"{e.Pi.FirstName} {e.Pi.LastName}"
+                })
+                .ToListAsync();
+
+            // Load available statuses
+            model.AvailableStatuses = new List<StatusOption>
+            {
+                new StatusOption { Status = "Pending", StatusVi = "Đang xử lý" },
+                new StatusOption { Status = "Shipping", StatusVi = "Đang giao hàng" },
+                new StatusOption { Status = "Delivered", StatusVi = "Đã giao hàng" },
+                new StatusOption { Status = "Completed", StatusVi = "Hoàn thành" },
+                new StatusOption { Status = "Cancelled", StatusVi = "Đã hủy" },
+                new StatusOption { Status = "Refunded", StatusVi = "Đã hoàn tiền" }
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Policy = "Manager")]
+        public async Task<IActionResult> Confirm(ConfirmOrderDTO model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("Dữ liệu không hợp lệ.");
+            }
+
+            var invoice = await _context.Invoices
+                .FirstOrDefaultAsync(iv => iv.InvoiceId == model.InvoiceId);
+            if (invoice == null)
+                return NotFound("Không tìm thấy đơn hàng.");
+
+            try
+            {
+                // Update invoice with confirmation details
+                if (model.NewEmployeeId.HasValue && model.NewEmployeeId > 0)
+                {
+                    invoice.EmployeeId = model.NewEmployeeId;
+                }
+
+                if (!string.IsNullOrEmpty(model.NewStatus))
+                {
+                    invoice.Status = model.NewStatus;
+                }
+
+                if (model.NewShippedDate.HasValue)
+                {
+                    invoice.ShippedDate = model.NewShippedDate;
+                }
+
+                if (!string.IsNullOrEmpty(model.ConfirmationNote))
+                {
+                    invoice.Note = model.ConfirmationNote;
+                }
+
+                invoice.UpdatedAt = DateTime.Now;
+
+                _context.Invoices.Update(invoice);
+                await _context.SaveChangesAsync();
+
+                TempData["Success"] = "Xác nhận đơn hàng thành công!";
+                return RedirectToAction("Details", new { id = model.InvoiceId });
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Lỗi: {ex.Message}";
+                return RedirectToAction("Confirm", new { id = model.InvoiceId });
+            }
+        }
+
 
         private bool TryGetCurrentUserId(out int userId)
         {
