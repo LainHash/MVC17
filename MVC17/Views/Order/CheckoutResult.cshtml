@@ -124,7 +124,7 @@
                     {
                         <div class="d-flex justify-content-between mb-2 text-success">
                             <span>Giảm giá SP:</span>
-                            <span>-@String.Format("{0:N0} đ", Model.ProductDiscount)</span>
+                            <span>-@String.Format("{0:N0} đ", Model.ProductDiscount * (double)Model.Subtotal)</span>
                         </div>
                     }
                     <div class="d-flex justify-content-between mb-2">
@@ -135,7 +135,7 @@
                     {
                         <div class="d-flex justify-content-between mb-2 text-success">
                             <span>Giảm phí VC:</span>
-                            <span>-@String.Format("{0:N0} đ", Model.ShippingDiscount)</span>
+                            <span>-@String.Format("{0:N0} đ", Model.ShippingDiscount * (double)Model.ShippingFee)</span>
                         </div>
                     }
                     <hr class="text-muted">

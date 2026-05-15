@@ -23,5 +23,7 @@ namespace MVC17.DTOs.Orders
         public decimal ShippingFee { get; set; }
         public float ShippingDiscount { get; set; }
         public decimal TotalAmount => Subtotal * (1 - (decimal)ProductDiscount) + ShippingFee * (1 - (decimal)ShippingDiscount);
+
+        public string? Note { get; set; }
     }
 }

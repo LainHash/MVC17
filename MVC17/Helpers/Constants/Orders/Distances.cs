@@ -52,8 +52,8 @@
         private const float TruckThreshold = 300.0f;      // <= 300 km: giao bằng xe tải
                                                           // > 300 km: máy bay + xe tải + xe máy
 
-        // Mặc định giao trong Hồ Chí Minh: 2 ngày
-        private const float LocalDeliveryDays = 2.0f;
+        // Mặc định giao trong Hồ Chí Minh: 1 ngày
+        private const float LocalDeliveryDays = 1.0f;
 
         /// <summary>
         /// Tính tổng thời gian vận chuyển (đơn vị: ngày).

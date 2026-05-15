@@ -13,5 +13,6 @@ namespace MVC17.Services.Interfaces
         Task<(bool Success, string Message, int? InvoiceId)> ProcessCheckoutAsync(int userId, CheckoutDTO model);
         Task<ConfirmOrderDTO?> PrepareConfirmOrderAsync(int invoiceId, int employeeUserId);
         Task<(bool Success, string Message)> ConfirmOrderAsync(ConfirmOrderDTO model);
+        List<Discount> GetDiscount(string type);
     }
 }

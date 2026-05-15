@@ -1,4 +1,5 @@
 @model IEnumerable<MVC17.ViewModels.OrderHistoryVM>
+@using MVC17.Helpers.Constants.Orders
 
 @{
     ViewData["Title"] = "Lịch sử đặt hàng";
@@ -57,25 +58,15 @@
                                         @item.TotalAmount.ToString("N0") đ
                                     </td>
                                     <td class="text-center">
-                                        @if (item.Status == "Pending")
-                                        {
-                                            <span class="badge bg-warning text-dark px-3 py-2 rounded-pill"><i class="fas fa-clock me-1"></i> Chờ xử lý</span>
-                                        }
-                                        else if (item.Status == "Completed" || item.Status == "Delivered")
-                                        {
-                                            <span class="badge bg-success px-3 py-2 rounded-pill"><i class="fas fa-check-circle me-1"></i> Hoàn thành</span>
-                                        }
-                                        else if (item.Status == "Cancelled")
-                                        {
-                                            <span class="badge bg-danger px-3 py-2 rounded-pill"><i class="fas fa-times-circle me-1"></i> Đã hủy</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-secondary px-3 py-2 rounded-pill">@item.Status</span>
-                                        }
+                                        <span class="badge text-white px-3 py-2 rounded-pill @InvoiceStatuses.GetStatusStyle(item.Status)">
+                                            @InvoiceStatuses.GetStatusVi(item.Status)
+                                        </span>
                                     </td>
                                     <td class="pe-4 text-center">
-                                        <a asp-controller="Order" asp-action="CheckoutResult" asp-route-id="@item.InvoiceId" class="btn btn-sm btn-outline-primary">
+                                        <a asp-controller="Order"
+                                           asp-action="CheckoutResult"
+                                           asp-route-id="@item.InvoiceId"
+                                           class="btn btn-sm btn-outline-primary">
                                             <i class="fas fa-eye me-1"></i> Chi tiết
                                         </a>
                                     </td>

@@ -2,15 +2,10 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client;
-using MVC17.Data;
 using MVC17.DTOs.Orders;
 using MVC17.Helpers.Constants.Auths.Accounts;
 using MVC17.Helpers.Constants.Orders;
-using MVC17.Models;
 using MVC17.Services.Interfaces;
-using MVC17.ViewModels;
 using System.Security.Claims;
 
 namespace MVC17.Controllers
@@ -76,6 +71,16 @@ namespace MVC17.Controllers
 
             ViewBag.Cities = new SelectList(UserProfileConstants.Cities);
             ViewBag.Countries = new SelectList(UserProfileConstants.Countries);
+            ViewBag.ProductDiscounts = new SelectList(_orderService
+                .GetDiscount("Product")
+                .Select(d => new { Value = d.DiscountAmount, Text = $"{(d.DiscountAmount * 100):0}%" }),
+                "Value",
+                "Text");
+            ViewBag.ShippingDiscounts = new SelectList(_orderService
+                .GetDiscount("Shipping")
+                .Select(d => new { Value = d.DiscountAmount, Text = $"{(d.DiscountAmount * 100):0}%" }),
+                "Value",
+                "Text");
 
             return View(model);
         }
@@ -177,6 +182,29 @@ namespace MVC17.Controllers
 
             TempData["Success"] = result.Message;
             return RedirectToAction("Details", new { id = model.InvoiceId });
+        }
+
+        [HttpGet]
+        public IActionResult GetShippingInfo(string city)
+        {
+            try
+            {
+                var fee = Distances.CalculateShippingFee(city);
+                var days = Distances.CalculateShippingDays(city);
+                var estimatedDate = DateTime.Now.AddDays(days);
+
+                return Json(new
+                {
+                    success = true,
+                    fee = fee,
+                    days = days,
+                    estimatedDate = estimatedDate.ToString("dd/MM/yyyy")
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
         }
 
 

@@ -26,6 +26,15 @@ namespace MVC17.Services.Implementations
                 .ToListAsync();
         }
 
+        public List<Discount> GetDiscount(string type)
+        {
+            var discounts = _context.Discounts
+                .Where(d => d.Type == type)
+                .ToList();
+
+            return discounts;
+        }
+
         public async Task<VwInvoice?> GetVwInvoiceByIdAsync(int id, int? userId = null)
         {
             var query = _context.VwInvoices.AsQueryable();
@@ -98,7 +107,7 @@ namespace MVC17.Services.Implementations
                 int? invoiceId;
                 if (model.IsBuyMany)
                 {
-                    var result = await ProcessCartCheckoutAsync(customer, userId);
+                    var result = await ProcessCartCheckoutAsync(customer, userId, model);
                     if (!result.Success)
                     {
                         await transaction.RollbackAsync();
@@ -308,20 +317,27 @@ namespace MVC17.Services.Implementations
             }
         }
 
-        private static Invoice CreateInvoiceBase(Customer customer, decimal subtotal, decimal shippingFee)
+        private static Invoice CreateInvoiceBase(Customer customer, decimal subtotal, CheckoutDTO model)
         {
+            var shippingFee = Distances.CalculateShippingFee(model.City ?? customer.Pi.City);
+            var productDiscountAmount = subtotal * (decimal)model.ProductDiscount;
+            var shippingDiscountAmount = shippingFee * (decimal)model.ShippingDiscount;
+
+            var totalAmount = (subtotal - productDiscountAmount) + (shippingFee - shippingDiscountAmount);
+
             return new Invoice()
             {
                 InvoiceUuid = Guid.NewGuid(),
                 CustomerId = customer.CustomerId,
                 OrderedDate = DateOnly.FromDateTime(DateTime.Now),
-                RequiredDate = DateOnly.FromDateTime(DateTime.Now.AddDays(Distances.CalculateShippingDays(customer.Pi.City))),
+                RequiredDate = DateOnly.FromDateTime(DateTime.Now.AddDays(Distances.CalculateShippingDays(model.City ?? customer.Pi.City))),
                 Status = "Pending",
                 Subtotal = subtotal,
-                ProductDiscount = 0,
+                ProductDiscount = model.ProductDiscount,
                 ShippingFee = shippingFee,
-                ShippingDiscount = 0,
-                TotalAmount = subtotal + shippingFee,
+                ShippingDiscount = model.ShippingDiscount,
+                TotalAmount = totalAmount,
+                Note = model.Note,
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now
             };
@@ -336,16 +352,20 @@ namespace MVC17.Services.Implementations
                 .Include(p => p.ProductSku)
                 .FirstOrDefaultAsync(p => p.ProductId == productId);
 
-            if (product == null) return (false, "Sản phẩm không tồn tại.", null);
+            if (product == null)
+            {
+                return (false, "Sản phẩm không tồn tại.", null);
+            }
 
             var unitPrice = product.ProductSku.UnitPrice;
             var lineTotal = unitPrice * quantity;
-            var shippingFee = Distances.CalculateShippingFee(customer.Pi.City);
 
-            var invoice = CreateInvoiceBase(customer, lineTotal, shippingFee);
+            var invoice = CreateInvoiceBase(customer, lineTotal, model);
 
             if (customer.User.Balance < invoice.TotalAmount)
+            {
                 return (false, "Số dư không đủ để thanh toán.", null);
+            }
 
             customer.User.Balance -= invoice.TotalAmount;
             _context.Invoices.Add(invoice);
@@ -363,7 +383,7 @@ namespace MVC17.Services.Implementations
             return (true, "Success", invoice.InvoiceId);
         }
 
-        private async Task<(bool Success, string Message, int? InvoiceId)> ProcessCartCheckoutAsync(Customer customer, int userId)
+        private async Task<(bool Success, string Message, int? InvoiceId)> ProcessCartCheckoutAsync(Customer customer, int userId, CheckoutDTO model)
         {
             var cart = await _context.ShoppingCarts
                 .Include(c => c.CartItems)
@@ -373,9 +393,7 @@ namespace MVC17.Services.Implementations
                 return (false, "Giỏ hàng trống.", null);
 
             var subtotal = cart.CartItems.Sum(x => x.LineTotal);
-            var shippingFee = Distances.CalculateShippingFee(customer.Pi.City);
-
-            var invoice = CreateInvoiceBase(customer, subtotal, shippingFee);
+            var invoice = CreateInvoiceBase(customer, subtotal, model);
 
             if (customer.User.Balance < invoice.TotalAmount)
                 return (false, "Số dư không đủ để thanh toán.", null);
@@ -399,7 +417,6 @@ namespace MVC17.Services.Implementations
 
             return (true, "Success", invoice.InvoiceId);
         }
-
         #endregion
     }
 }

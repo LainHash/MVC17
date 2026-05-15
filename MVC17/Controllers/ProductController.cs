@@ -39,6 +39,7 @@ namespace MVC17.Controllers
             var query = _context.VwProducts;
 
             var products = await query
+                .Where(p => !p.IsDeleted)
                 .ToListAsync();
 
             var vm = _mapper.Map<List<ProductVM>>(products);
@@ -68,7 +69,7 @@ namespace MVC17.Controllers
                 int supplierId = 0, 
                 int orderBy = 0, 
                 int page = 1, 
-                int itemPerPage = 15
+                int itemPerPage = 50
             )
         {
             var query = _context.VwProducts;
