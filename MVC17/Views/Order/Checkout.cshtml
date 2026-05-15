@@ -24,42 +24,31 @@
                     <div class="card-body">
                         <div class="mb-3">
                             <label asp-for="FullName" class="form-label">Họ và tên</label>
-                            <input asp-for="FullName" class="form-control" required />
+                            <input asp-for="FullName" class="form-control" required readonly/>
                             <span asp-validation-for="FullName" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
                             <label asp-for="Phone" class="form-label">Số điện thoại</label>
-                            <input asp-for="Phone" class="form-control" required />
+                            <input asp-for="Phone" class="form-control" required readonly />
                             <span asp-validation-for="Phone" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
                             <label asp-for="Email" class="form-label">Email</label>
-                            <input asp-for="Email" type="email" class="form-control" required />
+                            <input asp-for="Email" type="email" class="form-control" required readonly />
                             <span asp-validation-for="Email" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
                             <label asp-for="Country" class="form-label">Quốc gia</label>
-                            <select class="form-control"
-                                    asp-for="Country"
-                                    asp-items="ViewBag.Countries"
-                                    required>
-                                <option value="@Model.Country">@Model.Country</option>
-                            </select>
+                            <input asp-for="Country" class="form-control" required readonly />
                             <span asp-validation-for="Country" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
                             <label asp-for="City" class="form-label">Tỉnh/Thành phố</label>
-                            <select class="form-control"
-                                    asp-for="City"
-                                    id="citySelect"
-                                    asp-items="ViewBag.Cities"
-                                    required>
-                                <option value="@Model.City">@Model.City</option>
-                            </select>
+                            <input asp-for="City" class="form-control" required readonly />
                             <span asp-validation-for="City" class="text-danger"></span>
                             <div id="shippingDateInfo" class="mt-2 text-primary small fw-bold">
                                 <i class="bi bi-truck me-1"></i>Dự kiến giao hàng: <span id="estimatedDate">--/--/----</span>

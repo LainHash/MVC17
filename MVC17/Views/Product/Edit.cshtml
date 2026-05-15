@@ -56,22 +56,22 @@
 
             <div class="col-md-6">
                 <div class="form-floating mb-2">
-                    <input asp-for="UnitsInStock" class="form-control" placeholder="Số lượng tồn" type="number" />
                     @if (Model.UnitsInStock < 4)
                     {
-                        <label class="bg-danger"
-                               asp-for="UnitsInStock">
-                            Số lượng tồn
-                        </label>
+                        <input asp-for="UnitsInStock"
+                               class="form-control text-danger"
+                               placeholder="Số lượng tồn"
+                               type="number" />
                     }
                     else
                     {
-                        <label class="bg-success"
-                               asp-for="UnitsInStock">
-                            Số lượng tồn
-                        </label>
+                        <input asp-for="UnitsInStock"
+                               class="form-control text-success"
+                               placeholder="Số lượng tồn"
+                               type="number" />
                     }
 
+                    <label asp-for="UnitsInStock">Số lượng tồn</label>
                     <span asp-validation-for="UnitsInStock" class="text-danger small"></span>
                 </div>
             </div>

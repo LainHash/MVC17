@@ -57,13 +57,23 @@
                                 <span class="fw-bold text-danger">@item.UnitPrice.ToString("N0") đ</span>
                             </td>
                             <td class="text-center">
-                                @if (item.UnitsInStock > 0)
+                                @if (item.UnitsInStock >= 4)
                                 {
-                                    <span class="text-success fw-semibold">@item.UnitsInStock</span>
+                                    <span class="badge text-white bg-success px-3 py-2 rounded-pill">
+                                        @item.UnitsInStock
+                                    </span>
+                                }
+                                else if (item.UnitsInStock == 0)
+                                {
+                                    <span class="badge bg-danger text-white">
+                                        Hết hàng
+                                    </span>
                                 }
                                 else
                                 {
-                                    <span class="badge bg-danger">Hết hàng</span>
+                                    <span class="badge text-white bg-warning px-3 py-2 rounded-pill">
+                                        @item.UnitsInStock
+                                    </span>
                                 }
                             </td>
                             <td class="pe-4 text-center">
