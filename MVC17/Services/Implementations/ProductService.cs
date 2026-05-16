@@ -46,6 +46,7 @@ namespace MVC17.Services.Implementations
                 {
                     ImageUrl = dto.ImageUrl ?? null,
                 },
+                IsDeleted = dto.IsDeleted,
                 ProductSku = new ProductSku()
                 {
                     UnitPrice = dto.UnitPrice,

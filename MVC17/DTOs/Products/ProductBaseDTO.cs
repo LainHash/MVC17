@@ -39,5 +39,7 @@ namespace MVC17.DTOs.Products
         [Required(ErrorMessage = "Tổng số hàng là bắt buộc")]
         [Range(0, int.MaxValue, ErrorMessage = "Tổng số hàng phải là số dương")]
         public int UnitsInStock { get; set; }
+
+        public bool IsDeleted { get; set; }
     }
 }
