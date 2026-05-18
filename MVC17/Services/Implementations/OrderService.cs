@@ -141,11 +141,17 @@ namespace MVC17.Services.Implementations
         {
             var employee = await _context.Employees
                 .FirstOrDefaultAsync(e => e.UserId == employeeUserId);
-            if (employee == null) return null;
+            if (employee == null)
+            {
+                return null;
+            }
 
             var invoice = await _context.Invoices
                 .FirstOrDefaultAsync(iv => iv.InvoiceId == invoiceId);
-            if (invoice == null) return null;
+            if (invoice == null)
+            {
+                return null;
+            }
 
             var vwInvoice = await _context.VwInvoices
                 .FirstOrDefaultAsync(iv => iv.InvoiceId == invoiceId);
@@ -160,8 +166,8 @@ namespace MVC17.Services.Implementations
                 EmployeeId = employee.EmployeeId,
                 OrderedDate = invoice.OrderedDate,
                 RequiredDate = invoice.RequiredDate,
-                ShippedDate = invoice.ShippedDate,
-                NewShippedDate = DateOnly.FromDateTime(DateTime.Now),
+                ShippedDate = null,
+                NewShippedDate = null,
                 Status = invoice.Status,
                 TotalAmount = invoice.TotalAmount,
                 Note = invoice.Note
@@ -227,7 +233,7 @@ namespace MVC17.Services.Implementations
                 }
 
                 invoice.ShippedDate = model.NewShippedDate;
-                invoice.RequiredDate = model.NewShippedDate.AddDays((int)Distances.CalculateShippingDays(customer.Pi.City));
+                invoice.RequiredDate = DateOnly.FromDateTime(DateTime.Now).AddDays((int)Distances.CalculateShippingDays(customer.Pi.City));
 
                 if (!string.IsNullOrEmpty(model.ConfirmationNote))
                 {

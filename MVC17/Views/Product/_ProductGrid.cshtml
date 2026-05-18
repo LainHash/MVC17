@@ -73,10 +73,10 @@
                                         @product.UnitPrice.ToString("N0") đ
                                     </h6>
                                 </div>
-                                <a class="btn btn-outline-primary btn-sm rounded-circle"
-                                   asp-controller="Order"
+                                <a asp-controller="Order"
                                    asp-action="Checkout"
-                                   asp-route-productId="@product.ProductId">
+                                   asp-route-productId="@product.ProductId"
+                                   class="btn btn-primary w-100 rounded-pill fw-bold">
                                     Mua ngay
                                 </a>
                                 <form asp-controller="Cart"

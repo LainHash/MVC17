@@ -70,7 +70,7 @@ namespace MVC17.Controllers
             }
 
             ViewBag.Cities = new SelectList(UserProfileConstants.Cities);
-            ViewBag.Countries = new SelectList(UserProfileConstants.Countries);
+            //ViewBag.Countries = new SelectList(UserProfileConstants.Countries);
             ViewBag.ProductDiscounts = new SelectList(_orderService
                 .GetDiscount("Product")
                 .Select(d => new { Value = d.DiscountAmount, Text = $"{(d.DiscountAmount * 100):0}%" }),

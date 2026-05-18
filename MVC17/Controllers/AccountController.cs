@@ -158,7 +158,7 @@ namespace MVC17.Controllers
             return RedirectToAction("Login");
         }
 
-        [Authorize(Policy = "Customer")]
+        [Authorize]
         public async Task<IActionResult> Profile()
         {
             if (!TryGetCurrentUserId(out int userId))
@@ -167,6 +167,18 @@ namespace MVC17.Controllers
             }
 
 
+            var customer = await _context.VwCustomerProfiles
+                .FirstOrDefaultAsync(c => c.UserId == userId);
+            if (customer == null)
+            {
+                return NotFound();
+            }
+            return View(customer);
+        }
+
+        [Authorize]
+        public async Task<IActionResult> ProfileCustomer(int userId)
+        {
             var customer = await _context.VwCustomerProfiles
                 .FirstOrDefaultAsync(c => c.UserId == userId);
             if (customer == null)
@@ -592,6 +604,7 @@ namespace MVC17.Controllers
         {
             return _context.Invoices
                 .Where(iv => iv.CustomerId == customerId)
+                .OrderByDescending(iv => iv.OrderedDate)
                 .ToListAsync();
         }
     }

@@ -1,5 +1,5 @@
 @model MVC17.DTOs.Orders.CheckoutDTO
-
+@using MVC17.Helpers.Constants.Orders
 @{
     ViewData["Title"] = "Checkout";
 }
@@ -24,7 +24,7 @@
                     <div class="card-body">
                         <div class="mb-3">
                             <label asp-for="FullName" class="form-label">Họ và tên</label>
-                            <input asp-for="FullName" class="form-control" required readonly/>
+                            <input asp-for="FullName" class="form-control" required readonly />
                             <span asp-validation-for="FullName" class="text-danger"></span>
                         </div>
 
@@ -48,7 +48,7 @@
 
                         <div class="mb-3">
                             <label asp-for="City" class="form-label">Tỉnh/Thành phố</label>
-                            <input asp-for="City" class="form-control" required readonly />
+                            <input asp-for="City" class="form-control" id="citySelect" required readonly />
                             <span asp-validation-for="City" class="text-danger"></span>
                             <div id="shippingDateInfo" class="mt-2 text-primary small fw-bold">
                                 <i class="bi bi-truck me-1"></i>Dự kiến giao hàng: <span id="estimatedDate">--/--/----</span>
@@ -174,15 +174,15 @@
         $(document).ready(function () {
             @if (TempData["Error"] != null || ViewData["Error"] != null)
             {
-                <text>
-                    var errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
-                    errorModal.show();
-                </text>
+                            <text>
+                                            var errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+                                            errorModal.show();
+                            </text>
             }
 
             const subtotal = @Model.Subtotal;
 
-            let currentShippingFee = @Model.ShippingFee;
+            let currentShippingFee = @Distances.CalculateShippingFee(Model.City);
 
             function formatNumber(amount) {
                 return new Intl.NumberFormat('vi-VN').format(amount);
@@ -217,7 +217,7 @@
                         currentShippingFee = response.fee;
                         $('#shippingFeeDisplay').text(formatCurrency(currentShippingFee));
                         $('#estimatedDate').text(response.estimatedDate);
-                        
+
                         calculateAndDisplayTotal();
                     } else {
                         console.error('Lỗi tính phí vận chuyển:', response.message);

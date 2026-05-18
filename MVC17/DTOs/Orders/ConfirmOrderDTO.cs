@@ -17,7 +17,7 @@ namespace MVC17.DTOs.Orders
 
         public int? NewEmployeeId { get; set; }
         public string? NewStatus { get; set; }
-        public DateOnly NewShippedDate { get; set; }
+        public DateOnly? NewShippedDate { get; set; }
         public string? ConfirmationNote { get; set; }
 
         public List<InvoiceDetailDTO> InvoiceDetails { get; set; } = new List<InvoiceDetailDTO>();

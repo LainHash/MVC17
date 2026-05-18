@@ -94,6 +94,13 @@
                                                 @((item.LineTotal ?? 0).ToString("N0")) đ
                                             </td>
                                             <td class="pe-4 text-center">
+                                                <a asp-controller="Order"
+                                                   asp-action="Checkout"
+                                                   asp-route-productId="@item.ProductId"
+                                                   asp-route-quantity="@item.Quantity"
+                                                   asp-route-isBuyMany="false" class="btn btn-primary w-100 rounded-pill fw-bold">
+                                                    Mua ngay <i class="fas fa-arrow-right ms-2"></i>
+                                                </a>
                                                 <form asp-action="RemoveItem" asp-controller="Cart" method="post" class="d-inline">
                                                     @Html.AntiForgeryToken()
                                                     <input type="hidden" name="cartItemId" value="@item.CartItemId" />
@@ -135,7 +142,7 @@
                         <a asp-controller="Order" asp-action="Checkout" asp-route-isBuyMany="true" class="btn btn-primary w-100 btn-lg rounded-pill fw-bold">
                             Tiến hành thanh toán <i class="fas fa-arrow-right ms-2"></i>
                         </a>
-                        
+
                         <div class="text-center mt-3">
                             <a asp-controller="Home" asp-action="Index" class="text-decoration-none text-muted small">
                                 <i class="fas fa-arrow-left me-1"></i> Tiếp tục mua sắm

@@ -76,8 +76,24 @@
                                     }
                                 </td>
                                 <td class="pe-4 text-center">
-                                    <button class="btn btn-sm btn-outline-secondary" disabled title="Tính năng đang phát triển">
-                                        <i class="fas fa-cog"></i>
+                                    <button class="btn btn-sm btn-outline-secondary">
+                                        @if (item.RoleId == 1)
+                                        {
+                                            <a asp-controller="Account"
+                                               asp-action="ProfileCustomer"
+                                               asp-route-userId="@item.UserId">
+                                                <i class="fas fa-cog"></i>
+                                            </a>
+
+                                        }
+                                        else
+                                        {
+                                            <a asp-controller="Account"
+                                               asp-action="ProfileManager"
+                                               asp-route-userId="@item.UserId">
+                                                <i class="fas fa-cog"></i>
+                                            </a>
+                                        }
                                     </button>
                                 </td>
                             </tr>
