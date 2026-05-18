@@ -1,31 +1,32 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using MVC17.Data;
-using MVC17.DTOs.Accounts.Create;
-using MVC17.DTOs.Accounts.Update;
+using MVC17.DTOs.Accounts.Customers;
+using MVC17.DTOs.Accounts.Customers.Create;
+using MVC17.DTOs.Accounts.Customers.Update;
 using MVC17.Helpers.Constants.Auths.Accounts;
 using MVC17.Helpers.Constants.Sessions;
 using MVC17.Models;
-using System.Security.Claims;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Text;
-using Microsoft.AspNetCore.Authorization;
-using MVC17.ViewModels;
 using MVC17.Services.Interfaces;
+using MVC17.ViewModels;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace MVC17.Controllers
 {
-    public class AccountController : Controller
+    public class CustomerController : Controller
     {
         private readonly Dbmvc05Context _context;
         private readonly IMapper _mapper;
         private readonly IConfiguration _config;
         private readonly IEmailService _emailService;
 
-        public AccountController(Dbmvc05Context context, IMapper mapper, IConfiguration config, IEmailService emailService)
+        public CustomerController(Dbmvc05Context context, IMapper mapper, IConfiguration config, IEmailService emailService)
         {
             _context = context;
             _mapper = mapper;
@@ -33,27 +34,22 @@ namespace MVC17.Controllers
             _emailService = emailService;
         }
 
-        [Authorize(Policy = "Manager")]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Login(LoginDTO dto)
         {
-            var accounts = await _context.Users
-                .Include(u => u.Role)
-                .OrderByDescending(u => u.UserId)
-                .ToListAsync();
-            return View(accounts);
-        }
-
-        public async Task<IActionResult> Login(string email, string password)
-        {
-            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
+            if (string.IsNullOrEmpty(dto.Email) || string.IsNullOrEmpty(dto.Password))
             {
                 return View();
             }
 
             var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.Email == email);
-            if (user != null && BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
+                .FirstOrDefaultAsync(u => u.Email == dto.Email);
+
+            if (user != null && BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
             {
+                if (user.RoleId != 1)
+                {
+                    return RedirectToAction("Login", "Manager");
+                }
                 if (!user.IsActive)
                 {
                     TempData["Error"] = "Tài khoản chưa được xác nhận email. Vui lòng kiểm tra hộp thư của bạn.";
@@ -121,7 +117,8 @@ namespace MVC17.Controllers
             {
                 CustomerCode = "CST" + count.ToString("X6"),
                 User = _mapper.Map<User>(dto),
-                Pi = _mapper.Map<PersonalInformation>(dto.Profile)
+                Pi = _mapper.Map<PersonalInformation>(dto.Profile),
+                AvatarImage = dto.AvatarImage
             };
 
             customer.User.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
@@ -131,7 +128,7 @@ namespace MVC17.Controllers
             _context.Customers.Add(customer);
             await _context.SaveChangesAsync();
 
-            var confirmationLink = Url.Action("ConfirmEmail", "Account", new { userId = customer.User.UserId, token = customer.User.UserUuid }, Request.Scheme);
+            var confirmationLink = Url.Action("ConfirmEmail", "Customer", new { userId = customer.User.UserId, token = customer.User.UserUuid }, Request.Scheme);
             await _emailService.SendEmailAsync(customer.User.Email, "Xác nhận đăng ký tài khoản",
                 $"Vui lòng click vào link sau để xác nhận đăng ký: <a href='{confirmationLink}'>Xác nhận</a>");
 
@@ -158,12 +155,12 @@ namespace MVC17.Controllers
             return RedirectToAction("Login");
         }
 
-        [Authorize]
+        [Authorize(Policy = "Customer")]
         public async Task<IActionResult> Profile()
         {
             if (!TryGetCurrentUserId(out int userId))
             {
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Login", "Customer");
             }
 
 
@@ -173,18 +170,11 @@ namespace MVC17.Controllers
             {
                 return NotFound();
             }
-            return View(customer);
-        }
 
-        [Authorize]
-        public async Task<IActionResult> ProfileCustomer(int userId)
-        {
-            var customer = await _context.VwCustomerProfiles
+            var customerEntity = await _context.Customers
                 .FirstOrDefaultAsync(c => c.UserId == userId);
-            if (customer == null)
-            {
-                return NotFound();
-            }
+            ViewBag.AvatarImage = customerEntity?.AvatarImage;
+
             return View(customer);
         }
 
@@ -193,7 +183,7 @@ namespace MVC17.Controllers
         {
             if (!TryGetCurrentUserId(out int userId))
             {
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Login", "Customer");
             }
 
             var customer = await _context.VwCustomerProfiles
@@ -203,11 +193,15 @@ namespace MVC17.Controllers
                 return NotFound();
             }
 
+            var customerEntity = await _context.Customers
+                .FirstOrDefaultAsync(c => c.UserId == userId);
+
             var dto = new UpdateAccountDTO()
             {
                 Email = customer.AccountEmail,
                 Username = customer.Username,
-                Profile = _mapper.Map<UpdateUserProfileDTO>(customer)
+                Profile = _mapper.Map<UpdateProfileDTO>(customer),
+                AvatarImage = customerEntity?.AvatarImage
             };
 
             ViewBag.Cities = new SelectList(UserProfileConstants.Cities);
@@ -231,7 +225,7 @@ namespace MVC17.Controllers
 
             if (!TryGetCurrentUserId(out int userId))
             {
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Login", "Customer");
             }
 
             var customer = await _context.Customers
@@ -245,6 +239,7 @@ namespace MVC17.Controllers
 
             customer.User.Email = dto.Email;
             customer.User.Username = dto.Username;
+            customer.AvatarImage = dto.AvatarImage;
             _mapper.Map(dto.Profile, customer.Pi);
             await _context.SaveChangesAsync();
             return RedirectToAction("Profile");
@@ -255,7 +250,7 @@ namespace MVC17.Controllers
         {
             if (!TryGetCurrentUserId(out int userId))
             {
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Login", "Customer");
             }
 
             return View(new ChangePasswordDTO());
@@ -273,7 +268,7 @@ namespace MVC17.Controllers
 
             if (!TryGetCurrentUserId(out int userId))
             {
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Login", "Customer");
             }
 
             var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
@@ -311,13 +306,14 @@ namespace MVC17.Controllers
             return RedirectToAction("Login");
         }
 
+
         [HttpGet]
         [Authorize(Policy = "Customer")]
         public async Task<IActionResult> OrderHistory()
         {
             if (!TryGetCurrentUserId(out int userId))
             {
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Login", "Customer");
             }
 
             var customer = await GetCustomerAsync(userId);
@@ -330,176 +326,6 @@ namespace MVC17.Controllers
             var orderHistory = _mapper.Map<List<OrderHistoryVM>>(invoice);
 
             return View(orderHistory);
-        }
-
-        [Authorize(Policy = "Manager")]
-        public async Task<IActionResult> ProfileManager()
-        {
-            if (!TryGetCurrentUserId(out int userId))
-            {
-                return RedirectToAction("Login", "Account");
-            }
-
-            var employee = await GetEmployeeAsync(userId);
-            if (employee == null)
-            {
-                return NotFound("Không tìm thấy thông tin nhân viên.");
-            }
-
-            return View(employee);
-        }
-
-        [Authorize(Policy = "Manager")]
-        public async Task<IActionResult> EditManager()
-        {
-            if (!TryGetCurrentUserId(out int userId))
-            {
-                return RedirectToAction("Login", "Account");
-            }
-
-            var employee = await _context.Employees
-                .Include(e => e.User)
-                .Include(e => e.Pi)
-                .FirstOrDefaultAsync(e => e.UserId == userId);
-            if (employee == null)
-            {
-                return NotFound("Không tìm thấy thông tin nhân viên.");
-            }
-
-            var dto = new ManagerProfileEditDTO()
-            {
-                EmployeeId = employee.EmployeeId,
-                EmployeeCode = employee.EmployeeCode,
-                Username = employee.User.Username,
-                Email = employee.User.Email,
-                CompanyEmail = employee.CompanyEmail,
-                FirstName = employee.Pi?.FirstName ?? "",
-                LastName = employee.Pi?.LastName ?? "",
-                Gender = employee.Pi?.Gender ?? false,
-                Dob = employee.Pi?.Dob ?? DateOnly.FromDateTime(DateTime.Now),
-                City = employee.Pi?.City ?? "",
-                Country = employee.Pi?.Country ?? "",
-                Address = employee.Pi?.Address ?? "",
-                Phone = employee.Pi?.Phone ?? "",
-                CitizenIdentityCard = employee.Pi?.CitizenIdentityCard ?? ""
-            };
-
-            ViewBag.Cities = new SelectList(UserProfileConstants.Cities);
-            ViewBag.Countries = new SelectList(UserProfileConstants.Countries);
-            ViewBag.Genders = new SelectList(UserProfileConstants.Genders, "Key", "Value");
-            return View(dto);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Authorize(Policy = "Manager")]
-        public async Task<IActionResult> EditManager(ManagerProfileEditDTO dto)
-        {
-            if (!ModelState.IsValid)
-            {
-                ViewBag.Cities = new SelectList(UserProfileConstants.Cities);
-                ViewBag.Countries = new SelectList(UserProfileConstants.Countries);
-                ViewBag.Genders = new SelectList(UserProfileConstants.Genders, "Key", "Value");
-                return View(dto);
-            }
-
-            if (!TryGetCurrentUserId(out int userId))
-            {
-                return RedirectToAction("Login", "Account");
-            }
-
-            var employee = await _context.Employees
-                .Include(e => e.User)
-                .Include(e => e.Pi)
-                .FirstOrDefaultAsync(e => e.UserId == userId);
-            if (employee == null)
-            {
-                return NotFound("Không tìm thấy thông tin nhân viên.");
-            }
-
-            employee.User.Username = dto.Username;
-            employee.User.Email = dto.Email;
-
-            employee.CompanyEmail = dto.CompanyEmail;
-
-            if (employee.Pi != null)
-            {
-                employee.Pi.FirstName = dto.FirstName;
-                employee.Pi.LastName = dto.LastName;
-                employee.Pi.Gender = dto.Gender;
-                employee.Pi.Dob = dto.Dob;
-                employee.Pi.City = dto.City;
-                employee.Pi.Country = dto.Country;
-                employee.Pi.Address = dto.Address;
-                employee.Pi.Phone = dto.Phone;
-                employee.Pi.Email = dto.Email;
-                employee.Pi.CitizenIdentityCard = dto.CitizenIdentityCard;
-            }
-
-            await _context.SaveChangesAsync();
-            TempData["Success"] = "Cập nhật thông tin thành công.";
-            return RedirectToAction("ProfileManager");
-        }
-
-        [Authorize(Policy = "Manager")]
-        public IActionResult ChangePasswordManager()
-        {
-            if (!TryGetCurrentUserId(out int userId))
-            {
-                return RedirectToAction("Login", "Account");
-            }
-
-            return View(new ChangePasswordDTO());
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Authorize(Policy = "Manager")]
-        public async Task<IActionResult> ChangePasswordManager(ChangePasswordDTO dto)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View(dto);
-            }
-
-            if (!TryGetCurrentUserId(out int userId))
-            {
-                return RedirectToAction("Login", "Account");
-            }
-
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            if (!BCrypt.Net.BCrypt.Verify(dto.OldPassword, user.PasswordHash))
-            {
-                ModelState.AddModelError(nameof(dto.OldPassword), "Mật khẩu cũ không đúng");
-                return View(dto);
-            }
-
-            if (dto.NewPassword != dto.ConfirmNewPassword)
-            {
-                ModelState.AddModelError(nameof(dto.ConfirmNewPassword), "Xác nhận mật khẩu không khớp");
-                return View(dto);
-            }
-
-            if (dto.OldPassword == dto.NewPassword)
-            {
-                ModelState.AddModelError(nameof(dto.NewPassword), "Mật khẩu mới không được trùng mật khẩu cũ");
-                return View(dto);
-            }
-
-            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
-
-            await _context.SaveChangesAsync();
-
-            Response.Cookies.Delete("jwt");
-            HttpContext.Session.Clear();
-            TempData["Success"] = "Đổi mật khẩu thành công. Vui lòng đăng nhập lại.";
-
-            return RedirectToAction("Login");
         }
 
         private async Task MergeCartAsync(int userId)
@@ -584,14 +410,6 @@ namespace MVC17.Controllers
             return int.TryParse(raw, out userId);
         }
 
-        private Task<Employee?> GetEmployeeAsync(int userId)
-        {
-            return _context.Employees
-                .Include(e => e.User)
-                .Include(e => e.Pi)
-                .FirstOrDefaultAsync(e => e.UserId == userId);
-        }
-
         private Task<Customer?> GetCustomerAsync(int userId)
         {
             return _context.Customers
@@ -604,7 +422,7 @@ namespace MVC17.Controllers
         {
             return _context.Invoices
                 .Where(iv => iv.CustomerId == customerId)
-                .OrderByDescending(iv => iv.OrderedDate)
+                .OrderByDescending(iv => new { iv.OrderedDate, iv.UpdatedAt })
                 .ToListAsync();
         }
     }

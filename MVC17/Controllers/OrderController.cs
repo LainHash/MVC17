@@ -47,7 +47,7 @@ namespace MVC17.Controllers
 
             if (!TryGetCurrentUserId(out int userId))
             {
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Login", "Customer");
             }
 
             
@@ -92,7 +92,7 @@ namespace MVC17.Controllers
         {
             if (!TryGetCurrentUserId(out int userId))
             {
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Login", "Customer");
             }
 
             var result = await _orderService.ProcessCheckoutAsync(userId, model);
@@ -117,7 +117,7 @@ namespace MVC17.Controllers
         {
             if (!TryGetCurrentUserId(out int userId))
             {
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Login", "Customer");
             }
             var invoice = await _orderService.GetVwInvoiceByIdAsync(id, userId);
             return View(invoice);
@@ -129,7 +129,7 @@ namespace MVC17.Controllers
         {
             if (!TryGetCurrentUserId(out int userId))
             {
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Login", "Customer");
             }
 
             var invoice = await _orderService.GetVwInvoiceByIdAsync(id, userId);
@@ -150,7 +150,7 @@ namespace MVC17.Controllers
         {
             if (!TryGetCurrentUserId(out int userId))
             {
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Login", "Manager");
             }
 
             var model = await _orderService.PrepareConfirmOrderAsync(id, userId);

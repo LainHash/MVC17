@@ -233,7 +233,7 @@ namespace MVC17.Services.Implementations
                 }
 
                 invoice.ShippedDate = model.NewShippedDate;
-                invoice.RequiredDate = DateOnly.FromDateTime(DateTime.Now).AddDays((int)Distances.CalculateShippingDays(customer.Pi.City));
+                invoice.RequiredDate = DateTime.Now.AddDays((int)Distances.CalculateShippingDays(customer.Pi.City));
 
                 if (!string.IsNullOrEmpty(model.ConfirmationNote))
                 {
@@ -335,8 +335,8 @@ namespace MVC17.Services.Implementations
             {
                 InvoiceUuid = Guid.NewGuid(),
                 CustomerId = customer.CustomerId,
-                OrderedDate = DateOnly.FromDateTime(DateTime.Now),
-                RequiredDate = DateOnly.FromDateTime(DateTime.Now.AddDays(Distances.CalculateShippingDays(model.City ?? customer.Pi.City))),
+                OrderedDate = DateTime.Now,
+                RequiredDate = DateTime.Now.AddDays((int)Distances.CalculateShippingDays(model.City ?? customer.Pi.City)),
                 Status = "Pending",
                 Subtotal = subtotal,
                 ProductDiscount = model.ProductDiscount,

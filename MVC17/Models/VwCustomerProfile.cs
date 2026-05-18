@@ -29,7 +29,7 @@ public partial class VwCustomerProfile
 
     public string CitizenIdentityCard { get; set; } = null!;
 
-    public Guid? UserUuid { get; set; }
+    public Guid UserUuid { get; set; }
 
     public string Username { get; set; } = null!;
 
@@ -38,4 +38,8 @@ public partial class VwCustomerProfile
     public string RoleName { get; set; } = null!;
 
     public decimal Balance { get; set; }
+
+    public bool IsActive { get; set; }
+
+    public string? AvatarImage { get; set; }
 }

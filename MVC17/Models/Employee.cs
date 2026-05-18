@@ -27,6 +27,8 @@ public partial class Employee
 
     public bool IsDeleted { get; set; }
 
+    public string? AvatarImage { get; set; }
+
     public virtual Department? Department { get; set; }
 
     public virtual ICollection<Employee> InverseManager { get; set; } = new List<Employee>();
@@ -38,6 +40,8 @@ public partial class Employee
     public virtual PersonalInformation? Pi { get; set; }
 
     public virtual Position? Position { get; set; }
+
+    public virtual ICollection<ProductReviewReply> ProductReviewReplies { get; set; } = new List<ProductReviewReply>();
 
     public virtual User User { get; set; } = null!;
 }

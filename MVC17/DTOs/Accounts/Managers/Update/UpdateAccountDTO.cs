@@ -1,8 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
-namespace MVC17.DTOs.Accounts.Update
+namespace MVC17.DTOs.Accounts.Managers.Update
 {
-    public class UpdateAccountDTO : AccountBaseDTO
+    public class UpdateAccountDTO : AccountDTO
     {
         [Display(Name = "Số Dư")]
         [Range(0, int.MaxValue, ErrorMessage = "Số dư phải là số dương")]
@@ -12,6 +12,6 @@ namespace MVC17.DTOs.Accounts.Update
         public ChangePasswordDTO? ChangePassword { get; set; }
 
         [Display(Name = "Hồ Sơ Người Dùng")]
-        public UpdateUserProfileDTO? Profile { get; set; }
+        public UpdateProfileDTO? Profile { get; set; }
     }
 }

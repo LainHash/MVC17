@@ -8,16 +8,16 @@ namespace MVC17.DTOs.Orders
         public string CustomerCode { get; set; } = null!;
         public string? EmployeeCode { get; set; }
         public int? EmployeeId { get; set; }
-        public DateOnly OrderedDate { get; set; }
-        public DateOnly RequiredDate { get; set; }
-        public DateOnly? ShippedDate { get; set; }
+        public DateTime OrderedDate { get; set; }
+        public DateTime RequiredDate { get; set; }
+        public DateTime? ShippedDate { get; set; }
         public string Status { get; set; } = null!;
         public decimal TotalAmount { get; set; }
         public string? Note { get; set; }
 
         public int? NewEmployeeId { get; set; }
         public string? NewStatus { get; set; }
-        public DateOnly? NewShippedDate { get; set; }
+        public DateTime? NewShippedDate { get; set; }
         public string? ConfirmationNote { get; set; }
 
         public List<InvoiceDetailDTO> InvoiceDetails { get; set; } = new List<InvoiceDetailDTO>();

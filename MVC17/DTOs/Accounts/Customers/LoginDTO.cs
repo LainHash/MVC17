@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MVC17.DTOs.Accounts
+namespace MVC17.DTOs.Accounts.Customers
 {
     public class LoginDTO
     {

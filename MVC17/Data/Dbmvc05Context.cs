@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using MVC17.Models;
 using Microsoft.EntityFrameworkCore;
@@ -52,6 +52,10 @@ public partial class Dbmvc05Context : DbContext
 
     public virtual DbSet<Product> Products { get; set; }
 
+    public virtual DbSet<ProductReview> ProductReviews { get; set; }
+
+    public virtual DbSet<ProductReviewReply> ProductReviewReplies { get; set; }
+
     public virtual DbSet<ProductSku> ProductSkus { get; set; }
 
     public virtual DbSet<Ram> Rams { get; set; }
@@ -71,6 +75,8 @@ public partial class Dbmvc05Context : DbContext
     public virtual DbSet<VwCpuSpec> VwCpuSpecs { get; set; }
 
     public virtual DbSet<VwCustomerProfile> VwCustomerProfiles { get; set; }
+
+    public virtual DbSet<VwEmployeeProfile> VwEmployeeProfiles { get; set; }
 
     public virtual DbSet<VwGpuSpec> VwGpuSpecs { get; set; }
 
@@ -119,17 +125,8 @@ public partial class Dbmvc05Context : DbContext
     public virtual DbSet<VwsTotalProduct> VwsTotalProducts { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        // Connection string is supplied via Dependency Injection (Program.cs).
-        // This fallback guard is intentionally left without a hardcoded string so
-        // that missing configuration is caught early with a clear error message.
-        if (!optionsBuilder.IsConfigured)
-        {
-            throw new InvalidOperationException(
-                "DbContext is not configured. Ensure the connection string is provided " +
-                "via the SQL_CONNECTION_STRING environment variable or appsettings.json.");
-        }
-    }
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Data Source=localhost; Initial Catalog=DBMVC05; Persist Security Info=True; User ID=sa; Password=123456; Trust Server Certificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -490,6 +487,43 @@ public partial class Dbmvc05Context : DbContext
                 .HasConstraintName("FK__Products__Suppli__1352D76D");
         });
 
+        modelBuilder.Entity<ProductReview>(entity =>
+        {
+            entity.HasKey(e => e.ReviewId).HasName("PK_Reviews");
+
+            entity.Property(e => e.ReviewId).ValueGeneratedNever();
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(sysdatetime())");
+            entity.Property(e => e.Title).HasMaxLength(255);
+            entity.Property(e => e.UpdatedAt).HasDefaultValueSql("(sysdatetime())");
+
+            entity.HasOne(d => d.Product).WithMany(p => p.ProductReviews)
+                .HasForeignKey(d => d.ProductId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ProductReviews_Products");
+
+            entity.HasOne(d => d.User).WithMany(p => p.ProductReviews)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ProductReviews_Users");
+        });
+
+        modelBuilder.Entity<ProductReviewReply>(entity =>
+        {
+            entity.HasKey(e => e.ReplyId);
+
+            entity.Property(e => e.ReplyId).ValueGeneratedNever();
+
+            entity.HasOne(d => d.Employee).WithMany(p => p.ProductReviewReplies)
+                .HasForeignKey(d => d.EmployeeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ProductReviewReplies_Employees");
+
+            entity.HasOne(d => d.Review).WithMany(p => p.ProductReviewReplies)
+                .HasForeignKey(d => d.ReviewId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ProductReviewReplies_ProductReviews");
+        });
+
         modelBuilder.Entity<ProductSku>(entity =>
         {
             entity.HasKey(e => e.ProductSkuId).HasName("PK__ProductS__3A8042B4135B4ECB");
@@ -681,6 +715,50 @@ public partial class Dbmvc05Context : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.RoleName)
                 .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.Username)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<VwEmployeeProfile>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("vw_EmployeeProfiles");
+
+            entity.Property(e => e.Balance).HasColumnType("decimal(15, 2)");
+            entity.Property(e => e.CitizenIdentityCard)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.City).HasMaxLength(50);
+            entity.Property(e => e.CompanyEmail)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.Country).HasMaxLength(50);
+            entity.Property(e => e.DepartmentName)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.Dob).HasColumnName("DOB");
+            entity.Property(e => e.EmployeeCode)
+                .HasMaxLength(20)
+                .IsFixedLength();
+            entity.Property(e => e.FirstName).HasMaxLength(50);
+            entity.Property(e => e.LastName).HasMaxLength(50);
+            entity.Property(e => e.PersonalEmail)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.Phone)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.PositionName)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.RoleName)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.Status)
+                .HasMaxLength(20)
                 .IsUnicode(false);
             entity.Property(e => e.Username)
                 .HasMaxLength(50)

@@ -1,27 +1,9 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace MVC17.DTOs.Accounts.Update
+namespace MVC17.DTOs.Accounts.Customers
 {
-    public class ManagerProfileEditDTO
+    public class ProfileDTO
     {
-        public int EmployeeId { get; set; }
-        public string EmployeeCode { get; set; } = null!;
-
-        [Display(Name = "Tên Đăng Nhập")]
-        [Required(ErrorMessage = "Tên đăng nhập là bắt buộc")]
-        [StringLength(100, MinimumLength = 3, ErrorMessage = "Tên đăng nhập phải từ 3 đến 100 ký tự")]
-        public string Username { get; set; } = null!;
-
-        [Display(Name = "Email")]
-        [Required(ErrorMessage = "Email là bắt buộc")]
-        [EmailAddress(ErrorMessage = "Địa chỉ email không hợp lệ")]
-        public string Email { get; set; } = null!;
-
-        [Display(Name = "Email Công Ty")]
-        [Required(ErrorMessage = "Email công ty là bắt buộc")]
-        [EmailAddress(ErrorMessage = "Email công ty không hợp lệ")]
-        public string CompanyEmail { get; set; } = null!;
-
         [Display(Name = "Tên")]
         [Required(ErrorMessage = "Tên là bắt buộc")]
         [StringLength(100, MinimumLength = 2, ErrorMessage = "Tên phải từ 2 đến 100 ký tự")]
@@ -57,6 +39,11 @@ namespace MVC17.DTOs.Accounts.Update
         [Required(ErrorMessage = "Số điện thoại là bắt buộc")]
         [RegularExpression(@"^\+?[\d\s\-\(\)]{10,}$", ErrorMessage = "Số điện thoại không hợp lệ")]
         public string Phone { get; set; } = null!;
+
+        [Display(Name = "Email")]
+        [Required(ErrorMessage = "Email là bắt buộc")]
+        [EmailAddress(ErrorMessage = "Địa chỉ email không hợp lệ")]
+        public string Email { get; set; } = null!;
 
         [Display(Name = "Số CMND/CCCD")]
         [Required(ErrorMessage = "Số CMND/CCCD là bắt buộc")]

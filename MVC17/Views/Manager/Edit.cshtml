@@ -1,4 +1,4 @@
-@model MVC17.DTOs.Accounts.Update.ManagerProfileEditDTO
+@model MVC17.DTOs.Accounts.Managers.Update.ManagerProfileEditDTO
 
 @{
     ViewData["Title"] = "Chỉnh Sửa Hồ Sơ Nhân Viên";
@@ -13,12 +13,12 @@
             </h2>
             <p class="text-muted mb-0">Cập nhật thông tin cá nhân của bạn</p>
         </div>
-        <a asp-action="ProfileManager" class="btn btn-outline-secondary">
+        <a asp-action="Profile" class="btn btn-outline-secondary">
             <i class="fas fa-arrow-left"></i> Quay Lại
         </a>
     </div>
 
-    <form method="post" asp-action="EditManager">
+    <form method="post" asp-action="Edit">
         <div class="row">
             <div class="col-lg-8">
                 <!-- Account Information -->
@@ -54,6 +54,14 @@
                                 <label asp-for="CompanyEmail" class="form-label">Email Công Ty</label>
                                 <input type="email" class="form-control form-control-lg" asp-for="CompanyEmail" />
                                 <span asp-validation-for="CompanyEmail" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-md-12">
+                                <label asp-for="AvatarImage" class="form-label">Ảnh Đại Diện (URL)</label>
+                                <input type="text" class="form-control form-control-lg" asp-for="AvatarImage" placeholder="Nhập link ảnh đại diện (URL)..." />
+                                <span asp-validation-for="AvatarImage" class="text-danger small"></span>
                             </div>
                         </div>
                     </div>
@@ -161,14 +169,14 @@
                         </div>
 
                         <div class="d-grid gap-2">
-                            <a asp-action="ProfileManager" class="btn btn-outline-secondary btn-lg">
+                            <a asp-action="Profile" class="btn btn-outline-secondary btn-lg">
                                 <i class="fas fa-times me-2"></i>Hủy
                             </a>
                         </div>
 
                         <hr />
 
-                        <a asp-action="ChangePasswordManager" class="btn btn-warning w-100">
+                        <a asp-action="ChangePassword" class="btn btn-warning w-100">
                             <i class="fas fa-key me-2"></i>Đổi Mật Khẩu
                         </a>
 

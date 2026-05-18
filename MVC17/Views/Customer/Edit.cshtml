@@ -1,4 +1,4 @@
-@model MVC17.DTOs.Accounts.Update.UpdateAccountDTO
+@model MVC17.DTOs.Accounts.Customers.Update.UpdateAccountDTO
 
 @{
     ViewData["Title"] = "Edit Profile";
@@ -29,9 +29,14 @@
                             <input asp-for="Email" class="form-control" />
                             <span asp-validation-for="Email" class="text-danger"></span>
                         </div>
+                        <div class="form-group mb-3">
+                            <label asp-for="AvatarImage" class="control-label"></label>
+                            <input asp-for="AvatarImage" class="form-control" placeholder="Nhập link ảnh đại diện (URL)..." />
+                            <span asp-validation-for="AvatarImage" class="text-danger"></span>
+                        </div>
                         
                         <div class="form-group mt-4 p-3 bg-light rounded border">
-                            <p class="mb-2 fw-bold text-dark">Security Settings</p>
+                             <p class="mb-2 fw-bold text-dark">Security Settings</p>
                             <a asp-action="ChangePassword" class="btn btn-sm btn-outline-dark w-100"><i class="fas fa-key me-2"></i>Đổi mật khẩu</a>
                         </div>
                     </div>

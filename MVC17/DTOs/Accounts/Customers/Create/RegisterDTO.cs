@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+using MVC17.DTOs.Accounts.Customers;
+using System.ComponentModel.DataAnnotations;
 
-namespace MVC17.DTOs.Accounts.Create
+namespace MVC17.DTOs.Accounts.Customers.Create
 {
-    public class RegisterDTO : AccountBaseDTO
+    public class RegisterDTO : AccountDTO
     {
         [Display(Name = "Mật Khẩu")]
         [Required(ErrorMessage = "Mật khẩu là bắt buộc")]
@@ -16,7 +17,10 @@ namespace MVC17.DTOs.Accounts.Create
         [DataType(DataType.Password)]
         public string ConfirmPassword { get; set; } = null!;
 
+        [Display(Name = "Ảnh Đại Diện (URL)")]
+        public string? AvatarImage { get; set; }
+
         [Display(Name = "Hồ Sơ Người Dùng")]
-        public CreateUserProfileDTO? Profile { get; set; }
+        public CreateProfileDTO? Profile { get; set; }
     }
 }

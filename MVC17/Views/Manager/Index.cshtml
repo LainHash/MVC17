@@ -79,17 +79,16 @@
                                     <button class="btn btn-sm btn-outline-secondary">
                                         @if (item.RoleId == 1)
                                         {
-                                            <a asp-controller="Account"
+                                            <a asp-controller="Manager"
                                                asp-action="ProfileCustomer"
                                                asp-route-userId="@item.UserId">
                                                 <i class="fas fa-cog"></i>
                                             </a>
-
                                         }
                                         else
                                         {
-                                            <a asp-controller="Account"
-                                               asp-action="ProfileManager"
+                                            <a asp-controller="Manager"
+                                               asp-action="Profile"
                                                asp-route-userId="@item.UserId">
                                                 <i class="fas fa-cog"></i>
                                             </a>

@@ -25,6 +25,8 @@ public partial class User
 
     public virtual Employee? Employee { get; set; }
 
+    public virtual ICollection<ProductReview> ProductReviews { get; set; } = new List<ProductReview>();
+
     public virtual Role Role { get; set; } = null!;
 
     public virtual ICollection<ShoppingCart> ShoppingCarts { get; set; } = new List<ShoppingCart>();

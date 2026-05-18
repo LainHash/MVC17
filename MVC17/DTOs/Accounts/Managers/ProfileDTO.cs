@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MVC17.DTOs.Accounts
+namespace MVC17.DTOs.Accounts.Managers
 {
-    public class UserProfileBaseDTO
+    public class ProfileDTO
     {
         [Display(Name = "Tên")]
         [Required(ErrorMessage = "Tên là bắt buộc")]

@@ -1,4 +1,4 @@
-﻿@model MVC17.Models.VwCustomerProfile
+@model MVC17.Models.VwEmployeeProfile
 
 @{
     ViewData["Title"] = "Hồ Sơ Nhân Viên";
@@ -9,17 +9,17 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 class="mb-0 fw-bold text-dark">
-                <i class="fas fa-user-circle me-2 text-primary"></i>Hồ Sơ Khách hàng
+                <i class="fas fa-user-circle me-2 text-primary"></i>Hồ Sơ Nhân Viên
             </h2>
             <p class="text-muted mb-0">Xem thông tin cá nhân của bạn</p>
         </div>
         <div class="btn-group">
-            @* <a asp-action="EditManager" class="btn btn-primary">
+            <a asp-action="Edit" class="btn btn-primary">
                 <i class="fas fa-edit me-2"></i>Chỉnh sửa
             </a>
-            <a asp-action="ChangePasswordManager" class="btn btn-warning">
+            <a asp-action="ChangePassword" class="btn btn-warning">
                 <i class="fas fa-key me-2"></i>Đổi mật khẩu
-            </a> *@
+            </a>
         </div>
     </div>
 
@@ -36,12 +36,12 @@
                 <div class="card-body">
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label class="form-label text-muted small">Mã Khách hàng</label>
-                            <p class="fw-bold text-dark">@Model.CustomerCode</p>
+                            <label class="form-label text-muted small">Mã Nhân Viên</label>
+                            <p class="fw-bold text-dark">@Model.EmployeeCode</p>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label text-muted small">Email Đăng nhập</label>
-                            <p class="fw-bold text-dark">@Model.AccountEmail</p>
+                            <label class="form-label text-muted small">Email Công Ty</label>
+                            <p class="fw-bold text-dark">@Model.CompanyEmail</p>
                         </div>
                     </div>
 
@@ -66,7 +66,7 @@
                         <div class="col-md-6">
                             <label class="form-label text-muted small">Ngày Sinh</label>
                             <p class="fw-bold text-dark">
-                                    @Model.Dob.ToString("dd/MM/yyyy")
+                                @Model.Dob.ToString("dd/MM/yyyy")
                             </p>
                         </div>
                     </div>
@@ -113,7 +113,7 @@
                 </div>
             </div>
 
-            @* <!-- Work Information Card -->
+            <!-- Work Information Card -->
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-white border-bottom">
                     <h5 class="mb-0 py-2">
@@ -139,7 +139,7 @@
                         </div>
                     </div>
                 </div>
-            </div> *@
+            </div>
         </div>
 
         <!-- Account Information Sidebar -->
@@ -152,6 +152,18 @@
                     </h5>
                 </div>
                 <div class="card-body">
+                    <div class="text-center mb-3">
+                        @if (!string.IsNullOrEmpty(Model.AvatarImage))
+                        {
+                            <img src="@Model.AvatarImage" alt="Avatar" class="rounded-circle shadow-sm border" style="width: 100px; height: 100px; object-fit: cover;" />
+                        }
+                        else
+                        {
+                            <div class="rounded-circle shadow-sm border bg-light d-inline-flex justify-content-center align-items-center text-secondary" style="width: 100px; height: 100px;">
+                                <i class="fas fa-user fa-3x"></i>
+                            </div>
+                        }
+                    </div>
                     <div class="mb-3">
                         <label class="form-label text-muted small">Tên Đăng Nhập</label>
                         <p class="fw-bold text-dark">@Model.Username</p>
@@ -161,14 +173,14 @@
                         <label class="form-label text-muted small">Email Đăng Nhập</label>
                         <p class="fw-bold text-dark">
                             <i class="fas fa-envelope me-1 text-muted"></i>
-                            @Model.AccountEmail
+                            @Model.PersonalEmail
                         </p>
                     </div>
 
                     <div class="mb-3">
-                        @* <label class="form-label text-muted small">Trạng Thái Tài Khoản</label>
+                        <label class="form-label text-muted small">Trạng Thái Tài Khoản</label>
                         <p class="mb-0">
-                            @if (Model.IsActive == true)
+                            @if (Model.IsActive)
                             {
                                 <span class="badge bg-success">
                                     <i class="fas fa-check-circle me-1"></i>Đã Kích Hoạt
@@ -180,7 +192,7 @@
                                     <i class="fas fa-exclamation-circle me-1"></i>Chưa Kích Hoạt
                                 </span>
                             }
-                        </p> *@
+                        </p>
                     </div>
 
                     <div class="mb-3">
@@ -192,17 +204,17 @@
 
                     <hr />
 
-                    @* <a asp-action="ChangePasswordManager" class="btn btn-warning w-100">
+                    <a asp-action="ChangePassword" class="btn btn-warning w-100">
                         <i class="fas fa-key me-2"></i>Đổi Mật Khẩu
-                    </a> *@
+                    </a>
                 </div>
             </div>
 
             <!-- Info Box -->
-            @* <div class="alert alert-info" role="alert">
+            <div class="alert alert-info" role="alert">
                 <i class="fas fa-info-circle me-2"></i>
                 <strong>Lưu ý:</strong> Để cập nhật thông tin của bạn, vui lòng nhấp vào nút "Chỉnh sửa" ở trên.
-            </div> *@
+            </div>
         </div>
     </div>
 </div>

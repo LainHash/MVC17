@@ -1,7 +1,7 @@
-@model MVC17.Models.Employee
+@model MVC17.Models.VwCustomerProfile
 
 @{
-    ViewData["Title"] = "Hồ Sơ Nhân Viên";
+    ViewData["Title"] = "Hồ Sơ Khách Hàng";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -9,17 +9,17 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 class="mb-0 fw-bold text-dark">
-                <i class="fas fa-user-circle me-2 text-primary"></i>Hồ Sơ Nhân Viên
+                <i class="fas fa-user-circle me-2 text-primary"></i>Hồ Sơ Khách hàng
             </h2>
-            <p class="text-muted mb-0">Xem thông tin cá nhân của bạn</p>
+            <p class="text-muted mb-0">Xem thông tin cá nhân của khách hàng</p>
         </div>
         <div class="btn-group">
-            <a asp-action="EditManager" class="btn btn-primary">
+            @* <a asp-action="EditManager" class="btn btn-primary">
                 <i class="fas fa-edit me-2"></i>Chỉnh sửa
             </a>
             <a asp-action="ChangePasswordManager" class="btn btn-warning">
                 <i class="fas fa-key me-2"></i>Đổi mật khẩu
-            </a>
+            </a> *@
         </div>
     </div>
 
@@ -36,23 +36,23 @@
                 <div class="card-body">
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label class="form-label text-muted small">Mã Nhân Viên</label>
-                            <p class="fw-bold text-dark">@Model.EmployeeCode</p>
+                            <label class="form-label text-muted small">Mã Khách hàng</label>
+                            <p class="fw-bold text-dark">@Model.CustomerCode</p>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label text-muted small">Email Công Ty</label>
-                            <p class="fw-bold text-dark">@Model.CompanyEmail</p>
+                            <label class="form-label text-muted small">Email Đăng nhập</label>
+                            <p class="fw-bold text-dark">@Model.AccountEmail</p>
                         </div>
                     </div>
 
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="form-label text-muted small">Tên</label>
-                            <p class="fw-bold text-dark">@Model.Pi?.FirstName</p>
+                            <p class="fw-bold text-dark">@Model.FirstName</p>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label text-muted small">Họ</label>
-                            <p class="fw-bold text-dark">@Model.Pi?.LastName</p>
+                            <p class="fw-bold text-dark">@Model.LastName</p>
                         </div>
                     </div>
 
@@ -60,19 +60,13 @@
                         <div class="col-md-6">
                             <label class="form-label text-muted small">Giới Tính</label>
                             <p class="fw-bold text-dark">
-                                @if (Model.Pi != null)
-                                {
-                                    @(Model.Pi.Gender ? "Nam" : "Nữ")
-                                }
+                                @(Model.Gender ? "Nam" : "Nữ")
                             </p>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label text-muted small">Ngày Sinh</label>
                             <p class="fw-bold text-dark">
-                                @if (Model.Pi != null)
-                                {
-                                    @Model.Pi.Dob.ToString("dd/MM/yyyy")
-                                }
+                                    @Model.Dob.ToString("dd/MM/yyyy")
                             </p>
                         </div>
                     </div>
@@ -81,13 +75,13 @@
                         <div class="col-md-6">
                             <label class="form-label text-muted small">Số Điện Thoại</label>
                             <p class="fw-bold text-dark">
-                                <i class="fas fa-phone me-1 text-muted"></i>@Model.Pi?.Phone
+                                <i class="fas fa-phone me-1 text-muted"></i>@Model.Phone
                             </p>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label text-muted small">Email Cá Nhân</label>
                             <p class="fw-bold text-dark">
-                                <i class="fas fa-envelope me-1 text-muted"></i>@Model.Pi?.Email
+                                <i class="fas fa-envelope me-1 text-muted"></i>@Model.PersonalEmail
                             </p>
                         </div>
                     </div>
@@ -95,53 +89,25 @@
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="form-label text-muted small">Quốc Gia</label>
-                            <p class="fw-bold text-dark">@Model.Pi?.Country</p>
+                            <p class="fw-bold text-dark">@Model.Country</p>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label text-muted small">Tỉnh/Thành Phố</label>
-                            <p class="fw-bold text-dark">@Model.Pi?.City</p>
+                            <p class="fw-bold text-dark">@Model.City</p>
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col-12">
                             <label class="form-label text-muted small">Địa Chỉ</label>
-                            <p class="fw-bold text-dark">@Model.Pi?.Address</p>
+                            <p class="fw-bold text-dark">@Model.Address</p>
                         </div>
                     </div>
 
-                    <div class="row">
+                    <div class="row pt-3">
                         <div class="col-12">
                             <label class="form-label text-muted small">Số CMND/CCCD</label>
-                            <p class="fw-bold text-dark">@Model.Pi?.CitizenIdentityCard</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Work Information Card -->
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-white border-bottom">
-                    <h5 class="mb-0 py-2">
-                        <i class="fas fa-briefcase text-success me-2"></i>Thông Tin Công Việc
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label text-muted small">Ngày Bắt Đầu Công Việc</label>
-                            <p class="fw-bold text-dark">
-                                <i class="fas fa-calendar-alt me-1 text-muted"></i>
-                                @Model.HiredDate.ToString("dd/MM/yyyy")
-                            </p>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label text-muted small">Trạng Thái</label>
-                            <p class="fw-bold">
-                                <span class="badge @(Model.Status == "Active" ? "bg-success" : "bg-secondary")">
-                                    @(Model.Status ?? "Unknown")
-                                </span>
-                            </p>
+                            <p class="fw-bold text-dark">@Model.CitizenIdentityCard</p>
                         </div>
                     </div>
                 </div>
@@ -158,56 +124,38 @@
                     </h5>
                 </div>
                 <div class="card-body">
+                    <div class="text-center mb-3">
+                        @if (ViewBag.AvatarImage != null && !string.IsNullOrEmpty(ViewBag.AvatarImage as string))
+                        {
+                            <img src="@ViewBag.AvatarImage" alt="Avatar" class="rounded-circle shadow-sm border" style="width: 100px; height: 100px; object-fit: cover;" />
+                        }
+                        else
+                        {
+                            <div class="rounded-circle shadow-sm border bg-light d-inline-flex justify-content-center align-items-center text-secondary" style="width: 100px; height: 100px;">
+                                <i class="fas fa-user fa-3x"></i>
+                            </div>
+                        }
+                    </div>
                     <div class="mb-3">
                         <label class="form-label text-muted small">Tên Đăng Nhập</label>
-                        <p class="fw-bold text-dark">@Model.User?.Username</p>
+                        <p class="fw-bold text-dark">@Model.Username</p>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label text-muted small">Email Đăng Nhập</label>
                         <p class="fw-bold text-dark">
                             <i class="fas fa-envelope me-1 text-muted"></i>
-                            @Model.User?.Email
-                        </p>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label text-muted small">Trạng Thái Tài Khoản</label>
-                        <p class="mb-0">
-                            @if (Model.User?.IsActive == true)
-                            {
-                                <span class="badge bg-success">
-                                    <i class="fas fa-check-circle me-1"></i>Đã Kích Hoạt
-                                </span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-warning">
-                                    <i class="fas fa-exclamation-circle me-1"></i>Chưa Kích Hoạt
-                                </span>
-                            }
+                            @Model.AccountEmail
                         </p>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label text-muted small">Số Dư Tài Khoản</label>
                         <p class="fw-bold text-primary fs-5">
-                            @String.Format("{0:N0} đ", Model.User?.Balance ?? 0)
+                            @String.Format("{0:N0} đ", Model.Balance)
                         </p>
                     </div>
-
-                    <hr />
-
-                    <a asp-action="ChangePasswordManager" class="btn btn-warning w-100">
-                        <i class="fas fa-key me-2"></i>Đổi Mật Khẩu
-                    </a>
                 </div>
-            </div>
-
-            <!-- Info Box -->
-            <div class="alert alert-info" role="alert">
-                <i class="fas fa-info-circle me-2"></i>
-                <strong>Lưu ý:</strong> Để cập nhật thông tin của bạn, vui lòng nhấp vào nút "Chỉnh sửa" ở trên.
             </div>
         </div>
     </div>

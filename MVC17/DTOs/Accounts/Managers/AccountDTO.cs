@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MVC17.DTOs.Accounts
+namespace MVC17.DTOs.Accounts.Managers
 {
-    public class AccountBaseDTO
+    public class AccountDTO
     {
         [Display(Name = "Tên Đăng Nhập")]
         [Required(ErrorMessage = "Tên đăng nhập là bắt buộc")]

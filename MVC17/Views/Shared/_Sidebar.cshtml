@@ -1,6 +1,10 @@
+@using System.Security.Claims
 @{
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+    var roleClaim = User.FindFirstValue(ClaimTypes.Role);
+    bool isManager = User.Identity?.IsAuthenticated == true && roleClaim != "1";
+    var profileController = isManager ? "Manager" : "Customer";
 }
 
 <style>
@@ -62,9 +66,9 @@
            asp-action="Index">
         <i class="fas fa-shopping-cart fa-lg"></i>
     </a>
-    <a class="sidebar-link @(currentController == "Account" && currentAction == "Profile" ? "active" : "")"
+    <a class="sidebar-link @(currentController == profileController && currentAction == "Profile" ? "active" : "")"
            title="Tài khoản"
-           asp-controller="Account"
+           asp-controller="@profileController"
            asp-action="Profile">
         <i class="fas fa-user fa-lg"></i>
     </a>

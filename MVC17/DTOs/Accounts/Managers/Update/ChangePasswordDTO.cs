@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MVC17.DTOs.Accounts.Update
+namespace MVC17.DTOs.Accounts.Managers.Update
 {
     public class ChangePasswordDTO
     {

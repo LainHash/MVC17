@@ -1,18 +1,18 @@
 @{
     Layout = "_Layout";
-    ViewData["Title"] = "Đăng nhập";
+    ViewData["Title"] = "Đăng nhập - Quản lý";
 }
-@model MVC17.DTOs.Accounts.LoginDTO
+@model MVC17.DTOs.Accounts.Managers.LoginDTO
 
-<div class="row justify-content-center w-100 m-0">
+<div class="row justify-content-center w-100 m-0 py-5">
     <div class="col-md-6 col-lg-5">
-        <div class="card auth-card">
-            <div class="card-header text-center">
-                <h3>Đăng nhập</h3>
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-header bg-white border-bottom-0 text-center pt-4">
+                <h3 class="fw-bold text-dark">Đăng nhập - Quản lý</h3>
             </div>
-            <div class="card-body">
+            <div class="card-body px-4 pb-4">
 
-                @* Thông báo thành công (từ TempData sau redirect) *@
+                @* Success message *@
                 @if (TempData["Success"] != null)
                 {
                     <div class="alert alert-success alert-dismissible fade show d-flex align-items-center gap-2 mb-3" role="alert">
@@ -24,7 +24,7 @@
                     </div>
                 }
 
-                @* Thông báo lỗi từ TempData *@
+                @* Error message *@
                 @if (TempData["Error"] != null)
                 {
                     <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center gap-2 mb-3" role="alert">
@@ -36,7 +36,7 @@
                     </div>
                 }
 
-                @* Thông báo lỗi từ ViewData (sai email/mật khẩu trả về ngay) *@
+                @* Error view data *@
                 @if (ViewData["Error"] != null)
                 {
                     <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center gap-2 mb-3" role="alert">
@@ -48,7 +48,7 @@
                     </div>
                 }
 
-                <form method="post" asp-action="Login">
+                <form method="post" asp-controller="Manager" asp-action="Login">
                     <div class="mb-3">
                         <label asp-for="Email" class="form-label">Địa chỉ Email</label>
                         <input type="email" asp-for="Email" class="form-control" placeholder="Nhập email của bạn" />
@@ -68,8 +68,8 @@
                     </div>
                 </form>
             </div>
-            <div class="card-footer text-center">
-                <small>Chưa có tài khoản? <a asp-action="Register">Đăng ký ngay</a></small>
+            <div class="card-footer bg-white border-top-0 text-center pb-4">
+                <small>Chưa có tài khoản? <a asp-controller="Manager" asp-action="Register">Đăng ký ngay</a></small>
             </div>
         </div>
     </div>

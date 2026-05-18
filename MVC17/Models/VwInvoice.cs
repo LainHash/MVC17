@@ -15,11 +15,11 @@ public partial class VwInvoice
 
     public int InvoiceId { get; set; }
 
-    public DateOnly OrderedDate { get; set; }
+    public DateTime OrderedDate { get; set; }
 
-    public DateOnly RequiredDate { get; set; }
+    public DateTime RequiredDate { get; set; }
 
-    public DateOnly? ShippedDate { get; set; }
+    public DateTime? ShippedDate { get; set; }
 
     public string Status { get; set; } = null!;
 
