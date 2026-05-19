@@ -28,6 +28,40 @@ namespace MVC17.Controllers
         }
 
         [Authorize(Policy = "Manager")]
+        [HttpGet]
+        public async Task<IActionResult> FilterOrders(string? search, string? status, DateTime? startDate, DateTime? endDate)
+        {
+            var invoices = await _orderService.GetAllInvoicesAsync();
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                var searchLower = search.Trim().ToLower();
+                invoices = invoices.Where(i => 
+                    i.InvoiceId.ToString().Contains(searchLower) ||
+                    (i.CustomerCode != null && i.CustomerCode.ToLower().Contains(searchLower)) ||
+                    (i.EmployeeCode != null && i.EmployeeCode.ToLower().Contains(searchLower))
+                );
+            }
+
+            if (!string.IsNullOrEmpty(status) && status != "All")
+            {
+                invoices = invoices.Where(i => i.Status == status);
+            }
+
+            if (startDate.HasValue)
+            {
+                invoices = invoices.Where(i => i.OrderedDate.Date >= startDate.Value.Date);
+            }
+
+            if (endDate.HasValue)
+            {
+                invoices = invoices.Where(i => i.OrderedDate.Date <= endDate.Value.Date);
+            }
+
+            return PartialView("_OrderList", invoices);
+        }
+
+        [Authorize(Policy = "Manager")]
         public async Task<IActionResult> Details(int id)
         {
             var invoice = await _orderService.GetVwInvoiceByIdAsync(id);
@@ -62,7 +96,6 @@ namespace MVC17.Controllers
                 return Json(new { success = false, message = "Không tìm thấy thông tin khách hàng hoặc lỗi xử lý." });
             }
 
-            // Handling the error case for BuyMany specifically if needed
             if (isBuyMany && (model.Items == null || !model.Items.Any()))
             {
                 ViewData["Error"] = "Giỏ hàng trống!";
@@ -70,7 +103,6 @@ namespace MVC17.Controllers
             }
 
             ViewBag.Cities = new SelectList(UserProfileConstants.Cities);
-            //ViewBag.Countries = new SelectList(UserProfileConstants.Countries);
             ViewBag.ProductDiscounts = new SelectList(_orderService
                 .GetDiscount("Product")
                 .Select(d => new { Value = d.DiscountAmount, Text = $"{(d.DiscountAmount * 100):0}%" }),

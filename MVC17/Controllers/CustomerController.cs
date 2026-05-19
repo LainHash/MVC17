@@ -422,7 +422,7 @@ namespace MVC17.Controllers
         {
             return _context.Invoices
                 .Where(iv => iv.CustomerId == customerId)
-                .OrderByDescending(iv => new { iv.OrderedDate, iv.UpdatedAt })
+                .OrderByDescending(iv => iv.OrderedDate)
                 .ToListAsync();
         }
     }
