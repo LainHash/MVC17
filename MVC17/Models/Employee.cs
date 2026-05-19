@@ -13,8 +13,6 @@ public partial class Employee
 
     public int? Piid { get; set; }
 
-    public string CompanyEmail { get; set; } = null!;
-
     public DateOnly HiredDate { get; set; }
 
     public string? Status { get; set; }

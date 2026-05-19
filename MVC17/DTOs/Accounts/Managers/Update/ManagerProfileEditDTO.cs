@@ -19,10 +19,6 @@ namespace MVC17.DTOs.Accounts.Managers.Update
         [EmailAddress(ErrorMessage = "Địa chỉ email không hợp lệ")]
         public string Email { get; set; } = null!;
 
-        [Display(Name = "Email Công Ty")]
-        [EmailAddress(ErrorMessage = "Địa chỉ email không hợp lệ")]
-        public string? CompanyEmail { get; set; }
-
         [Display(Name = "Tên")]
         [Required(ErrorMessage = "Tên là bắt buộc")]
         [StringLength(100, MinimumLength = 2, ErrorMessage = "Tên phải từ 2 đến 100 ký tự")]

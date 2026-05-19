@@ -76,7 +76,6 @@ namespace MVC17.Services.Implementations
                 IsBuyMany = isBuyMany,
                 FullName = customer.Pi != null ? $"{customer.Pi.FirstName} {customer.Pi.LastName}" : "",
                 Phone = customer.Pi?.Phone ?? "",
-                Email = customer.Pi?.Email ?? "",
                 Country = customer.Pi?.Country ?? "",
                 City = customer.Pi?.City ?? "",
                 Address = customer.Pi?.Address ?? "",

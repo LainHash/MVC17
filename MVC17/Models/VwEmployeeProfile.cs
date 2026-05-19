@@ -37,11 +37,7 @@ public partial class VwEmployeeProfile
 
     public string CitizenIdentityCard { get; set; } = null!;
 
-    public string PersonalEmail { get; set; } = null!;
-
     public string? AvatarImage { get; set; }
-
-    public string CompanyEmail { get; set; } = null!;
 
     public DateOnly HiredDate { get; set; }
 
@@ -50,4 +46,6 @@ public partial class VwEmployeeProfile
     public string PositionName { get; set; } = null!;
 
     public string DepartmentName { get; set; } = null!;
+
+    public string Email { get; set; } = null!;
 }

@@ -242,7 +242,6 @@ namespace MVC17.Controllers
                 EmployeeCode = employee.EmployeeCode,
                 Username = employee.User.Username,
                 Email = employee.User.Email,
-                CompanyEmail = employee.CompanyEmail,
                 FirstName = employee.Pi?.FirstName ?? "",
                 LastName = employee.Pi?.LastName ?? "",
                 Gender = employee.Pi?.Gender ?? false,
@@ -291,7 +290,6 @@ namespace MVC17.Controllers
             employee.User.Username = dto.Username;
             employee.User.Email = dto.Email;
 
-            employee.CompanyEmail = dto.CompanyEmail;
             employee.AvatarImage = dto.AvatarImage;
 
             if (employee.Pi != null)
@@ -304,7 +302,6 @@ namespace MVC17.Controllers
                 employee.Pi.Country = dto.Country;
                 employee.Pi.Address = dto.Address;
                 employee.Pi.Phone = dto.Phone;
-                employee.Pi.Email = dto.Email;
                 employee.Pi.CitizenIdentityCard = dto.CitizenIdentityCard;
             }
 

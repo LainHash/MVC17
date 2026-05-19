@@ -258,9 +258,6 @@ public partial class Dbmvc05Context : DbContext
 
             entity.HasIndex(e => e.Piid, "UQ__Employee__5F86BE412CC3F7B0").IsUnique();
 
-            entity.Property(e => e.CompanyEmail)
-                .HasMaxLength(100)
-                .IsUnicode(false);
             entity.Property(e => e.EmployeeCode)
                 .HasMaxLength(20)
                 .IsFixedLength();
@@ -437,9 +434,6 @@ public partial class Dbmvc05Context : DbContext
             entity.Property(e => e.City).HasMaxLength(50);
             entity.Property(e => e.Country).HasMaxLength(50);
             entity.Property(e => e.Dob).HasColumnName("DOB");
-            entity.Property(e => e.Email)
-                .HasMaxLength(100)
-                .IsUnicode(false);
             entity.Property(e => e.FirstName).HasMaxLength(50);
             entity.Property(e => e.LastName).HasMaxLength(50);
             entity.Property(e => e.Phone)
@@ -732,22 +726,19 @@ public partial class Dbmvc05Context : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false);
             entity.Property(e => e.City).HasMaxLength(50);
-            entity.Property(e => e.CompanyEmail)
-                .HasMaxLength(100)
-                .IsUnicode(false);
             entity.Property(e => e.Country).HasMaxLength(50);
             entity.Property(e => e.DepartmentName)
                 .HasMaxLength(50)
                 .IsUnicode(false);
             entity.Property(e => e.Dob).HasColumnName("DOB");
+            entity.Property(e => e.Email)
+                .HasMaxLength(100)
+                .IsUnicode(false);
             entity.Property(e => e.EmployeeCode)
                 .HasMaxLength(20)
                 .IsFixedLength();
             entity.Property(e => e.FirstName).HasMaxLength(50);
             entity.Property(e => e.LastName).HasMaxLength(50);
-            entity.Property(e => e.PersonalEmail)
-                .HasMaxLength(100)
-                .IsUnicode(false);
             entity.Property(e => e.Phone)
                 .HasMaxLength(20)
                 .IsUnicode(false);
