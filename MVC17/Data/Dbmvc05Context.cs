@@ -92,6 +92,8 @@ public partial class Dbmvc05Context : DbContext
 
     public virtual DbSet<VwProductReview> VwProductReviews { get; set; }
 
+    public virtual DbSet<VwProductReviewReply> VwProductReviewReplies { get; set; }
+
     public virtual DbSet<VwRamSpec> VwRamSpecs { get; set; }
 
     public virtual DbSet<VwShoppingCart> VwShoppingCarts { get; set; }
@@ -915,6 +917,17 @@ public partial class Dbmvc05Context : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false);
             entity.Property(e => e.Title).HasMaxLength(255);
+            entity.Property(e => e.Username)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<VwProductReviewReply>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("vw_ProductReviewReplies");
+
             entity.Property(e => e.Username)
                 .HasMaxLength(50)
                 .IsUnicode(false);

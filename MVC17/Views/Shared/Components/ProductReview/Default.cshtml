@@ -1,1 +1,72 @@
-﻿
+﻿@model IEnumerable<MVC17.ViewModels.ReviewVM>
+
+@using System.Security.Claims
+@{
+    var roleClaim = User.FindFirstValue(ClaimTypes.Role);
+    bool isManager = User.Identity?.IsAuthenticated == true && roleClaim != "1";
+}
+
+@if (Model != null && Model.Any())
+{
+    <div class="review-list">
+        @foreach (var review in Model)
+        {
+            <div class="card shadow-sm mb-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                            <strong class="text-primary">@(review.Username)</strong>
+                            <span class="text-muted ms-2 small">@review.CreatedAt.ToString("dd/MM/yyyy HH:mm")</span>
+                        </div>
+                        <div>
+                            @for (int i = 0; i < 5; i++)
+                            {
+                                <i class="fas fa-star @(i < review.Rating ? "text-warning" : "text-muted")"></i>
+                            }
+                        </div>
+                    </div>
+                    <h6 class="fw-bold">@review.Title</h6>
+                    <p class="mb-2">@review.Comment</p>
+
+                    @if (review.Replies != null && review.Replies.Any())
+                    {
+                        <div class="mt-3 ms-4 ps-3 border-start border-2 border-primary bg-light p-2 rounded">
+                            @foreach (var reply in review.Replies)
+                            {
+                                <div class="mb-2">
+                                    <strong class="text-info"><i class="fas fa-user-tie me-1"></i> Quản trị viên (@(reply.Username))</strong>
+                                    <span class="text-muted ms-2 small">@(reply.CreatedAt?.ToString("dd/MM/yyyy HH:mm"))</span>
+                                    <p class="mb-0 mt-1">@reply.ReplyContent</p>
+                                </div>
+                            }
+                        </div>
+                    }
+
+                    @if (User.Identity?.IsAuthenticated == true && isManager)
+                    {
+                        <div class="mt-3">
+                            <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#replyForm-@review.ReviewId">
+                                <i class="fas fa-reply me-1"></i> Phản hồi
+                            </button>
+                            <div class="collapse mt-2" id="replyForm-@review.ReviewId">
+                                <form asp-controller="Review" asp-action="AddReply" method="post">
+                                    <input type="hidden" name="reviewId" value="@review.ReviewId" />
+                                    <div class="input-group">
+                                        <textarea name="replyContent" class="form-control" rows="2" placeholder="Nhập phản hồi..." required></textarea>
+                                        <button class="btn btn-primary" type="submit">Gửi</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="alert alert-info">
+        Chưa có đánh giá nào cho sản phẩm này.
+    </div>
+}
