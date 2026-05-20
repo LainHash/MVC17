@@ -21,9 +21,8 @@ namespace MVC17.ViewComponents
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var products = await _context.VwTrendingProducts
-                .Where(p => p.CategoryId == CategoryConstants.Laptop)
-                .OrderByDescending(x => x.CreatedInvoices)
+            var products = await _context.VwTopSellingProducts
+                .OrderByDescending(x => x.TotalSelling)
                 .Take(5)
                 .ToListAsync();
             return View(products);

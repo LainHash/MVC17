@@ -198,7 +198,7 @@ namespace MVC17.Controllers
 
             var dto = new UpdateAccountDTO()
             {
-                Email = customer.AccountEmail,
+                Email = customer.Email,
                 Username = customer.Username,
                 Profile = _mapper.Map<UpdateProfileDTO>(customer),
                 AvatarImage = customerEntity?.AvatarImage

@@ -104,10 +104,10 @@ namespace MVC17.Controllers
                 return NotFound("Sản phẩm không tồn tại!");
             }
 
-            if (product.IsDeleted)
-            {
-                return NotFound("Sản phẩm này đã bị xóa!");
-            }
+            //if (product.IsDeleted)
+            //{
+            //    return NotFound("Sản phẩm này đã bị xóa!");
+            //}
 
             if (product == null)
             {
@@ -115,6 +115,17 @@ namespace MVC17.Controllers
             }
 
             var vm = _mapper.Map<ProductVM>(product);
+
+            vm.Reviews = await _context.ProductReviews
+                .Include(r => r.User)
+                    .ThenInclude(u => u.Customer)
+                        .ThenInclude(c => c.Pi)
+                .Include(r => r.ProductReviewReplies)
+                    .ThenInclude(rr => rr.Employee)
+                        .ThenInclude(e => e.User)
+                .Where(r => r.ProductId == id)
+                .OrderByDescending(r => r.CreatedAt)
+                .ToListAsync();
 
             vm = await GetProductSpec(vm);
 

@@ -1,4 +1,4 @@
-﻿@model IEnumerable<MVC17.Models.VwTrendingProduct>
+﻿@model IEnumerable<MVC17.Models.VwTopSellingProduct>
 @using MVC17.Helpers.Constants.Products
 
 <div class="container-fluid categories py-5">
@@ -29,7 +29,7 @@
                                 </a>
                             </div>
                             <div class="stock-badge">
-                                <span class="badge @(item.UnitsInStock > 0 ? "bg-success" : "bg-danger")">
+                                @* <span class="badge @(item.UnitsInStock > 0 ? "bg-success" : "bg-danger")">
                                     @if (item.UnitsInStock > 0)
                                     {
                                         <span>Còn hàng (@item.UnitsInStock)</span>
@@ -38,7 +38,7 @@
                                     {
                                         <span>Hết hàng</span>
                                     }
-                                </span>
+                                </span> *@
                             </div>
                         </div>
 
@@ -51,9 +51,9 @@
 
                             <div class="product-footer d-flex justify-content-between align-items-center">
                                 <div class="product-price">
-                                    <h6 class="price-value text-primary fw-bold text-nowrap">
+                                    @* <h6 class="price-value text-primary fw-bold text-nowrap">
                                         @item.UnitPrice.ToString("N0") đ
-                                    </h6>
+                                    </h6> *@
                                 </div>
                                 <form asp-controller="Cart"
                                       asp-action="Add"

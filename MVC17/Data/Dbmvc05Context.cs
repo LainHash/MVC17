@@ -90,13 +90,17 @@ public partial class Dbmvc05Context : DbContext
 
     public virtual DbSet<VwProduct> VwProducts { get; set; }
 
+    public virtual DbSet<VwProductReview> VwProductReviews { get; set; }
+
     public virtual DbSet<VwRamSpec> VwRamSpecs { get; set; }
 
     public virtual DbSet<VwShoppingCart> VwShoppingCarts { get; set; }
 
     public virtual DbSet<VwStorageSpec> VwStorageSpecs { get; set; }
 
-    public virtual DbSet<VwTrendingProduct> VwTrendingProducts { get; set; }
+    public virtual DbSet<VwTopRatingProduct> VwTopRatingProducts { get; set; }
+
+    public virtual DbSet<VwTopSellingProduct> VwTopSellingProducts { get; set; }
 
     public virtual DbSet<VwsCancelledOrder> VwsCancelledOrders { get; set; }
 
@@ -485,7 +489,6 @@ public partial class Dbmvc05Context : DbContext
         {
             entity.HasKey(e => e.ReviewId).HasName("PK_Reviews");
 
-            entity.Property(e => e.ReviewId).ValueGeneratedNever();
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(sysdatetime())");
             entity.Property(e => e.Title).HasMaxLength(255);
             entity.Property(e => e.UpdatedAt).HasDefaultValueSql("(sysdatetime())");
@@ -504,8 +507,6 @@ public partial class Dbmvc05Context : DbContext
         modelBuilder.Entity<ProductReviewReply>(entity =>
         {
             entity.HasKey(e => e.ReplyId);
-
-            entity.Property(e => e.ReplyId).ValueGeneratedNever();
 
             entity.HasOne(d => d.Employee).WithMany(p => p.ProductReviewReplies)
                 .HasForeignKey(d => d.EmployeeId)
@@ -686,9 +687,6 @@ public partial class Dbmvc05Context : DbContext
                 .HasNoKey()
                 .ToView("vw_CustomerProfiles");
 
-            entity.Property(e => e.AccountEmail)
-                .HasMaxLength(100)
-                .IsUnicode(false);
             entity.Property(e => e.Balance).HasColumnType("decimal(15, 2)");
             entity.Property(e => e.CitizenIdentityCard)
                 .HasMaxLength(20)
@@ -699,11 +697,11 @@ public partial class Dbmvc05Context : DbContext
                 .HasMaxLength(20)
                 .IsFixedLength();
             entity.Property(e => e.Dob).HasColumnName("DOB");
-            entity.Property(e => e.FirstName).HasMaxLength(50);
-            entity.Property(e => e.LastName).HasMaxLength(50);
-            entity.Property(e => e.PersonalEmail)
+            entity.Property(e => e.Email)
                 .HasMaxLength(100)
                 .IsUnicode(false);
+            entity.Property(e => e.FirstName).HasMaxLength(50);
+            entity.Property(e => e.LastName).HasMaxLength(50);
             entity.Property(e => e.Phone)
                 .HasMaxLength(20)
                 .IsUnicode(false);
@@ -901,6 +899,27 @@ public partial class Dbmvc05Context : DbContext
             entity.Property(e => e.UnitPrice).HasColumnType("decimal(15, 2)");
         });
 
+        modelBuilder.Entity<VwProductReview>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("vw_ProductReviews");
+
+            entity.Property(e => e.CategoryName)
+                .HasMaxLength(255)
+                .IsUnicode(false);
+            entity.Property(e => e.CompanyName)
+                .HasMaxLength(255)
+                .IsUnicode(false);
+            entity.Property(e => e.ProductName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.Title).HasMaxLength(255);
+            entity.Property(e => e.Username)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+        });
+
         modelBuilder.Entity<VwRamSpec>(entity =>
         {
             entity
@@ -951,16 +970,26 @@ public partial class Dbmvc05Context : DbContext
                 .IsUnicode(false);
         });
 
-        modelBuilder.Entity<VwTrendingProduct>(entity =>
+        modelBuilder.Entity<VwTopRatingProduct>(entity =>
         {
             entity
                 .HasNoKey()
-                .ToView("vw_TrendingProducts");
+                .ToView("vw_TopRatingProducts");
 
             entity.Property(e => e.ProductName)
                 .HasMaxLength(100)
                 .IsUnicode(false);
-            entity.Property(e => e.UnitPrice).HasColumnType("decimal(15, 2)");
+        });
+
+        modelBuilder.Entity<VwTopSellingProduct>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("vw_TopSellingProducts");
+
+            entity.Property(e => e.ProductName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
         });
 
         modelBuilder.Entity<VwsCancelledOrder>(entity =>

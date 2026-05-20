@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using MVC17.Models;
 
 namespace MVC17.ViewModels
@@ -19,6 +19,8 @@ namespace MVC17.ViewModels
 
         [Display(Name = "Chi Tiết Bộ Nhớ")]
         public VwStorageSpec? Storage { get; set; }
+
+        public List<ProductReview> Reviews { get; set; } = new List<ProductReview>();
 
     }
 }

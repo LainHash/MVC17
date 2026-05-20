@@ -12,8 +12,7 @@ namespace MVC17.Mappings
                 .ForMember(dest => dest.PasswordHash, opt => opt.MapFrom(src => src.Password));
             CreateMap<DTOs.Accounts.Customers.Create.CreateProfileDTO, PersonalInformation>();
 
-            CreateMap<VwCustomerProfile, DTOs.Accounts.Customers.Update.UpdateProfileDTO>()
-                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.PersonalEmail));
+            CreateMap<VwCustomerProfile, DTOs.Accounts.Customers.Update.UpdateProfileDTO>();
 
             CreateMap<DTOs.Accounts.Customers.Update.UpdateProfileDTO, PersonalInformation>();
 

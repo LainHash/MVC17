@@ -23,8 +23,6 @@ public partial class VwCustomerProfile
 
     public string Address { get; set; } = null!;
 
-    public string PersonalEmail { get; set; } = null!;
-
     public string Phone { get; set; } = null!;
 
     public string CitizenIdentityCard { get; set; } = null!;
@@ -33,7 +31,7 @@ public partial class VwCustomerProfile
 
     public string Username { get; set; } = null!;
 
-    public string AccountEmail { get; set; } = null!;
+    public string Email { get; set; } = null!;
 
     public string RoleName { get; set; } = null!;
 

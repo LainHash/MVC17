@@ -36,7 +36,9 @@
                             </td>
                             <td>
                                 <div class="d-flex flex-column">
-                                    <span class="fw-bold text-dark text-truncate" style="max-width: 250px;" title="@item.ProductName">@item.ProductName</span>
+                                    <a asp-action="Details" asp-route-id="@item.ProductId" class="text-decoration-none">
+                                        <span class="fw-bold text-dark text-truncate" style="max-width: 250px;" title="@item.ProductName">@item.ProductName</span>
+                                    </a>
                                     <span class="text-muted small">@item.CompanyName</span>
                                     @if (item.IsDeleted)
                                     {
