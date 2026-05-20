@@ -9,5 +9,6 @@
         public static string LoginPage = "Đăng nhập";
         public static string LogoutPage = "Đăng xuất";
         public static string UserProfilePage = "Thông tin cá nhân";
+        public static string OrderHistory = "Lịch sử giao dịch";
     }
 }

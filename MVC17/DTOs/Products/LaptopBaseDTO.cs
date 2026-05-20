@@ -19,10 +19,10 @@ namespace MVC17.DTOs.Products
         [StringLength(100, MinimumLength = 2, ErrorMessage = "Phân giải phải từ 2 đến 100 ký tự")]
         public string ScreenResolution { get; set; } = null!;
 
-        [Display(Name = "Chiều Dài (cm)")]
+        [Display(Name = "Chiều Dài (inch)")]
         [DisplayFormat(DataFormatString = "{0:F2}")]
         [Required(ErrorMessage = "Chiều dài là bắt buộc")]
-        [Range(20, 50, ErrorMessage = "Chiều dài phải từ 20 đến 50 cm")]
+        [Range(8, 20, ErrorMessage = "Chiều dài phải từ 8 đến 20 inch")]
         public float Length { get; set; }
 
         [Display(Name = "Trọn Lượng (kg)")]

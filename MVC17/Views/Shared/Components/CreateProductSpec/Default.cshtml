@@ -3,7 +3,7 @@
 <div class="row g-3">
     @switch (Model.CategoryId)
     {
-        case CategoryType.Laptop:
+        case CategoryConstants.Laptop:
             <div class="col-md-6">
                 <input asp-for="Laptop.LaptopType" placeholder="Laptop Type" class="form-control" />
                 <span asp-validation-for="Laptop.LaptopType" class="text-danger"></span>
@@ -50,7 +50,7 @@
                 </select>
             </div>
             break;
-        case CategoryType.CPU:
+        case CategoryConstants.CPU:
             <div class="col-md-4">
                 <input asp-for="Cpu.Cores" placeholder="Cores" class="form-control" />
                 <span asp-validation-for="Cpu.Cores" class="text-danger"></span>
@@ -76,7 +76,7 @@
                 <span asp-validation-for="Cpu.Turbo" class="text-danger"></span>
             </div>
             break;
-        case CategoryType.GPU:
+        case CategoryConstants.GPU:
             <div class="col-md-4">
                 <input asp-for="Gpu.MemorySize" placeholder="Memory" class="form-control" />
                 <span asp-validation-for="Gpu.MemorySize" class="text-danger"></span>
@@ -110,7 +110,7 @@
                 <span asp-validation-for="Gpu.Igpu" class="text-danger"></span>
             </div>
             break;
-        case CategoryType.RAM:
+        case CategoryConstants.RAM:
             <div class="col-md-3">
                 <input asp-for="Ram.Capacity" placeholder="Capacity" class="form-control" />
             </div>
@@ -128,7 +128,7 @@
                 <span asp-validation-for="Ram.Kit" class="text-danger"></span>
             </div>
             break;
-        case CategoryType.Storage:
+        case CategoryConstants.Storage:
             <div class="col-md-4">
                 <input asp-for="Storage.Capacity" placeholder="Capacity" class="form-control" />
                 <span asp-validation-for="Storage.Capacity" class="text-danger"></span>

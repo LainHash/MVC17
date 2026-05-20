@@ -1,83 +1,184 @@
-﻿@model IEnumerable<MVC17.Models.VwInvoice>
+@model IEnumerable<MVC17.Models.VwInvoice>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Quản lý Đơn hàng";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Index</h1>
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-0 fw-bold text-dark">
+                <i class="fas fa-file-invoice-dollar me-2 text-primary"></i>Danh sách Đơn hàng
+            </h2>
+            <p class="text-muted mb-0">Quản lý và theo dõi tất cả hóa đơn trong hệ thống</p>
+        </div>
+    </div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.CustomerCode)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.EmployeeCode)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.OrderDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.RequiredDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ShippedDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Status)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Subtotal)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TotalAmount)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Note)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.CustomerCode)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.EmployeeCode)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.OrderDate)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.RequiredDate)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ShippedDate)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Status)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Subtotal)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.TotalAmount)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Note)
-                </td>
-                <td>
-                    <a asp-action="Details" asp-route-id="@item.InvoiceId">Details</a> 
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+    <!-- Beautiful Glassmorphism Filter Panel -->
+    <div class="card shadow-sm border-0 rounded-3 mb-4 filter-panel glass-panel">
+        <div class="card-body p-4">
+            <h5 class="fw-bold mb-3 text-secondary d-flex align-items-center">
+                <i class="fas fa-filter me-2 text-primary"></i>Bộ lọc đơn hàng
+            </h5>
+            <div class="row g-3">
+                <!-- Search box -->
+                <div class="col-xl-4 col-md-6">
+                    <label class="form-label small text-muted fw-semibold">Tìm kiếm thông tin</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0 text-muted">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text" id="searchInput" class="form-control border-start-0 ps-0" placeholder="Mã ĐH, Mã KH, Mã NV...">
+                    </div>
+                </div>
+
+                <!-- Status dropdown -->
+                <div class="col-xl-3 col-md-6">
+                    <label class="form-label small text-muted fw-semibold">Trạng thái đơn hàng</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0 text-muted">
+                            <i class="fas fa-info-circle"></i>
+                        </span>
+                        <select id="statusSelect" class="form-select border-start-0 ps-0">
+                            <option value="All">Tất cả Trạng thái</option>
+                            <option value="Pending">Chờ xác nhận</option>
+                            <option value="Shipping">Đang giao hàng</option>
+                            <option value="Completed">Đã hoàn thành</option>
+                            <option value="Cancelled">Đã hủy</option>
+                            <option value="Refunded">Đã hoàn tiền</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Date Range -->
+                <div class="col-xl-4 col-md-8">
+                    <label class="form-label small text-muted fw-semibold">Thời gian đặt hàng</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white text-muted"><i class="far fa-calendar-alt"></i></span>
+                        <input type="date" id="startDate" class="form-control" placeholder="Từ ngày">
+                        <span class="input-group-text bg-light text-muted border-start-0 border-end-0">đến</span>
+                        <input type="date" id="endDate" class="form-control" placeholder="Đến ngày">
+                    </div>
+                </div>
+
+                <!-- Reset Button -->
+                <div class="col-xl-1 col-md-4 d-flex align-items-end">
+                    <button id="resetFilters" class="btn btn-outline-secondary w-100 py-2 border-dashed shadow-xs hover-bg-light" title="Xóa tất cả bộ lọc">
+                        <i class="fas fa-undo"></i> <span class="d-xl-none ms-1">Đặt lại</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Orders Table Card -->
+    <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-body p-0">
+            <div class="table-responsive position-relative" style="min-height: 200px;">
+                <!-- Loading Spinner Overlay -->
+                <div id="loadingOverlay" class="loading-overlay d-flex justify-content-center align-items-center">
+                    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="visually-hidden">Đang tải...</span>
+                    </div>
+                </div>
+
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light text-secondary">
+                        <tr>
+                            <th class="ps-4 fw-semibold border-bottom-0">Mã ĐH / KH</th>
+                            <th class="fw-semibold border-bottom-0">Mã NV</th>
+                            <th class="fw-semibold border-bottom-0">Ngày đặt</th>
+                            <th class="fw-semibold border-bottom-0">Ngày giao (DK/TT)</th>
+                            <th class="fw-semibold border-bottom-0">Trạng thái</th>
+                            <th class="fw-semibold border-bottom-0 text-end">Tổng tiền</th>
+                            <th class="fw-semibold border-bottom-0">Ghi chú</th>
+                            <th class="pe-4 fw-semibold border-bottom-0 text-center">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orderListContainer" class="border-top-0">
+                        <partial name="_OrderList" model="Model" />
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer bg-white border-top-0 py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <small class="text-muted">Hiển thị tổng số <span class="fw-bold text-primary" id="orderCount">@Model.Count()</span> đơn hàng</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            const searchInput = $('#searchInput');
+            const statusSelect = $('#statusSelect');
+            const startDate = $('#startDate');
+            const endDate = $('#endDate');
+            const orderListContainer = $('#orderListContainer');
+            const loadingOverlay = $('#loadingOverlay');
+            const resetFilters = $('#resetFilters');
+
+            let searchTimeout;
+
+            function triggerFilter() {
+                // Debounce search input to avoid redundant AJAX calls
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(fetchFilteredOrders, 250);
+            }
+
+            // Event listeners
+            searchInput.on('input', triggerFilter);
+            statusSelect.on('change', triggerFilter);
+            startDate.on('change', triggerFilter);
+            endDate.on('change', triggerFilter);
+
+            resetFilters.on('click', function () {
+                searchInput.val('');
+                statusSelect.val('All');
+                startDate.val('');
+                endDate.val('');
+                fetchFilteredOrders();
+            });
+
+            function fetchFilteredOrders() {
+                // Visual feedback: overlay loading, fade container
+                loadingOverlay.addClass('d-flex').show();
+                orderListContainer.addClass('fade-out');
+
+                const searchVal = searchInput.val();
+                const statusVal = statusSelect.val();
+                const startVal = startDate.val();
+                const endVal = endDate.val();
+
+                $.ajax({
+                    url: '@Url.Action("FilterOrders", "Order")',
+                    type: 'GET',
+                    data: {
+                        search: searchVal,
+                        status: statusVal,
+                        startDate: startVal,
+                        endDate: endVal
+                    },
+                    success: function (html) {
+                        orderListContainer.html(html);
+                        
+                        // Update order count dynamically
+                        let count = orderListContainer.find('.order-row').length;
+                        $('#orderCount').text(count);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Lỗi tải danh sách hóa đơn:", error);
+                    },
+                    complete: function () {
+                        // Visual feedback: remove overlay, fade back in
+                        loadingOverlay.removeClass('d-flex').hide();
+                        orderListContainer.removeClass('fade-out');
+                    }
+                });
+            }
+        });
+    </script>
+}

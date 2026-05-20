@@ -1,29 +1,25 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using MVC17.Data;
 using MVC17.Helpers.Constants.Sessions;
-using MVC17.Models;
+using MVC17.Services.Interfaces;
+using System;
 using System.Security.Claims;
+using System.Threading.Tasks;
 
 public class CartController : Controller
 {
-    private readonly Dbmvc05Context _context;
+    private readonly ICartService _cartService;
 
-    public CartController(Dbmvc05Context context)
+    public CartController(ICartService cartService)
     {
-        _context = context;
+        _cartService = cartService;
     }
 
     public async Task<IActionResult> Index()
     {
         var userId = GetUserId();
-        var sessionId = HttpContext.Session.GetString(SessionConstants.sessionId);
+        var sessionId = GetOrCreateSessionId();
 
-        var cart = await _context.VwShoppingCarts
-            .Where(x =>
-                (userId != null && x.UserId == userId) ||
-                (userId == null && x.SessionId == sessionId))
-            .ToListAsync();
+        var cart = await _cartService.GetAllAsync(userId, sessionId);
 
         return View(cart);
     }
@@ -31,94 +27,36 @@ public class CartController : Controller
     [HttpPost]
     public async Task<IActionResult> Add(int id, int quantity = 1)
     {
-        if (quantity <= 0)
+        var userId = GetUserId();
+        var sessionId = GetOrCreateSessionId();
+
+        var result = await _cartService.AddAsync(id, quantity, userId, sessionId);
+
+        if (!result.Success)
         {
-            quantity = 1;
-        }
-
-        var product = await _context.VwProducts
-            .FirstOrDefaultAsync(x => x.ProductId == id && !x.IsDeleted && !x.Discontinued);
-
-        if (product == null)
-        {
-            return NotFound();
-        }
-
-        if (product.UnitsInStock < quantity)
-        {
-            return BadRequest("Not enough stock.");
-        }
-
-        var cart = await GetOrCreateCartAsync();
-
-        var item = await _context.CartItems
-            .FirstOrDefaultAsync(x => x.ShoppingCartId == cart.ShoppingCartId && x.ProductId == id);
-
-        if (item == null)
-        {
-            item = new CartItem
+            if (result.Message == "Sản phẩm không tồn tại.")
             {
-                ShoppingCartId = cart.ShoppingCartId,
-                ProductId = id,
-                Quantity = quantity,
-                UnitPrice = product.UnitPrice,
-                LineTotal = product.UnitPrice * quantity,
-                AddedDate = DateTime.Now
-            };
-
-            _context.CartItems.Add(item);
+                return NotFound();
+            }
+            return BadRequest(result.Message);
         }
-        else
-        {
-            var newQty = item.Quantity + quantity;
-
-            if (newQty > product.UnitsInStock)
-                return BadRequest("Not enough stock.");
-
-            item.Quantity = newQty;
-            item.UnitPrice = product.UnitPrice;
-            item.LineTotal = product.UnitPrice * newQty;
-        }
-
-        await _context.SaveChangesAsync();
 
         return Json(new
         {
             success = true,
-            message = "Đã thêm vào giỏ hàng!"
+            message = result.Message
         });
     }
 
     [HttpPost]
     public async Task<IActionResult> UpdateItemQuantity(int cartItemId, int quantity)
     {
-        var item = await _context.CartItems
-            .Include(x => x.ShoppingCart)
-            .FirstOrDefaultAsync(x => x.CartItemId == cartItemId);
+        var result = await _cartService.UpdateItemQuantityAsync(cartItemId, quantity);
 
-        if (item == null)
-            return NotFound();
-
-        if (quantity <= 0)
+        if (!result.Success)
         {
-            _context.CartItems.Remove(item);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            TempData["Error"] = result.Message;
         }
-
-        var product = await _context.VwProducts
-            .FirstOrDefaultAsync(x => x.ProductSkuId == item.ProductId);
-
-        if (product == null)
-            return NotFound();
-
-        if (quantity > product.UnitsInStock)
-            return BadRequest("Not enough stock.");
-
-        item.Quantity = quantity;
-        item.UnitPrice = product.UnitPrice;
-
-        await _context.SaveChangesAsync();
 
         return RedirectToAction(nameof(Index));
     }
@@ -126,15 +64,12 @@ public class CartController : Controller
     [HttpPost]
     public async Task<IActionResult> RemoveItem(int cartItemId)
     {
-        var item = await _context.CartItems
-            .Include(x => x.ShoppingCart)
-            .FirstOrDefaultAsync(x => x.CartItemId == cartItemId);
+        var result = await _cartService.RemoveItemAsync(cartItemId);
 
-        if (item == null)
-            return NotFound();
-
-        _context.CartItems.Remove(item);
-        await _context.SaveChangesAsync();
+        if (!result.Success)
+        {
+            TempData["Error"] = result.Message;
+        }
 
         return RedirectToAction(nameof(Index));
     }
@@ -158,68 +93,5 @@ public class CartController : Controller
         if (int.TryParse(userIdString, out int userId))
             return userId;
         return null;
-    }
-
-    private async Task<ShoppingCart?> GetCartAsync()
-    {
-        var sessionId = GetOrCreateSessionId();
-        var userId = GetUserId();
-
-        return await _context.ShoppingCarts
-            .Include(c => c.CartItems)
-            .FirstOrDefaultAsync(c =>
-                (userId != null && c.UserId == userId) ||
-                (userId == null && c.SessionId == sessionId));
-    }
-
-    private async Task<ShoppingCart> GetOrCreateCartAsync()
-    {
-        var sessionId = GetOrCreateSessionId();
-        var userId = GetUserId();
-
-        var cart = await _context.ShoppingCarts
-            .Include(c => c.CartItems)
-            .FirstOrDefaultAsync(c =>
-                (userId != null && c.UserId == userId) ||
-                (userId == null && c.SessionId == sessionId));
-
-        if (cart != null)
-            return cart;
-
-        cart = new ShoppingCart
-        {
-            SessionId = sessionId,
-            UserId = userId
-        };
-
-        _context.ShoppingCarts.Add(cart);
-        await _context.SaveChangesAsync();
-
-        return cart;
-    }
-
-    private async Task<int> CleanupExpiredGuestCartsAsync()
-    {
-        var cutoff = DateTime.Now.AddDays(-2);
-
-        var expiredCartIds = await _context.ShoppingCarts
-            .Where(x => x.UserId == null
-                        && x.SessionId != null
-                        && x.CreatedAt <= cutoff)
-            .Select(x => x.ShoppingCartId)
-            .ToListAsync();
-
-        if (!expiredCartIds.Any())
-            return 0;
-
-        await _context.CartItems
-            .Where(x => expiredCartIds.Contains(x.ShoppingCartId))
-            .ExecuteDeleteAsync();
-
-        var deletedCount = await _context.ShoppingCarts
-            .Where(x => expiredCartIds.Contains(x.ShoppingCartId))
-            .ExecuteDeleteAsync();
-
-        return deletedCount;
     }
 }

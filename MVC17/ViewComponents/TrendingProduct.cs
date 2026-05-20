@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MVC17.Data;
+using MVC17.Helpers.Constants.Products;
 using MVC17.Models;
 using MVC17.ViewModels;
 
@@ -20,11 +21,11 @@ namespace MVC17.ViewComponents
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var products = await _context.VwTrendingProducts
-                .OrderByDescending(x => x.CreatedInvoices)
+            var products = await _context.VwTopSellingProducts
+                .OrderByDescending(x => x.TotalSelling)
+                .Take(5)
                 .ToListAsync();
-            var vm = _mapper.Map<List<TrendingProductVM>>(products);
-            return View(vm);
+            return View(products);
         }
     }
 }

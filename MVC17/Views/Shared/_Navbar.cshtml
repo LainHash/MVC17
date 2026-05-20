@@ -1,8 +1,18 @@
-﻿@using MVC17.Helpers.Constants.Globals
-@using Microsoft.AspNetCore.Http
-
+@using MVC17.Helpers.Constants.Globals
 @{
-    var username = Context.Session.GetString("Username");
+    var jwt = Context.Request.Cookies["jwt"];
+
+    var username = User.Identity?.IsAuthenticated == true
+        ? User.Identity.Name
+        : null;
+
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+}
+@using System.Security.Claims
+@{
+    var roleClaim = User.FindFirstValue(ClaimTypes.Role);
+    bool isManager = User.Identity?.IsAuthenticated == true && roleClaim != "1";
 }
 
 
@@ -11,7 +21,7 @@
     <div class="container">
         <nav class="navbar navbar-expand-lg navbar-light">
             <a href="" class="navbar-brand p-0">
-                <h1 class="display-6 text-primary"><i class="fas fa-car-alt me-3"></i></i>Cental</h1>
+                <h1 class="display-6 text-primary"><i class="bi bi-pc-display text-danger-100 me-3"></i>TechStore</h1>
                 <!-- <img src="img/logo.png" alt="Logo"> -->
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
@@ -19,27 +29,111 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarCollapse">
                 <div class="navbar-nav mx-auto py-0">
-                    <a asp-controller="Home" asp-action="Index" class="nav-item nav-link">@RouteDisplayName.HomePage</a>
-                    @await Component.InvokeAsync("CategoryMenu")
-                    <a class="nav-item nav-link" asp-controller="Cart" asp-action="Index">@RouteDisplayName.ShoppingCartPage</a>
-                    <a class="nav-link nav-item" asp-controller="Order" asp-action="Index">Hóa đơn</a>
                     
+
+                    @if (isManager)
+                    {
+                        <a class="nav-item nav-link @(currentController == "Product" && currentAction == "AdminIndex" ? "active" : "")"
+                           asp-controller="Product"
+                           asp-action="AdminIndex">
+                            <i class="fas fa-boxes fa-lg"></i>
+                            Quản lý sản phẩm
+                        </a>
+                        <a class="nav-item nav-link @(currentController == "Order" && currentAction == "Index" ? "active" : "")"
+                           asp-controller="Order"
+                           asp-action="Index">
+                            <i class="fas fa-file-invoice-dollar fa-lg"></i>
+                            Quản lý hóa đơn
+                        </a>
+                        <a class="nav-item nav-link @(currentController == "Manager" && currentAction == "Index" ? "active" : "")"
+                           asp-controller="Manager"
+                           asp-action="Index">
+                            <i class="fas fa-users-cog fa-lg"></i>
+                            Quản lý tài khoản
+                        </a>
+                        <a class="nav-item nav-link @(currentAction == "Statistics" ? "active" : "")"
+                           asp-controller="Statistic"
+                           asp-action="Index">
+                            <i class="fas fa-chart-line fa-lg"></i>
+                            Thống kê doanh thu
+                        </a>
+                    }
+                    else
+                    {
+                        <a class="nav-item nav-link @(currentController == "Home" && currentAction == "Index" ? "active" : "")"
+                           asp-controller="Home"
+                           asp-action="Index">
+                            <i class="fas fa-home fa-lg"></i>
+                            @RouteDisplayName.HomePage
+                        </a>
+                        @await Component.InvokeAsync("CategoryMenu")
+                        <a class="nav-item nav-link @(currentController == "Cart" && currentAction == "Index" ? "active" : "")"
+                           asp-controller="Cart"
+                           asp-action="Index">
+                            <i class="fas fa-shopping-cart fa-lg"></i>
+                            @RouteDisplayName.ShoppingCartPage
+                        </a>
+                    }
                 </div>
                 @if (username != null)
                 {
-                    <a class="nav-item nav-link" asp-area="" asp-controller="Account" asp-action="Profile">Xin chào, @username</a>
+                    <div class="dropdown">
+                        @if (isManager)
+                        {
+                            <a class="btn btn-primary rounded-pill py-2 px-4"
+                               asp-area=""
+                               asp-controller="Manager"
+                               asp-action="Profile">
+                                Xin chào, @username
+                                <i class="fas fa-user fa-lg"></i>
+                            </a>
+                        }
+                        else
+                        {
+                            <a class="btn btn-primary rounded-pill py-2 px-4"
+                               asp-area=""
+                               asp-controller="Customer"
+                               asp-action="Profile">
+                                Xin chào, @username
+                                <i class="fas fa-user fa-lg"></i>
+                            </a>
+                        }
                         
-                    <a class="btn btn-primary rounded-pill py-2 px-4"
-                       asp-area=""
-                       asp-controller="Account"
-                       asp-action="Logout">@RouteDisplayName.LogoutPage</a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item d-flex justify-content-between align-items-center"
+                                   asp-area=""
+                                   asp-controller="Customer"
+                                   asp-action="OrderHistory">
+                                    @RouteDisplayName.OrderHistory
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item d-flex justify-content-between align-items-center"
+                                   asp-area=""
+                                   asp-controller="Customer"
+                                   asp-action="Logout">
+                                    @RouteDisplayName.LogoutPage
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 }
                 else
                 {
-                    <a class="btn btn-primary rounded-pill py-2 px-4"
+                    <a class="btn btn-primary rounded-pill py-2 px-4 me-2"
                        asp-area=""
-                       asp-controller="Account"
-                       asp-action="Login">@RouteDisplayName.LoginPage</a>
+                       asp-controller="Customer"
+                       asp-action="Login">
+                        @RouteDisplayName.LoginPage
+                    </a>
+
+                    <a class="btn btn-outline-primary rounded-pill py-2 px-4"
+                       asp-area=""
+                       asp-controller="Customer"
+                       asp-action="Register">
+                        @RouteDisplayName.RegisterPage
+                    </a>
                 }
             </div>
         </nav>

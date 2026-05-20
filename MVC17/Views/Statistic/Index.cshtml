@@ -1,0 +1,145 @@
+@{
+    ViewData["Title"] = "Thống kê doanh thu";
+}
+
+<link rel="stylesheet" href="~/css/statistic.css" />
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-12 text-center text-lg-start">
+            <h2 class="page-title">Thống Kê Doanh Thu</h2>
+            <div class="nav-links mt-2">
+                <a href="/Statistic/Index" class="nav-link active">Doanh Thu</a>
+                <a href="/Statistic/Orders" class="nav-link">Đơn Hàng</a>
+                <a href="/Statistic/Products" class="nav-link">Sản Phẩm</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Revenue Section -->
+    <div class="section-card">
+        <h3 class="section-title">Tổng Quan Doanh Thu</h3>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="stat-box">
+                    <div class="stat-label">Từ Trước Tới Nay</div>
+                    <div class="stat-value" id="totalRevenueAllTime">0 ₫</div>
+                    <div class="stat-sub" id="totalOrdersAllTime">0 đơn hàng</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-box">
+                    <div class="stat-label">Doanh Thu Theo Năm</div>
+                    <select id="yearSelect1" class="form-control mb-3"></select>
+                    <div class="stat-value" id="totalRevenueYear">0 ₫</div>
+                    <div class="stat-sub" id="totalOrdersYear">0 sản phẩm</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-box">
+                    <div class="stat-label">Doanh Thu Theo Tháng</div>
+                    <div class="select-group">
+                        <select id="yearSelect2" class="form-control"></select>
+                        <select id="monthSelect" class="form-control"></select>
+                    </div>
+                    <div class="stat-value" id="totalRevenueMonth">0 ₫</div>
+                    <div class="stat-sub" id="totalOrdersMonth">0 sản phẩm</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Revenue by Time Section -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="section-card">
+                <h3 class="section-title">Biểu Đồ Doanh Thu Theo Tháng</h3>
+                <div class="chart-controls">
+                    <label class="mb-0">Chọn Năm:</label>
+                    <select id="yearSelectChart1" class="form-control" style="width: auto;"></select>
+                </div>
+                <div class="chart-container">
+                    <canvas id="revenueByMonthChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="section-card">
+                <h3 class="section-title">So Sánh Giữa Các Năm</h3>
+                <div class="chart-container">
+                    <canvas id="revenueByYearChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Revenue by Category Section -->
+    <div class="section-card">
+        <h3 class="section-title">Doanh Thu Theo Danh Mục</h3>
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="chart-header">Toàn Thời Gian</div>
+                <div class="chart-container" style="height: 300px;">
+                    <canvas id="categoryAllTimeChart"></canvas>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="chart-header">Theo Năm</div>
+                <div class="chart-controls">
+                    <select id="yearSelectChart2" class="form-control"></select>
+                </div>
+                <div class="chart-container" style="height: 300px;">
+                    <canvas id="categoryYearChart"></canvas>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="chart-header">Theo Tháng</div>
+                <div class="chart-controls">
+                    <select id="yearSelectChart3" class="form-control"></select>
+                    <select id="monthSelectChart" class="form-control"></select>
+                </div>
+                <div class="chart-container" style="height: 300px;">
+                    <canvas id="categoryMonthChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Revenue by Supplier Section -->
+    <div class="section-card">
+        <h3 class="section-title">Doanh Thu Theo Nhà Cung Cấp</h3>
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="chart-header">Toàn Thời Gian</div>
+                <div class="chart-container" style="height: 300px;">
+                    <canvas id="supplierAllTimeChart"></canvas>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="chart-header">Theo Năm</div>
+                <div class="chart-controls">
+                    <select id="yearSelectChart4" class="form-control"></select>
+                </div>
+                <div class="chart-container" style="height: 300px;">
+                    <canvas id="supplierYearChart"></canvas>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="chart-header">Theo Tháng</div>
+                <div class="chart-controls">
+                    <select id="yearSelectChart5" class="form-control"></select>
+                    <select id="monthSelectChart2" class="form-control"></select>
+                </div>
+                <div class="chart-container" style="height: 300px;">
+                    <canvas id="supplierMonthChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="~/js/statistic-revenue.js"></script>
+}
+

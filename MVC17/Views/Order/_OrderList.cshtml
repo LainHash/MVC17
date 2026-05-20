@@ -1,0 +1,80 @@
+@model IEnumerable<MVC17.Models.VwInvoice>
+@using MVC17.Helpers.Constants.Orders
+
+@foreach (var item in Model)
+{
+    <tr class="order-row fade-in">
+        <td class="ps-4">
+            <div class="d-flex flex-column">
+                <span class="fw-bold text-dark">#@item.InvoiceId</span>
+                <span class="text-muted small">KH: @item.CustomerCode</span>
+            </div>
+        </td>
+        <td>
+            @if (string.IsNullOrEmpty(item.EmployeeCode))
+            {
+                <span class="text-muted fst-italic small">
+                    <i class="fas fa-clock me-1 text-warning"></i>Chưa xác nhận
+                </span>
+            }
+            else
+            {
+                <span class="fw-semibold text-dark">
+                    <i class="fas fa-user-check me-1 text-success small"></i>@item.EmployeeCode
+                </span>
+            }
+        </td>
+        <td>
+            <span class="d-block"><i class="far fa-calendar-alt me-1 text-muted"></i>@item.OrderedDate.ToString("dd/MM/yyyy")</span>
+        </td>
+        <td>
+            <div class="d-flex flex-column small">
+                <span class="text-muted" title="Ngày yêu cầu">
+                    <i class="fas fa-truck-loading me-1"></i>@item.RequiredDate.AddDays(-1).ToString("dd/MM/yyyy") - @item.RequiredDate.AddDays(1).ToString("dd/MM/yyyy")
+                </span>
+                <span class="@(item.ShippedDate.HasValue ? "text-success" : "text-warning") mt-1" title="Ngày giao thực tế">
+                    <i class="fas fa-check-circle me-1"></i>@(item.ShippedDate?.ToString("dd/MM/yyyy") ?? "Chưa giao")
+                </span>
+            </div>
+        </td>
+        <td>
+            <span class="badge @InvoiceStatuses.GetStatusStyle(item.Status) px-3 py-2 rounded-pill shadow-xs">
+                @InvoiceStatuses.GetStatusVi(item.Status)
+            </span>
+        </td>
+        <td class="text-end">
+            <span class="fw-bold text-danger fs-6">@String.Format("{0:N0} đ", item.TotalAmount)</span>
+        </td>
+        <td>
+            <span class="text-truncate d-inline-block text-muted" style="max-width: 150px;" title="@item.Note">
+                @(string.IsNullOrEmpty(item.Note) ? "-" : item.Note)
+            </span>
+        </td>
+        <td class="pe-4 text-center">
+            <div class="btn-group shadow-sm" role="group">
+                <a asp-action="Details" asp-route-id="@item.InvoiceId" class="btn btn-sm btn-outline-primary" title="Xem chi tiết">
+                    <i class="fas fa-eye me-1"></i> Chi tiết
+                </a>
+                @if (string.IsNullOrEmpty(item.EmployeeCode) && item.Status == "Pending")
+                {
+                    <a asp-action="Confirm" asp-route-id="@item.InvoiceId" class="btn btn-sm btn-outline-success" title="Xác nhận đơn hàng">
+                        <i class="fas fa-check me-1"></i> Xác nhận
+                    </a>
+                }
+            </div>
+        </td>
+    </tr>
+}
+
+@if (!Model.Any())
+{
+    <tr class="fade-in">
+        <td colspan="8" class="text-center py-5 text-muted">
+            <div class="py-4">
+                <i class="fas fa-box-open fa-3x mb-3 text-light-gray animate-bounce"></i>
+                <p class="mb-0 fw-semibold text-secondary">Không tìm thấy đơn hàng nào khớp với bộ lọc.</p>
+                <small class="text-muted">Vui lòng thử thay đổi điều kiện tìm kiếm hoặc khoảng ngày.</small>
+            </div>
+        </td>
+    </tr>
+}

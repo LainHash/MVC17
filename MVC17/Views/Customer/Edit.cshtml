@@ -1,0 +1,124 @@
+@model MVC17.DTOs.Accounts.Customers.Update.UpdateAccountDTO
+
+@{
+    ViewData["Title"] = "Edit Profile";
+    Layout = "_Layout";
+}
+
+
+
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="edit-card">
+            <h2 class="edit-header">Edit Profile</h2>
+            
+            <form asp-action="Edit">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                
+                <div class="row">
+                    <div class="col-md-5 border-end pe-md-4">
+                        <h4 class="section-title"><i class="fas fa-user-circle me-2"></i>Account Information</h4>
+                        
+                        <div class="form-group mb-3">
+                            <label asp-for="Username" class="control-label"></label>
+                            <input asp-for="Username" class="form-control" />
+                            <span asp-validation-for="Username" class="text-danger"></span>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label asp-for="Email" class="control-label"></label>
+                            <input asp-for="Email" class="form-control" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label asp-for="AvatarImage" class="control-label"></label>
+                            <input asp-for="AvatarImage" class="form-control" placeholder="Nhập link ảnh đại diện (URL)..." />
+                            <span asp-validation-for="AvatarImage" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="form-group mt-4 p-3 bg-light rounded border">
+                             <p class="mb-2 fw-bold text-dark">Security Settings</p>
+                            <a asp-action="ChangePassword" class="btn btn-sm btn-outline-dark w-100"><i class="fas fa-key me-2"></i>Đổi mật khẩu</a>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-7 ps-md-4">
+                        <h4 class="section-title"><i class="fas fa-info-circle me-2"></i>Personal Details</h4>
+                        
+                        <div class="row">
+                            <div class="col-md-6 form-group mb-3">
+                                <label asp-for="Profile.FirstName" class="control-label"></label>
+                                <input asp-for="Profile.FirstName" class="form-control" />
+                                <span asp-validation-for="Profile.FirstName" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 form-group mb-3">
+                                <label asp-for="Profile.LastName" class="control-label"></label>
+                                <input asp-for="Profile.LastName" class="form-control" />
+                                <span asp-validation-for="Profile.LastName" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 form-group mb-3">
+                                <label asp-for="Profile.Gender" class="control-label"></label>
+                                <select asp-for="Profile.Gender" class="form-control form-select" asp-items="ViewBag.Genders"></select>
+                                <span asp-validation-for="Profile.Gender" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 form-group mb-3">
+                                <label asp-for="Profile.Dob" class="control-label"></label>
+                                <input asp-for="Profile.Dob" class="form-control" type="date" />
+                                <span asp-validation-for="Profile.Dob" class="text-danger"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 form-group mb-3">
+                                <label asp-for="Profile.Country" class="control-label"></label>
+                                <select asp-for="Profile.Country" class="form-control form-select" asp-items="ViewBag.Countries"></select>
+                                <span asp-validation-for="Profile.Country" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 form-group mb-3">
+                                <label asp-for="Profile.City" class="control-label"></label>
+                                <select asp-for="Profile.City" class="form-control form-select" asp-items="ViewBag.Cities"></select>
+                                <span asp-validation-for="Profile.City" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Profile.Address" class="control-label"></label>
+                            <input asp-for="Profile.Address" class="form-control" />
+                            <span asp-validation-for="Profile.Address" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 form-group mb-3">
+                                <label asp-for="Profile.Email" class="control-label"></label>
+                                <input asp-for="Profile.Email" class="form-control" />
+                                <span asp-validation-for="Profile.Email" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 form-group mb-3">
+                                <label asp-for="Profile.Phone" class="control-label"></label>
+                                <input asp-for="Profile.Phone" class="form-control" />
+                                <span asp-validation-for="Profile.Phone" class="text-danger"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mb-4">
+                            <label asp-for="Profile.CitizenIdentityCard" class="control-label"></label>
+                            <input asp-for="Profile.CitizenIdentityCard" class="form-control" />
+                            <span asp-validation-for="Profile.CitizenIdentityCard" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group text-center mt-4 pt-3 border-top">
+                    <a asp-action="Profile" class="btn btn-outline-dark px-4 py-2 me-2">Cancel</a>
+                    <button type="submit" class="btn btn-red px-5 py-2"><i class="fas fa-save me-2"></i>Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

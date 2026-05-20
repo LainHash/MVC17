@@ -7,7 +7,7 @@ public partial class User
 {
     public int UserId { get; set; }
 
-    public Guid? UserUuid { get; set; }
+    public Guid UserUuid { get; set; }
 
     public string Username { get; set; } = null!;
 
@@ -15,7 +15,7 @@ public partial class User
 
     public string PasswordHash { get; set; } = null!;
 
-    public int Balance { get; set; }
+    public decimal Balance { get; set; }
 
     public int RoleId { get; set; }
 
@@ -24,6 +24,8 @@ public partial class User
     public virtual Customer? Customer { get; set; }
 
     public virtual Employee? Employee { get; set; }
+
+    public virtual ICollection<ProductReview> ProductReviews { get; set; } = new List<ProductReview>();
 
     public virtual Role Role { get; set; } = null!;
 

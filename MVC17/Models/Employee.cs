@@ -13,8 +13,6 @@ public partial class Employee
 
     public int? Piid { get; set; }
 
-    public string CompanyEmail { get; set; } = null!;
-
     public DateOnly HiredDate { get; set; }
 
     public string? Status { get; set; }
@@ -24,6 +22,10 @@ public partial class Employee
     public int? DepartmentId { get; set; }
 
     public int? ManagerId { get; set; }
+
+    public bool IsDeleted { get; set; }
+
+    public string? AvatarImage { get; set; }
 
     public virtual Department? Department { get; set; }
 
@@ -36,6 +38,8 @@ public partial class Employee
     public virtual PersonalInformation? Pi { get; set; }
 
     public virtual Position? Position { get; set; }
+
+    public virtual ICollection<ProductReviewReply> ProductReviewReplies { get; set; } = new List<ProductReviewReply>();
 
     public virtual User User { get; set; } = null!;
 }

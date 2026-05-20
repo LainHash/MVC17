@@ -23,19 +23,21 @@ public partial class VwCustomerProfile
 
     public string Address { get; set; } = null!;
 
-    public string PersonalEmail { get; set; } = null!;
-
     public string Phone { get; set; } = null!;
 
     public string CitizenIdentityCard { get; set; } = null!;
 
-    public Guid? UserUuid { get; set; }
+    public Guid UserUuid { get; set; }
 
     public string Username { get; set; } = null!;
 
-    public string AccountEmail { get; set; } = null!;
-
-    public int Balance { get; set; }
+    public string Email { get; set; } = null!;
 
     public string RoleName { get; set; } = null!;
+
+    public decimal Balance { get; set; }
+
+    public bool IsActive { get; set; }
+
+    public string? AvatarImage { get; set; }
 }

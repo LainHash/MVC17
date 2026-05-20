@@ -1,0 +1,88 @@
+@model MVC17.Models.VwCustomerProfile
+
+@{
+    ViewData["Title"] = "User Profile";
+    Layout = "_Layout";
+}
+
+
+
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="profile-card">
+            <h2 class="profile-header">Tài khoản khách hàng</h2>
+            
+            <div class="text-center mb-4">
+                @if (ViewBag.AvatarImage != null && !string.IsNullOrEmpty(ViewBag.AvatarImage as string))
+                {
+                    <img src="@ViewBag.AvatarImage" alt="Avatar" class="rounded-circle shadow-sm border" style="width: 120px; height: 120px; object-fit: cover;" />
+                }
+                else
+                {
+                    <div class="rounded-circle shadow-sm border bg-light d-inline-flex justify-content-center align-items-center text-secondary" style="width: 120px; height: 120px;">
+                        <i class="fas fa-user fa-4x"></i>
+                    </div>
+                }
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <h4 class="profile-section-title"><i class="fas fa-user-circle me-2"></i>Chi tiết Tài khoản</h4>
+                    <dl class="row">
+                        <dt class="col-sm-4 profile-label">@Html.DisplayNameFor(model => model.CustomerCode)</dt>
+                        <dd class="col-sm-8 profile-value">@Html.DisplayFor(model => model.CustomerCode)</dd>
+                        
+                        <dt class="col-sm-4 profile-label">@Html.DisplayNameFor(model => model.Username)</dt>
+                        <dd class="col-sm-8 profile-value">@Html.DisplayFor(model => model.Username)</dd>
+                        
+                        <dt class="col-sm-4 profile-label">@Html.DisplayNameFor(model => model.Email)</dt>
+                        <dd class="col-sm-8 profile-value">@Html.DisplayFor(model => model.Email)</dd>
+                        
+                        <dt class="col-sm-4 profile-label">@Html.DisplayNameFor(model => model.RoleName)</dt>
+                        <dd class="col-sm-8 profile-value">
+                            <span class="badge bg-dark">@Html.DisplayFor(model => model.RoleName)</span>
+                        </dd>
+                        
+                        <dt class="col-sm-4 profile-label">@Html.DisplayNameFor(model => model.Balance)</dt>
+                        <dd class="col-sm-8 profile-value text-danger fw-bold">@Model.Balance.ToString("N0")</dd>
+                    </dl>
+                </div>
+                
+                <div class="col-md-6">
+                    <h4 class="profile-section-title"><i class="fas fa-info-circle me-2"></i>Thông tin Cá nhân</h4>
+                    <dl class="row">
+                        <dt class="col-sm-4 profile-label">Họ & Tên</dt>
+                        <dd class="col-sm-8 profile-value">@Model.LastName @Model.FirstName</dd>
+                        
+                        <dt class="col-sm-4 profile-label">@Html.DisplayNameFor(model => model.Gender)</dt>
+                        <dd class="col-sm-8 profile-value">
+                            @(Model.Gender ? "Nam" : "Nữ")
+                        </dd>
+                        
+                        <dt class="col-sm-4 profile-label">@Html.DisplayNameFor(model => model.Dob)</dt>
+                        <dd class="col-sm-8 profile-value">@Html.DisplayFor(model => model.Dob)</dd>
+                        
+                        <dt class="col-sm-4 profile-label">@Html.DisplayNameFor(model => model.Country)</dt>
+                        <dd class="col-sm-8 profile-value">@Html.DisplayFor(model => model.Country)</dd>
+                        
+                        <dt class="col-sm-4 profile-label">@Html.DisplayNameFor(model => model.City)</dt>
+                        <dd class="col-sm-8 profile-value">@Html.DisplayFor(model => model.City)</dd>
+                        
+                        <dt class="col-sm-4 profile-label">@Html.DisplayNameFor(model => model.Address)</dt>
+                        <dd class="col-sm-8 profile-value">@Html.DisplayFor(model => model.Address)</dd>
+                        
+                        <dt class="col-sm-4 profile-label">@Html.DisplayNameFor(model => model.Phone)</dt>
+                        <dd class="col-sm-8 profile-value">@Html.DisplayFor(model => model.Phone)</dd>
+                        
+                        <dt class="col-sm-4 profile-label">@Html.DisplayNameFor(model => model.CitizenIdentityCard)</dt>
+                        <dd class="col-sm-8 profile-value">@Html.DisplayFor(model => model.CitizenIdentityCard)</dd>
+                    </dl>
+                </div>
+            </div>
+            
+            <div class="text-center mt-4 pt-3 border-top">
+                <a asp-action="Edit" asp-route-id="@Model?.UserId" class="btn btn-red px-5 py-2"><i class="fas fa-edit me-2"></i>Edit Profile</a>
+            </div>
+        </div>
+    </div>
+</div>

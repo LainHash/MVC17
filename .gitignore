@@ -361,3 +361,12 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# ── Docker / Secrets ─────────────────────────────────────────
+# Never commit actual environment files (only .env.example is allowed)
+.env
+.env.local
+.env.*.local
+
+# appsettings overrides with real secrets
+appsettings.Development.json

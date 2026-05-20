@@ -1,5 +1,5 @@
-@model MVC17.ViewModels.CheckoutVM
-
+@model MVC17.DTOs.Orders.CheckoutDTO
+@using MVC17.Helpers.Constants.Orders
 @{
     ViewData["Title"] = "Checkout";
 }
@@ -24,26 +24,47 @@
                     <div class="card-body">
                         <div class="mb-3">
                             <label asp-for="FullName" class="form-label">Họ và tên</label>
-                            <input asp-for="FullName" class="form-control" required />
+                            <input asp-for="FullName" class="form-control" required readonly />
                             <span asp-validation-for="FullName" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
                             <label asp-for="Phone" class="form-label">Số điện thoại</label>
-                            <input asp-for="Phone" class="form-control" required />
+                            <input asp-for="Phone" class="form-control" required readonly />
                             <span asp-validation-for="Phone" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
                             <label asp-for="Email" class="form-label">Email</label>
-                            <input asp-for="Email" type="email" class="form-control" required />
+                            <input asp-for="Email" type="email" class="form-control" required readonly />
                             <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Country" class="form-label">Quốc gia</label>
+                            <input asp-for="Country" class="form-control" required readonly />
+                            <span asp-validation-for="Country" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="City" class="form-label">Tỉnh/Thành phố</label>
+                            <input asp-for="City" class="form-control" id="citySelect" required readonly />
+                            <span asp-validation-for="City" class="text-danger"></span>
+                            <div id="shippingDateInfo" class="mt-2 text-primary small fw-bold">
+                                <i class="bi bi-truck me-1"></i>Dự kiến giao hàng: <span id="estimatedDate">--/--/----</span>
+                            </div>
                         </div>
 
                         <div class="mb-3">
                             <label asp-for="Address" class="form-label">Địa chỉ</label>
                             <textarea asp-for="Address" class="form-control" rows="3" required></textarea>
                             <span asp-validation-for="Address" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Note" class="form-label">Ghi chú</label>
+                            <textarea asp-for="Note" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="Note" class="text-danger"></span>
                         </div>
                     </div>
                 </div>
@@ -70,19 +91,49 @@
 
                         <div class="d-flex justify-content-between mb-2">
                             <span>Tạm tính</span>
-                            <strong>@Model.Subtotal.ToString("N0") VNĐ</strong>
+                            <strong id="subtotalDisplay">@Model.Subtotal.ToString("N0") VNĐ</strong>
+                        </div>
+
+                        <div class="mb-2">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>Giảm giá sản phẩm</span>
+                                <select class="form-control w-50"
+                                        asp-for="ProductDiscount"
+                                        id="productDiscountSelect"
+                                        asp-items="ViewBag.ProductDiscounts">
+                                    <option value="0">0%</option>
+                                </select>
+                            </div>
+                            <div class="text-end text-success small mt-1">
+                                - <span id="productDiscountAmountDisplay">0</span> VNĐ
+                            </div>
                         </div>
 
                         <div class="d-flex justify-content-between mb-2">
                             <span>Phí vận chuyển</span>
-                            <strong>@Model.ShippingFee.ToString("N0") VNĐ</strong>
+                            <strong id="shippingFeeDisplay">@Model.ShippingFee.ToString("N0") VNĐ</strong>
+                        </div>
+
+                        <div class="mb-2">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>Giảm giá vận chuyển</span>
+                                <select class="form-control w-50"
+                                        asp-for="ShippingDiscount"
+                                        id="shippingDiscountSelect"
+                                        asp-items="ViewBag.ShippingDiscounts">
+                                    <option value="0">0%</option>
+                                </select>
+                            </div>
+                            <div class="text-end text-success small mt-1">
+                                - <span id="shippingDiscountAmountDisplay">0</span> VNĐ
+                            </div>
                         </div>
 
                         <hr />
 
                         <div class="d-flex justify-content-between mb-3">
                             <span>Tổng cộng</span>
-                            <strong class="text-danger fs-5">@Model.TotalAmount.ToString("N0") VNĐ</strong>
+                            <strong class="text-danger fs-5" id="totalAmountDisplay">@Model.TotalAmount.ToString("N0") VNĐ</strong>
                         </div>
 
                         <button type="submit" class="btn btn-primary w-100 btn-lg">
@@ -93,4 +144,101 @@
             </div>
         </div>
     </form>
+
+    @* Modal Thông báo lỗi *@
+    <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 shadow">
+                <div class="modal-header border-bottom-0">
+                    <h5 class="modal-title fw-bold text-danger" id="errorModalLabel">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>Thông báo lỗi
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body py-3">
+                    <p class="fs-5 mb-0" id="errorMessage">
+                        @(TempData["Error"] ?? ViewData["Error"] ?? "Đã có lỗi xảy ra trong quá trình xử lý.")
+                    </p>
+                </div>
+                <div class="modal-footer border-top-0 flex-column align-items-stretch w-100 gap-2 pb-3">
+                    <button type="button" class="btn btn-lg btn-danger rounded-3" data-bs-dismiss="modal">Ở lại trang</button>
+                    <a asp-controller="Product" asp-action="Index" class="btn btn-lg btn-link fs-6 text-decoration-none text-secondary">Quay về danh sách sản phẩm</a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            @if (TempData["Error"] != null || ViewData["Error"] != null)
+            {
+                            <text>
+                                            var errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+                                            errorModal.show();
+                            </text>
+            }
+
+            const subtotal = @Model.Subtotal;
+
+            let currentShippingFee = @Distances.CalculateShippingFee(Model.City);
+
+            function formatNumber(amount) {
+                return new Intl.NumberFormat('vi-VN').format(amount);
+            }
+
+            function formatCurrency(amount) {
+                return formatNumber(amount) + ' VNĐ';
+            }
+
+            function calculateAndDisplayTotal() {
+                const productDiscountRate = parseFloat($('#productDiscountSelect').val()) || 0;
+                const shippingDiscountRate = parseFloat($('#shippingDiscountSelect').val()) || 0;
+
+                const productDiscountAmount = subtotal * productDiscountRate;
+                const shippingDiscountAmount = currentShippingFee * shippingDiscountRate;
+
+                const discountedSubtotal = subtotal - productDiscountAmount;
+                const discountedShipping = currentShippingFee - shippingDiscountAmount;
+                const total = discountedSubtotal + discountedShipping;
+
+                // Update UI
+                $('#productDiscountAmountDisplay').text(formatNumber(productDiscountAmount));
+                $('#shippingDiscountAmountDisplay').text(formatNumber(shippingDiscountAmount));
+                $('#totalAmountDisplay').text(formatCurrency(total));
+            }
+
+            function updateShippingInfo(city) {
+                if (!city) return;
+
+                $.get('/Order/GetShippingInfo', { city: city }, function (response) {
+                    if (response.success) {
+                        currentShippingFee = response.fee;
+                        $('#shippingFeeDisplay').text(formatCurrency(currentShippingFee));
+                        $('#estimatedDate').text(response.estimatedDate);
+
+                        calculateAndDisplayTotal();
+                    } else {
+                        console.error('Lỗi tính phí vận chuyển:', response.message);
+                    }
+                });
+            }
+
+            $('#citySelect').on('change', function () {
+                updateShippingInfo($(this).val());
+            });
+
+            $('#productDiscountSelect, #shippingDiscountSelect').on('change', function () {
+                calculateAndDisplayTotal();
+            });
+
+            // Initial calculation
+            if($('#citySelect').val()) {
+                updateShippingInfo($('#citySelect').val());
+            } else {
+                calculateAndDisplayTotal();
+            }
+        });
+    </script>
+}

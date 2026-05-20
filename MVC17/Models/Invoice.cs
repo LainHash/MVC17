@@ -13,11 +13,11 @@ public partial class Invoice
 
     public int? EmployeeId { get; set; }
 
-    public DateOnly OrderDate { get; set; }
+    public DateTime OrderedDate { get; set; }
 
-    public DateOnly RequiredDate { get; set; }
+    public DateTime RequiredDate { get; set; }
 
-    public DateOnly? ShippedDate { get; set; }
+    public DateTime? ShippedDate { get; set; }
 
     public string Status { get; set; } = null!;
 

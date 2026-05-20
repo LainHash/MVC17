@@ -1,0 +1,117 @@
+@model List<MVC17.ViewModels.ProductVM>
+
+@{
+    int totalPages = (int)(ViewData["TotalPages"] ?? 1);
+    int activePage = (int)(ViewData["ActivePage"] ?? 1);
+    int indexPage = 1;
+    int currentCategory = (int)(ViewData["CurrentCategory"] ?? 0);
+    int currentSupplier = (int)(ViewData["CurrentSupplier"] ?? 0);
+    int currentOrderBy = (int)(ViewData["CurrentOrderBy"] ?? 0);
+}
+
+<div class="card shadow-sm border-0 rounded-3">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light text-secondary">
+                    <tr>
+                        <th class="ps-4 fw-semibold border-bottom-0">Hình ảnh</th>
+                        <th class="fw-semibold border-bottom-0">Tên sản phẩm</th>
+                        <th class="fw-semibold border-bottom-0">Danh mục</th>
+                        <th class="fw-semibold border-bottom-0">Nhà cung cấp</th>
+                        <th class="fw-semibold border-bottom-0">Giá bán</th>
+                        <th class="fw-semibold border-bottom-0 text-center">Tồn kho</th>
+                        <th class="pe-4 fw-semibold border-bottom-0 text-center">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody class="border-top-0">
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="ps-4">
+                                <img src="@(item.ImageUrl ?? Url.Content("~/img/NotFoundImage.png"))"
+                                     alt="@item.ProductName"
+                                     class="img-thumbnail"
+                                     style="width: 50px; height: 50px; object-fit: contain;" />
+                            </td>
+                            <td>
+                                <div class="d-flex flex-column">
+                                    <a asp-action="Details" asp-route-id="@item.ProductId" class="text-decoration-none">
+                                        <span class="fw-bold text-dark text-truncate" style="max-width: 250px;" title="@item.ProductName">@item.ProductName</span>
+                                    </a>
+                                    <span class="text-muted small">@item.CompanyName</span>
+                                    @if (item.IsDeleted)
+                                    {
+                                        <span class="text-muted small">
+                                            Đã bị xóa.
+                                        </span>
+                                    }
+
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary">@item.CategoryName</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary">@item.CompanyName</span>
+                            </td>
+                            <td>
+                                <span class="fw-bold text-danger">@item.UnitPrice.ToString("N0") đ</span>
+                            </td>
+                            <td class="text-center">
+                                @if (item.UnitsInStock >= 4)
+                                {
+                                    <span class="badge text-white bg-success px-3 py-2 rounded-pill">
+                                        @item.UnitsInStock
+                                    </span>
+                                }
+                                else if (item.UnitsInStock == 0)
+                                {
+                                    <span class="badge bg-danger text-white">
+                                        Hết hàng
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge text-white bg-warning px-3 py-2 rounded-pill">
+                                        @item.UnitsInStock
+                                    </span>
+                                }
+                            </td>
+                            <td class="pe-4 text-center">
+                                <a asp-action="Edit" asp-route-id="@item.ProductId" class="btn btn-sm btn-outline-warning btn-action-modal" data-title="Chỉnh sửa Sản phẩm" title="Chỉnh sửa">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.ProductId" class="btn btn-sm btn-outline-danger btn-action-modal" data-title="Xóa Sản phẩm" title="Xóa">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <i class="fas fa-box-open fa-3x mb-3 text-light"></i>
+                                <p class="mb-0">Chưa có sản phẩm nào.</p>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4">
+    @await Component.InvokeAsync("Pagination", new
+    {
+        active = activePage,
+        index = indexPage,
+        total = totalPages,
+        categoryId = currentCategory,
+        supplierId = currentSupplier,
+        orderBy = currentOrderBy
+    })
+</div>

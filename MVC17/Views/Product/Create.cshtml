@@ -1,75 +1,133 @@
-﻿@model MVC17.DTOs.Products.Create.CreateProductDTO
+@model MVC17.DTOs.Products.Create.CreateProductDTO
 
 @{
-    ViewData["Title"] = "Create";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    bool isAjax = Context.Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+    ViewData["Title"] = "Thêm mới Sản phẩm";
+    Layout = isAjax ? null : "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Create</h1>
+@if (!isAjax)
+{
+    @Html.Raw("<div class=\"container-fluid py-4\">")
+    <h2 class="mb-4 fw-bold text-dark"><i class="fas fa-plus-circle me-2 text-primary"></i>Thêm mới Sản phẩm</h2>
+    @Html.Raw("<div class=\"card shadow-sm border-0 rounded-3 mb-4\">")
+    @Html.Raw("<div class=\"card-body p-4\">")
+}
 
-<h4>Product</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form method="get" asp-action="Create">
-            <select class="form-select form-select-lg category-selector"
-                    asp-for="CategoryId"
-                    asp-items="ViewBag.Categories"
-                    aria-label="Chọn loại sản phẩm"
-                    onchange="this.form.submit()">
-                <option value="">-- Chọn loại sản phẩm --</option>
-            </select>
-        </form>
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="CategoryId" asp-item="ViewBag.SelectedCategory"/>
-            <div class="form-group">
-                <label asp-for="ProductName" class="control-label"></label>
-                <input asp-for="ProductName" class="form-control" />
-                <span asp-validation-for="ProductName" class="text-danger"></span>
+<div class="product-form-container">
+    @if (ViewBag.CategoriesList == null || Model?.CategoryId == 0)
+    {
+        <div class="alert alert-info d-flex align-items-center mb-4" role="alert">
+            <i class="fas fa-info-circle fa-2x me-3"></i>
+            <div>
+                <strong>Vui lòng chọn loại sản phẩm!</strong>
+                <p class="mb-0 small">Bạn cần chọn loại sản phẩm trước để hiển thị các thông số kỹ thuật tương ứng.</p>
             </div>
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+    }
+
+    <form method="get" asp-action="Create" class="mb-4 bg-light p-3 rounded-3 border">
+        <div class="row align-items-center">
+            <div class="col-md-3">
+                <label class="form-label fw-bold mb-0 text-secondary">Loại sản phẩm:</label>
+            </div>
+            <div class="col-md-9">
+                <select class="form-select category-selector"
+                        asp-for="CategoryId"
+                        asp-items="ViewBag.Categories"
+                        onchange="this.form.submit()">
+                    <option value="">-- Chọn loại sản phẩm --</option>
+                </select>
+            </div>
+        </div>
+    </form>
+
+    <form asp-action="Create" method="post" id="productCreateForm">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3"></div>
+        <input type="hidden" asp-for="CategoryId" asp-item="ViewBag.SelectedCategory" />
+        
+        <div class="row g-3">
+            <div class="col-md-12">
+                <div class="form-floating mb-2">
+                    <input asp-for="ProductName" class="form-control" placeholder="Tên sản phẩm" />
+                    <label asp-for="ProductName">Tên sản phẩm</label>
+                    <span asp-validation-for="ProductName" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-floating mb-2">
+                    <select asp-for="SupplierId" class="form-select" asp-items="ViewBag.Suppliers">
+                        <option value="">-- Chọn Nhà cung cấp --</option>
+                    </select>
+                    <label asp-for="SupplierId">Nhà cung cấp</label>
+                    <span asp-validation-for="SupplierId" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-floating mb-2">
+                    <input asp-for="ImageUrl" class="form-control" placeholder="URL Hình ảnh" />
+                    <label asp-for="ImageUrl">URL Hình ảnh</label>
+                    <span asp-validation-for="ImageUrl" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-floating mb-2">
+                    <input asp-for="UnitPrice" class="form-control" placeholder="Giá bán" type="number" />
+                    <label asp-for="UnitPrice">Giá bán (VNĐ)</label>
+                    <span asp-validation-for="UnitPrice" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-floating mb-2">
+                    <input asp-for="UnitsInStock" class="form-control" placeholder="Số lượng tồn" type="number" />
+                    <label asp-for="UnitsInStock">Số lượng tồn</label>
+                    <span asp-validation-for="UnitsInStock" class="text-danger small"></span>
+                </div>
             </div>
             
-            <div class="form-group">
-                <label asp-for="SupplierId" class="control-label"></label>
-                <select asp-for="SupplierId" class="form-control" asp-items="ViewBag.Suppliers"></select>
+            <div class="col-md-12">
+                <div class="form-floating mb-2">
+                    <textarea asp-for="Description" class="form-control" placeholder="Mô tả sản phẩm" style="height: 100px"></textarea>
+                    <label asp-for="Description">Mô tả sản phẩm</label>
+                    <span asp-validation-for="Description" class="text-danger small"></span>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="ImageUrl" class="control-label"></label>
-                <input asp-for="ImageUrl" class="form-control" />
-                <span asp-validation-for="ImageUrl" class="text-danger"></span>
+        </div>
+
+        @if (ViewBag.SelectedCategory != null)
+        {
+            <div class="mt-4 pt-3 border-top">
+                <h5 class="fw-bold text-dark mb-3"><i class="fas fa-cogs me-2 text-secondary"></i>Thông số kỹ thuật</h5>
+                <div class="bg-light p-3 rounded-3 border">
+                    @await Component.InvokeAsync("CreateProductSpec", new { dto = Model, categoryId = ViewBag.SelectedCategory })
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="UnitPrice" class="control-label"></label>
-                <input asp-for="UnitPrice" class="form-control" />
-                <span asp-validation-for="UnitPrice" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UnitsInStock" class="control-label"></label>
-                <input asp-for="UnitsInStock" class="form-control" />
-                <span asp-validation-for="UnitsInStock" class="text-danger"></span>
-            </div>
-            @if (ViewBag.SelectedCategory != null)
+        }
+
+        <div class="d-flex justify-content-end mt-4 pt-3 border-top gap-2">
+            @if (isAjax)
             {
-                <p>Selected Category: @ViewBag.SelectedCategory</p>
-                
-                
-                @await Component.InvokeAsync("CreateProductSpec", new { dto = Model, categoryId = ViewBag.SelectedCategory })
+                <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Đóng</button>
             }
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
+            else
+            {
+                <a asp-action="Index" class="btn btn-light border">Quay lại</a>
+            }
+            <button type="submit" class="btn btn-primary px-4">
+                <i class="fas fa-save me-1"></i> Lưu sản phẩm
+            </button>
+        </div>
+    </form>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+@if (!isAjax)
+{
+    @Html.Raw("</div></div></div>")
+}
 
 @section Scripts {
     @{

@@ -1,18 +1,5 @@
-﻿@model IEnumerable<MVC17.ViewModels.TrendingProductVM>
+﻿@model IEnumerable<MVC17.Models.VwTopSellingProduct>
 @using MVC17.Helpers.Constants.Products
-@{
-    var Laptops = Model
-    .Where(p => p.CategoryId == CategoryType.Laptop)
-    .Take(5);
-
-    var Cpus = Model
-    .Where(p => p.CategoryId == CategoryType.CPU)
-    .Take(5);
-
-    var Gpus = Model
-    .Where(p => p.CategoryId == CategoryType.GPU)
-    .Take(5);
-}
 
 <div class="container-fluid categories py-5">
     <div class="container">
@@ -23,7 +10,7 @@
             </p>
         </div>
         <div class="categories-carousel owl-carousel wow fadeInUp" data-wow-delay="0.1s">
-            @foreach (var item in Laptops)
+            @foreach (var item in Model)
             {
                 <div class="col-lg-4 col-md-6 col-sm-12 w-100">
                     <div class="product-card h-100" data-product-id="@item.ProductId">
@@ -42,7 +29,7 @@
                                 </a>
                             </div>
                             <div class="stock-badge">
-                                <span class="badge @(item.UnitsInStock > 0 ? "bg-success" : "bg-danger")">
+                                @* <span class="badge @(item.UnitsInStock > 0 ? "bg-success" : "bg-danger")">
                                     @if (item.UnitsInStock > 0)
                                     {
                                         <span>Còn hàng (@item.UnitsInStock)</span>
@@ -51,7 +38,7 @@
                                     {
                                         <span>Hết hàng</span>
                                     }
-                                </span>
+                                </span> *@
                             </div>
                         </div>
 
@@ -64,163 +51,9 @@
 
                             <div class="product-footer d-flex justify-content-between align-items-center">
                                 <div class="product-price">
-                                    <h6 class="price-value text-primary fw-bold text-nowrap">
+                                    @* <h6 class="price-value text-primary fw-bold text-nowrap">
                                         @item.UnitPrice.ToString("N0") đ
-                                    </h6>
-                                </div>
-                                <form asp-controller="Cart"
-                                      asp-action="Add"
-                                      method="post"
-                                      class="add-to-cart-form d-inline">
-                                    <input type="hidden" name="id" value="@item.ProductId" />
-                                    <input type="hidden" name="quantity" value="1" />
-
-                                    <button type="submit"
-                                            class="btn btn-outline-primary btn-sm rounded-circle"
-                                            title="Thêm vào giỏ hàng">
-                                        <i class="fas fa-shopping-cart"></i>
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            }
-       
-        </div>
-    </div>
-</div>
-
-<div class="container-fluid categories py-5">
-    <div class="container">
-        <div class="text-center mx-auto pb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 800px;">
-            <h1 class="display-5 text-capitalize mb-3">CPU <span class="text-primary">Xu hướng</span></h1>
-            <p class="mb-0">
-                nơi hiệu năng mạnh mẽ gặp thiết kế mỏng nhẹ, AI thông minh và thời lượng pin bền bỉ, sẵn sàng cho học tập, làm việc lẫn giải trí mọi lúc.
-            </p>
-        </div>
-        <div class="categories-carousel owl-carousel wow fadeInUp" data-wow-delay="0.1s">
-            @foreach (var item in Cpus)
-            {
-                <div class="col-lg-4 col-md-6 col-sm-12 w-100">
-                    <div class="product-card h-100" data-product-id="@item.ProductId">
-                        <!-- Product Image -->
-                        <div class="product-image-wrapper position-relative overflow-hidden">
-                            <img src="@(item.ImageUrl ?? Url.Content("~/img/NotFoundImage.png"))"
-                                 alt="@item.ProductName"
-                                 class="product-image img-fluid w-100"
-                                 loading="lazy" />
-                            <div class="product-overlay">
-                                <a asp-controller="Product"
-                                       asp-action="Details"
-                                       asp-route-id="@item.ProductId"
-                                       class="btn btn-primary btn-sm rounded-pill">
-                                    <i class="fas fa-eye me-2"></i>Chi tiết
-                                </a>
-                            </div>
-                            <div class="stock-badge">
-                                <span class="badge @(item.UnitsInStock > 0 ? "bg-success" : "bg-danger")">
-                                    @if (item.UnitsInStock > 0)
-                                    {
-                                        <span>Còn hàng (@item.UnitsInStock)</span>
-                                    }
-                                    else
-                                    {
-                                        <span>Hết hàng</span>
-                                    }
-                                </span>
-                            </div>
-                        </div>
-
-                        <!-- Product Info -->
-                        <div class="product-body p-4">
-
-                            <h5 class="product-title mb-3 text-truncate" title="@item.ProductName">
-                                @item.ProductName
-                            </h5>
-
-                            <div class="product-footer d-flex justify-content-between align-items-center">
-                                <div class="product-price">
-                                    <h6 class="price-value text-primary fw-bold text-nowrap">
-                                        @item.UnitPrice.ToString("N0") đ
-                                    </h6>
-                                </div>
-                                <form asp-controller="Cart"
-                                      asp-action="Add"
-                                      method="post"
-                                      class="add-to-cart-form d-inline">
-                                    <input type="hidden" name="id" value="@item.ProductId" />
-                                    <input type="hidden" name="quantity" value="1" />
-
-                                    <button type="submit"
-                                            class="btn btn-outline-primary btn-sm rounded-circle"
-                                            title="Thêm vào giỏ hàng">
-                                        <i class="fas fa-shopping-cart"></i>
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            }
-       
-        </div>
-    </div>
-</div>
-
-<div class="container-fluid categories py-5">
-    <div class="container">
-        <div class="text-center mx-auto pb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 800px;">
-            <h1 class="display-5 text-capitalize mb-3">GPU <span class="text-primary">Xu hướng</span></h1>
-            <p class="mb-0">
-                nơi hiệu năng mạnh mẽ gặp thiết kế mỏng nhẹ, AI thông minh và thời lượng pin bền bỉ, sẵn sàng cho học tập, làm việc lẫn giải trí mọi lúc.
-            </p>
-        </div>
-        <div class="categories-carousel owl-carousel wow fadeInUp" data-wow-delay="0.1s">
-            @foreach (var item in Gpus)
-            {
-                <div class="col-lg-4 col-md-6 col-sm-12 w-100">
-                    <div class="product-card h-100" data-product-id="@item.ProductId">
-                        <!-- Product Image -->
-                        <div class="product-image-wrapper position-relative overflow-hidden">
-                            <img src="@(item.ImageUrl ?? Url.Content("~/img/NotFoundImage.png"))"
-                                 alt="@item.ProductName"
-                                 class="product-image img-fluid w-100"
-                                 loading="lazy" />
-                            <div class="product-overlay">
-                                <a asp-controller="Product"
-                                       asp-action="Details"
-                                       asp-route-id="@item.ProductId"
-                                       class="btn btn-primary btn-sm rounded-pill">
-                                    <i class="fas fa-eye me-2"></i>Chi tiết
-                                </a>
-                            </div>
-                            <div class="stock-badge">
-                                <span class="badge @(item.UnitsInStock > 0 ? "bg-success" : "bg-danger")">
-                                    @if (item.UnitsInStock > 0)
-                                    {
-                                        <span>Còn hàng (@item.UnitsInStock)</span>
-                                    }
-                                    else
-                                    {
-                                        <span>Hết hàng</span>
-                                    }
-                                </span>
-                            </div>
-                        </div>
-
-                        <!-- Product Info -->
-                        <div class="product-body p-4">
-
-                            <h5 class="product-title mb-3 text-truncate" title="@item.ProductName">
-                                @item.ProductName
-                            </h5>
-
-                            <div class="product-footer d-flex justify-content-between align-items-center">
-                                <div class="product-price">
-                                    <h6 class="price-value text-primary fw-bold text-nowrap">
-                                        @item.UnitPrice.ToString("N0") đ
-                                    </h6>
+                                    </h6> *@
                                 </div>
                                 <form asp-controller="Cart"
                                       asp-action="Add"

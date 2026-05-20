@@ -1,74 +1,194 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using MVC17.Data;
-using MVC17.Models;
-using MVC17.ViewModels;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using MVC17.DTOs.Orders;
+using MVC17.Helpers.Constants.Auths.Accounts;
+using MVC17.Helpers.Constants.Orders;
+using MVC17.Services.Interfaces;
 using System.Security.Claims;
 
 namespace MVC17.Controllers
 {
     public class OrderController : Controller
     {
-        private readonly Dbmvc05Context _context;
-        private readonly IMapper _mapper;
+        private readonly IOrderService _orderService;
 
-        public OrderController(Dbmvc05Context context, IMapper mapper)
+        public OrderController(IOrderService orderService)
         {
-            _context = context;
-            _mapper = mapper;
+            _orderService = orderService;
         }
 
-        // ─── Public Actions ────────────────────────────────────────────────────
 
+        [Authorize(Policy = "Manager")]
         public async Task<IActionResult> Index()
         {
-            var invoices = await _context.VwInvoices
-                .OrderByDescending(iv => iv.OrderDate)
-                .ToListAsync();
+            var invoices = await _orderService.GetAllInvoicesAsync();
             return View(invoices);
         }
 
+        [Authorize(Policy = "Manager")]
+        [HttpGet]
+        public async Task<IActionResult> FilterOrders(string? search, string? status, DateTime? startDate, DateTime? endDate)
+        {
+            var invoices = await _orderService.GetAllInvoicesAsync();
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                var searchLower = search.Trim().ToLower();
+                invoices = invoices.Where(i => 
+                    i.InvoiceId.ToString().Contains(searchLower) ||
+                    (i.CustomerCode != null && i.CustomerCode.ToLower().Contains(searchLower)) ||
+                    (i.EmployeeCode != null && i.EmployeeCode.ToLower().Contains(searchLower))
+                );
+            }
+
+            if (!string.IsNullOrEmpty(status) && status != "All")
+            {
+                invoices = invoices.Where(i => i.Status == status);
+            }
+
+            if (startDate.HasValue)
+            {
+                invoices = invoices.Where(i => i.OrderedDate.Date >= startDate.Value.Date);
+            }
+
+            if (endDate.HasValue)
+            {
+                invoices = invoices.Where(i => i.OrderedDate.Date <= endDate.Value.Date);
+            }
+
+            return PartialView("_OrderList", invoices);
+        }
+
+        [Authorize(Policy = "Manager")]
         public async Task<IActionResult> Details(int id)
         {
-            var invoice = await _context.VwInvoices
-                .FirstOrDefaultAsync(iv => iv.InvoiceId == id);
+            var invoice = await _orderService.GetVwInvoiceByIdAsync(id);
             if (invoice == null)
                 return NotFound();
 
-            ViewBag.InvoiceDetails = await _context.VwInvoiceDetails
-                .Where(ivd => ivd.InvoiceId == id)
-                .ToListAsync();
+            ViewBag.InvoiceDetails = await _orderService.GetInvoiceDetailsAsync(id);
 
             return View(invoice);
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Policy = "Customer")]
         public async Task<IActionResult> Checkout(int? productId, int quantity = 1, bool isBuyMany = false)
         {
             if (quantity <= 0) quantity = 1;
 
             if (!TryGetCurrentUserId(out int userId))
-                return RedirectToAction("Login", "Account");
-
-            var customer = await GetCustomerWithPiAsync(userId);
-            if (customer == null)
-                return BadRequest("Không tìm thấy thông tin khách hàng.");
-
-            var model = BuildCheckoutModelBase(customer, isBuyMany);
-
-            if (!isBuyMany)
             {
-                if (productId == null) return BadRequest("Thiếu sản phẩm.");
-                var error = await FillSingleProductAsync(model, productId.Value, quantity);
-                if (error != null) return error;
+                return RedirectToAction("Login", "Customer");
             }
-            else
+
+            
+
+            var model = await _orderService.PrepareCheckoutAsync(userId, productId, quantity, isBuyMany);
+            if (model == null)
             {
-                var error = await FillCartItemsAsync(model, userId);
-                if (error != null) return error;
+                if (!isBuyMany && productId == null)
+                {
+                    return Json(new { success = false, message = "Thiếu sản phẩm." });
+                }
+                return Json(new { success = false, message = "Không tìm thấy thông tin khách hàng hoặc lỗi xử lý." });
+            }
+
+            if (isBuyMany && (model.Items == null || !model.Items.Any()))
+            {
+                ViewData["Error"] = "Giỏ hàng trống!";
+                return View(model);
+            }
+
+            ViewBag.Cities = new SelectList(UserProfileConstants.Cities);
+            ViewBag.ProductDiscounts = new SelectList(_orderService
+                .GetDiscount("Product")
+                .Select(d => new { Value = d.DiscountAmount, Text = $"{(d.DiscountAmount * 100):0}%" }),
+                "Value",
+                "Text");
+            ViewBag.ShippingDiscounts = new SelectList(_orderService
+                .GetDiscount("Shipping")
+                .Select(d => new { Value = d.DiscountAmount, Text = $"{(d.DiscountAmount * 100):0}%" }),
+                "Value",
+                "Text");
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Policy = "Customer")]
+        public async Task<IActionResult> Checkout(CheckoutDTO model)
+        {
+            if (!TryGetCurrentUserId(out int userId))
+            {
+                return RedirectToAction("Login", "Customer");
+            }
+
+            var result = await _orderService.ProcessCheckoutAsync(userId, model);
+
+            if (!result.Success)
+            {
+                TempData["Error"] = result.Message;
+                if (result.Message == "Số dư không đủ để thanh toán.")
+                {
+                    var checkoutModel = await _orderService.PrepareCheckoutAsync(userId, model.ProductId, model.Quantity ?? 1, model.IsBuyMany);
+                    return View(checkoutModel);
+                }
+                return BadRequest(result.Message);
+            }
+
+            TempData["Success"] = result.Message;
+            return RedirectToAction("Success", new { id = result.InvoiceId });
+        }
+
+        [Authorize(Policy = "Customer")]
+        public async Task<IActionResult> Success(int id)
+        {
+            if (!TryGetCurrentUserId(out int userId))
+            {
+                return RedirectToAction("Login", "Customer");
+            }
+            var invoice = await _orderService.GetVwInvoiceByIdAsync(id, userId);
+            return View(invoice);
+        }
+
+        [HttpGet]
+        [Authorize(Policy = "Customer")]
+        public async Task<IActionResult> CheckoutResult(int id)
+        {
+            if (!TryGetCurrentUserId(out int userId))
+            {
+                return RedirectToAction("Login", "Customer");
+            }
+
+            var invoice = await _orderService.GetVwInvoiceByIdAsync(id, userId);
+
+            // Basic check if the invoice belongs to the customer (Service should ideally handle this check too)
+            // For now, keeping it simple as the previous code did
+            if (invoice == null)
+                return NotFound();
+
+            ViewBag.InvoiceDetails = await _orderService.GetInvoiceDetailsAsync(id);
+
+            return View(invoice);
+        }
+
+        [HttpGet]
+        [Authorize(Policy = "Manager")]
+        public async Task<IActionResult> Confirm(int id)
+        {
+            if (!TryGetCurrentUserId(out int userId))
+            {
+                return RedirectToAction("Login", "Manager");
+            }
+
+            var model = await _orderService.PrepareConfirmOrderAsync(id, userId);
+            if (model == null)
+            {
+                return NotFound("Không tìm thấy đơn hàng hoặc nhân viên.");
             }
 
             return View(model);
@@ -76,233 +196,55 @@ namespace MVC17.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize]
-        public async Task<IActionResult> Checkout(CheckoutVM model)
+        [Authorize(Policy = "Manager")]
+        public async Task<IActionResult> Confirm(ConfirmOrderDTO model)
         {
-            if (!TryGetCurrentUserId(out int userId))
-                return RedirectToAction("Login", "Account");
-
-            var customer = await GetCustomerWithUserAsync(userId);
-            if (customer == null)
-                return BadRequest("Không tìm thấy thông tin khách hàng.");
-
-            using var transaction = await _context.Database.BeginTransactionAsync();
-            try
+            if (!ModelState.IsValid)
             {
-                IActionResult? earlyReturn = model.IsBuyMany
-                    ? await ProcessCartCheckoutAsync(customer, userId)
-                    : await ProcessSingleProductCheckoutAsync(customer, model);
-
-                if (earlyReturn != null)
-                {
-                    await transaction.RollbackAsync();
-                    return earlyReturn;
-                }
-
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-
-                TempData["Success"] = "Thanh toán thành công!";
-                return RedirectToAction("CheckoutResult");
+                return BadRequest("Dữ liệu không hợp lệ.");
             }
-            catch
+
+            var result = await _orderService.ConfirmOrderAsync(model);
+
+            if (!result.Success)
             {
-                await transaction.RollbackAsync();
-                throw;
+                TempData["Error"] = result.Message;
+                return RedirectToAction("Confirm", new { id = model.InvoiceId });
             }
-        }
 
-        public async Task<IActionResult> Success(int id)
-        {
-            var invoice = await _context.Invoices.FirstOrDefaultAsync(iv => iv.InvoiceId == id);
-            return View(invoice);
+            TempData["Success"] = result.Message;
+            return RedirectToAction("Details", new { id = model.InvoiceId });
         }
 
         [HttpGet]
-        public IActionResult CheckoutResult()
+        public IActionResult GetShippingInfo(string city)
         {
-            return View();
+            try
+            {
+                var fee = Distances.CalculateShippingFee(city);
+                var days = Distances.CalculateShippingDays(city);
+                var estimatedDate = DateTime.Now.AddDays(days);
+
+                return Json(new
+                {
+                    success = true,
+                    fee = fee,
+                    days = days,
+                    estimatedDate = estimatedDate.ToString("dd/MM/yyyy")
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
         }
 
-        // ─── Private Helpers ───────────────────────────────────────────────────
 
-        /// <summary>Đọc userId từ JWT claim. Trả về false nếu chưa đăng nhập.</summary>
         private bool TryGetCurrentUserId(out int userId)
         {
             var raw = User.FindFirstValue(ClaimTypes.NameIdentifier);
             return int.TryParse(raw, out userId);
         }
-
-        /// <summary>Lấy customer kèm PersonalInformation (dùng cho Checkout GET).</summary>
-        private Task<Customer?> GetCustomerWithPiAsync(int userId) =>
-            _context.Customers
-                .Include(c => c.Pi)
-                .FirstOrDefaultAsync(c => c.UserId == userId && c.IsDeleted != true);
-
-        /// <summary>Lấy customer kèm User/Balance (dùng cho Checkout POST).</summary>
-        private Task<Customer?> GetCustomerWithUserAsync(int userId) =>
-            _context.Customers
-                .Include(c => c.User)
-                .FirstOrDefaultAsync(c => c.UserId == userId && c.IsDeleted != true);
-
-        /// <summary>Dựng phần thông tin khách hàng của CheckoutVM.</summary>
-        private static CheckoutVM BuildCheckoutModelBase(Customer customer, bool isBuyMany) => new()
-        {
-            IsBuyMany = isBuyMany,
-            FullName = customer.Pi != null ? $"{customer.Pi.FirstName} {customer.Pi.LastName}" : "",
-            Phone = customer.Pi?.Phone ?? "",
-            Email = customer.Pi?.Email ?? "",
-            Address = customer.Pi?.Address ?? "",
-            ShippingFee = 0
-        };
-
-        /// <summary>Điền thông tin 1 sản phẩm vào CheckoutVM. Trả về IActionResult nếu có lỗi.</summary>
-        private async Task<IActionResult?> FillSingleProductAsync(CheckoutVM model, int productId, int quantity)
-        {
-            var product = await _context.Products
-                .Include(p => p.ProductSku)
-                .Include(p => p.Image)
-                .FirstOrDefaultAsync(p => p.ProductId == productId);
-
-            if (product == null) return NotFound("Sản phẩm không tồn tại.");
-
-            var unitPrice = product.ProductSku.UnitPrice;
-            var lineTotal = unitPrice * quantity;
-
-            model.ProductId = productId;
-            model.Quantity = quantity;
-            model.Subtotal = lineTotal;
-            model.Items =
-            [
-                new CheckoutItemVM
-                {
-                    ProductId   = product.ProductId,
-                    ProductName = product.ProductName,
-                    ImageUrl    = product.Image.ImageUrl,
-                    Quantity    = quantity,
-                    UnitPrice   = unitPrice,
-                    LineTotal   = lineTotal
-                }
-            ];
-            return null;
-        }
-
-        /// <summary>Điền danh sách sản phẩm từ giỏ hàng vào CheckoutVM. Trả về IActionResult nếu có lỗi.</summary>
-        private async Task<IActionResult?> FillCartItemsAsync(CheckoutVM model, int userId)
-        {
-            var cart = await _context.ShoppingCarts
-                .Include(c => c.CartItems)
-                    .ThenInclude(ci => ci.Product)
-                        .ThenInclude(p => p.Image)
-                .FirstOrDefaultAsync(c => c.UserId == userId);
-
-            if (cart == null || cart.CartItems == null || !cart.CartItems.Any())
-                return BadRequest("Giỏ hàng trống.");
-
-            model.Items = cart.CartItems.Select(item => new CheckoutItemVM
-            {
-                ProductId = item.ProductId,
-                ProductName = item.Product.ProductName,
-                ImageUrl = item.Product.Image.ImageUrl,
-                Quantity = item.Quantity,
-                UnitPrice = item.UnitPrice,
-                LineTotal = item.UnitPrice * item.Quantity
-            }).ToList();
-
-            model.Subtotal = cart.CartItems.Sum(x => x.LineTotal);
-            return null;
-        }
-
-        /// <summary>Tạo đơn hàng cho luồng mua 1 sản phẩm (BuyOne).</summary>
-        private async Task<IActionResult?> ProcessSingleProductCheckoutAsync(Customer customer, CheckoutVM model)
-        {
-            var productId = model.ProductId ?? 0;
-            var quantity = model.Quantity ?? 1;
-
-            var product = await _context.Products
-                .Include(p => p.ProductSku)
-                .FirstOrDefaultAsync(p => p.ProductId == productId);
-
-            if (product == null) return NotFound("Sản phẩm không tồn tại.");
-
-            var unitPrice = product.ProductSku.UnitPrice;
-            var lineTotal = unitPrice * quantity;
-
-            if (customer.User.Balance < lineTotal)
-            {
-                TempData["Error"] = "Số dư không đủ để thanh toán.";
-                return RedirectToAction("CheckoutResult");
-            }
-
-            var invoice = CreateInvoiceBase(customer.CustomerId, lineTotal);
-            customer.User.Balance -= (int)lineTotal;
-
-            _context.Invoices.Add(invoice);
-            await _context.SaveChangesAsync();
-
-            _context.InvoiceDetails.Add(new InvoiceDetail
-            {
-                InvoiceId = invoice.InvoiceId,
-                ProductId = product.ProductId,
-                Quantity = quantity,
-                UnitPrice = unitPrice,
-                LineTotal = lineTotal
-            });
-            return null;
-        }
-
-        /// <summary>Tạo đơn hàng cho luồng mua từ giỏ hàng (BuyMany).</summary>
-        private async Task<IActionResult?> ProcessCartCheckoutAsync(Customer customer, int userId)
-        {
-            var cart = await _context.ShoppingCarts
-                .Include(c => c.CartItems)
-                .FirstOrDefaultAsync(c => c.UserId == userId);
-
-            if (cart == null || cart.CartItems == null || !cart.CartItems.Any())
-                return BadRequest("Giỏ hàng trống.");
-
-            var subtotal = cart.CartItems.Sum(x => x.LineTotal);
-
-            if (customer.User.Balance < subtotal)
-            {
-                TempData["Error"] = "Số dư không đủ để thanh toán.";
-                return RedirectToAction("CheckoutResult");
-            }
-
-            var invoice = CreateInvoiceBase(customer.CustomerId, subtotal);
-            _context.Invoices.Add(invoice);
-            await _context.SaveChangesAsync();
-
-            _context.InvoiceDetails.AddRange(cart.CartItems.Select(item => new InvoiceDetail
-            {
-                InvoiceId = invoice.InvoiceId,
-                ProductId = item.ProductId,
-                Quantity = item.Quantity,
-                UnitPrice = item.UnitPrice,
-                LineTotal = item.LineTotal
-            }));
-
-            _context.CartItems.RemoveRange(cart.CartItems);
-            cart.Subtotal = 0;
-            cart.UpdatedAt = DateTime.Now;
-            return null;
-        }
-
-        /// <summary>Factory tạo Invoice với các trường chung.</summary>
-        private static Invoice CreateInvoiceBase(int customerId, decimal amount) => new()
-        {
-            InvoiceUuid = Guid.NewGuid(),
-            CustomerId = customerId,
-            OrderDate = DateOnly.FromDateTime(DateTime.Now),
-            RequiredDate = DateOnly.FromDateTime(DateTime.Now.AddDays(3)),
-            Status = "Pending",
-            Subtotal = amount,
-            ProductDiscount = 0,
-            ShippingFee = 0,
-            ShippingDiscount = 0,
-            TotalAmount = amount,
-            CreatedAt = DateTime.Now,
-            UpdatedAt = DateTime.Now
-        };
     }
+
 }

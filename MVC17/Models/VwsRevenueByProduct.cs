@@ -1,0 +1,25 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace MVC17.Models;
+
+public partial class VwsRevenueByProduct
+{
+    public int ProductId { get; set; }
+
+    public Guid ProductUuid { get; set; }
+
+    public string ProductName { get; set; } = null!;
+
+    public int? Day { get; set; }
+
+    public int? Month { get; set; }
+
+    public int? Year { get; set; }
+
+    public decimal? TotalRevenue { get; set; }
+
+    public int? CompletedOrders { get; set; }
+
+    public int? TotalQuantity { get; set; }
+}

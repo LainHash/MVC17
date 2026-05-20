@@ -1,0 +1,233 @@
+@model MVC17.DTOs.Orders.ConfirmOrderDTO
+@using MVC17.Helpers.Constants.Orders
+
+@{
+    ViewData["Title"] = "Xác nhận Đơn hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-0 fw-bold text-dark">
+                <i class="fas fa-check-circle me-2 text-success"></i>Xác nhận Đơn hàng
+            </h2>
+            <p class="text-muted mb-0">Xử lý và xác nhận đơn hàng #@Model.InvoiceId</p>
+        </div>
+        <a asp-action="Details" asp-route-id="@Model.InvoiceId" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Quay lại
+        </a>
+    </div>
+
+    <div class="row">
+        <!-- Left Column: Order Details -->
+        <div class="col-lg-8">
+            <!-- Order Information -->
+            <div class="card shadow-sm mb-4 border-0">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0 py-2">
+                        <i class="fas fa-box me-2 text-primary"></i>Thông tin Đơn hàng
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small">Mã ĐH</label>
+                            <p class="fw-bold text-dark">#@Model.InvoiceId</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small">UUID</label>
+                            <p class="fw-bold text-dark">@Model.InvoiceUuid</p>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small">Mã KH</label>
+                            <p class="fw-bold text-dark">@Model.CustomerCode</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small">Mã NV hiện tại</label>
+                            <p class="fw-bold text-dark">
+                                @Model.EmployeeCode
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small">Ngày đặt hàng</label>
+                            <p class="fw-bold text-dark">
+                                <i class="fas fa-calendar-alt me-1 text-muted"></i>
+                                @Model.OrderedDate.ToString("dd/MM/yyyy")
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small">Ngày yêu cầu giao</label>
+                            <p class="fw-bold text-dark">
+                                <i class="fas fa-truck-loading me-1 text-muted"></i>
+                                @Model.RequiredDate.ToString("dd/MM/yyyy")
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small">Trạng thái hiện tại</label>
+                            <p class="mb-0">
+                                <span class="badge @InvoiceStatuses.GetStatusStyle(Model.Status) px-3 py-2 rounded-pill">
+                                    @InvoiceStatuses.GetStatusVi(Model.Status)
+                                </span>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small">Tổng tiền</label>
+                            <p class="fw-bold text-danger">@String.Format("{0:N0} đ", Model.TotalAmount)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Products Table -->
+            <div class="card shadow-sm mb-4 border-0">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0 py-2">
+                        <i class="fas fa-box-open me-2 text-primary"></i>Danh sách sản phẩm
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-4">Tên sản phẩm</th>
+                                    <th>Loại sản phẩm</th>
+                                    <th>Công ty</th>
+                                    <th class="text-end">Đơn giá</th>
+                                    <th class="text-center">Số lượng</th>
+                                    <th class="text-end pe-4">Tổng cộng</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.InvoiceDetails)
+                                {
+                                    <tr>
+                                        <td class="ps-4">
+                                            <span class="fw-semibold">@item.ProductName</span>
+                                        </td>
+                                        <td>@item.CategoryName</td>
+                                        <td>@item.CompanyName</td>
+                                        <td class="text-end">@String.Format("{0:N0} đ", item.UnitPrice)</td>
+                                        <td class="text-center">@item.Quantity</td>
+                                        <td class="text-end pe-4 fw-bold text-primary">@String.Format("{0:N0} đ", item.LineTotal)</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Confirmation Form -->
+        <div class="col-lg-4">
+            <form method="post" asp-action="Confirm">
+                <input type="hidden" asp-for="InvoiceId" />
+                <input type="hidden" asp-for="InvoiceUuid" />
+                <input type="hidden" asp-for="CustomerId" />
+                <input type="hidden" asp-for="CustomerCode" />
+                <input type="hidden" asp-for="Status" />
+
+                <!-- Assign Employee -->
+                <div class="card shadow-sm mb-4 border-0">
+                    <div class="card-header bg-white border-bottom">
+                        <h6 class="mb-0 py-2">
+                            <i class="fas fa-user-tie me-2 text-primary"></i>Phân công nhân viên
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <label asp-for="NewEmployeeId" class="form-label">Chọn nhân viên</label>
+                        <select asp-for="NewEmployeeId" class="form-select form-select-lg">
+                            <option value="@Model.EmployeeId">-- @Model.EmployeeCode --</option>
+                            @foreach (var emp in Model.AvailableEmployees)
+                            {
+                                <option value="@emp.EmployeeId">@emp.EmployeeCode - @emp.EmployeeName</option>
+                            }
+                        </select>
+                        <span asp-validation-for="NewEmployeeId" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <!-- Change Status -->
+                <div class="card shadow-sm mb-4 border-0">
+                    <div class="card-header bg-white border-bottom">
+                        <h6 class="mb-0 py-2">
+                            <i class="fas fa-sync-alt me-2 text-primary"></i>Cập nhật trạng thái
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <label asp-for="NewStatus" class="form-label">Trạng thái mới</label>
+                        <select asp-for="NewStatus" class="form-select form-select-lg">
+                            <option value="Shipping"> Đang vận chuyển </option>
+                            @foreach (var status in Model.AvailableStatuses)
+                            {
+                                <option value="@status.Status">@status.StatusVi</option>
+                            }
+                        </select>
+                        <span asp-validation-for="NewStatus" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <!-- Shipped Date -->
+                <div class="card shadow-sm mb-4 border-0">
+                    <div class="card-header bg-white border-bottom">
+                        <h6 class="mb-0 py-2">
+                            <i class="fas fa-truck me-2 text-primary"></i>Ngày giao hàng
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <label asp-for="NewShippedDate" class="form-label">Ngày giao (nếu có)</label>
+                        <input type="date" asp-for="NewShippedDate" class="form-control form-control-lg" />
+                        <span asp-validation-for="NewShippedDate" class="text-danger small"></span>
+                        <small class="text-muted d-block mt-2">
+                            <i class="fas fa-info-circle"></i> Chỉ cập nhật khi hàng đã được giao
+                        </small>
+                    </div>
+                </div>
+
+                <!-- Confirmation Note -->
+                <div class="card shadow-sm mb-4 border-0">
+                    <div class="card-header bg-white border-bottom">
+                        <h6 class="mb-0 py-2">
+                            <i class="fas fa-sticky-note me-2 text-primary"></i>Ghi chú xác nhận
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <label asp-for="ConfirmationNote" class="form-label">Ghi chú (nếu có)</label>
+                        <textarea asp-for="ConfirmationNote" class="form-control" rows="4" placeholder="Nhập ghi chú về đơn hàng..."></textarea>
+                        <span asp-validation-for="ConfirmationNote" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-success btn-lg" data-bs-toggle="tooltip" title="Xác nhận các thay đổi">
+                        <i class="fas fa-check me-2"></i>Xác nhận đơn hàng
+                    </button>
+                    <a asp-action="Details" asp-route-id="@Model.InvoiceId" class="btn btn-outline-secondary btn-lg">
+                        <i class="fas fa-times me-2"></i>Hủy
+                    </a>
+                </div>
+
+                <!-- Information Box -->
+                <div class="alert alert-info mt-4 d-flex" role="alert">
+                    <i class="fas fa-lightbulb me-2 mt-1 flex-shrink-0"></i>
+                    <div>
+                        <strong>Lưu ý:</strong> Tất cả các trường có thể để trống. Chỉ những thay đổi bạn nhập sẽ được cập nhật.
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

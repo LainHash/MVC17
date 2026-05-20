@@ -18,4 +18,8 @@ public partial class VwInvoiceDetail
     public decimal UnitPrice { get; set; }
 
     public decimal? LineTotal { get; set; }
+
+    public int InvoiceDetailId { get; set; }
+
+    public int ProductId { get; set; }
 }

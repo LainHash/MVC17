@@ -1,0 +1,40 @@
+# ============================================================
+# docker-compose.production.yml — Production orchestration
+# ============================================================
+# Usage on prod server:
+#   docker-compose -f docker-compose.production.yml up -d
+# All env vars are injected from the host environment or a
+# secured .env file that is NEVER committed to Git.
+# ============================================================
+
+services:
+
+  app:
+    image: "${DOCKER_USERNAME}/mvc17:${IMAGE_TAG:-latest}"
+    container_name: mvc17_app
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__MyConnectString: "${SQL_CONNECTION_STRING}"
+      Jwt__Key: "${JWT_SECRET}"
+      Jwt__Issuer: "${JWT_ISSUER:-MyApp}"
+      Jwt__Audience: "${JWT_AUDIENCE:-MyAppUsers}"
+      GmailSettings__Host: "${GMAIL_HOST:-smtp.gmail.com}"
+      GmailSettings__Port: "${GMAIL_PORT:-587}"
+      GmailSettings__SenderEmail: "${GMAIL_SENDER_EMAIL}"
+      GmailSettings__SenderName: "${GMAIL_SENDER_NAME:-DDH}"
+      GmailSettings__AppPassword: "${EMAIL_SMTP_PASSWORD}"
+    ports:
+      # Expose only to Nginx reverse proxy on localhost
+      - "127.0.0.1:8080:8080"
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s

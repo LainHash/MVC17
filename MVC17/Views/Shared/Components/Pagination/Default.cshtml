@@ -6,7 +6,10 @@
             <li class="page-item">
                 <a class="page-link"
                        aria-label="Previous"
-                       asp-route-page="@(Model.ActivePage > 1 ? Model.ActivePage - 1 : 1)">
+                       asp-route-page="@(Model.ActivePage > 1 ? Model.ActivePage - 1 : 1)"
+                       asp-route-categoryId=@Model.CategoryId
+                       asp-route-supplierId=@Model.SupplierId
+                       asp-route-orderBy=@Model.OrderBy>
                     <span aria-hidden="true">&laquo;</span>
                 </a>
             </li>
@@ -23,7 +26,10 @@
             {
                 <li class="page-item">
                     <a class="page-link"
-                           asp-route-page="@Model.IndexPage">
+                           asp-route-page="@Model.IndexPage"
+                           asp-route-categoryId=@Model.CategoryId
+                           asp-route-supplierId=@Model.SupplierId
+                           asp-route-orderBy=@Model.OrderBy>
                         @Model.IndexPage
                     </a>
                 </li>
@@ -34,7 +40,10 @@
             <li class="page-item">
                 <a class="page-link"
                        aria-label="Next"
-                       asp-route-page="@(Model.ActivePage < Model.TotalPages ? Model.ActivePage + 1 : Model.TotalPages)">
+                       asp-route-page="@(Model.ActivePage < Model.TotalPages ? Model.ActivePage + 1 : Model.TotalPages)"
+                       asp-route-categoryId=@Model.CategoryId
+                       asp-route-supplierId=@Model.SupplierId
+                       asp-route-orderBy=@Model.OrderBy>
                     <span aria-hidden="true">&raquo;</span>
                 </a>
             </li>

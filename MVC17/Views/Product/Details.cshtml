@@ -1,9 +1,16 @@
-﻿@model MVC17.ViewModels.ProductVM
+@model MVC17.ViewModels.ProductVM
 
 @{
     ViewData["Title"] = "Details";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+
+@using System.Security.Claims
+@{
+    var roleClaim = User.FindFirstValue(ClaimTypes.Role);
+    bool isManager = User.Identity?.IsAuthenticated == true && roleClaim != "1";
+}
+
 
 <!-- Product Details Section -->
 <div class="container-fluid product-details-section py-5">
@@ -189,6 +196,51 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Reviews Section -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="reviews-header mb-4">
+                    <h3 class="mb-0">
+                        <i class="fas fa-comments text-primary me-2"></i>Đánh giá sản phẩm
+                    </h3>
+                    <p class="text-secondary small mt-2">Nhận xét từ khách hàng và phản hồi</p>
+                </div>
+
+                @if (User.Identity?.IsAuthenticated == true && !isManager)
+                {
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3">Viết đánh giá của bạn</h5>
+                            <form asp-controller="Review" asp-action="AddReview" method="post">
+                                <input type="hidden" name="productId" value="@Model.ProductId" />
+                                <div class="mb-3">
+                                    <label class="form-label">Đánh giá sao</label>
+                                    <select name="rating" class="form-select w-auto" required>
+                                        <option value="5">5 Sao - Tuyệt vời</option>
+                                        <option value="4">4 Sao - Rất tốt</option>
+                                        <option value="3">3 Sao - Bình thường</option>
+                                        <option value="2">2 Sao - Kém</option>
+                                        <option value="1">1 Sao - Rất kém</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Tiêu đề</label>
+                                    <input type="text" name="title" class="form-control" required />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Nội dung đánh giá</label>
+                                    <textarea name="comment" class="form-control" rows="3" required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Gửi đánh giá</button>
+                            </form>
+                        </div>
+                    </div>
+                }
+
+                @await Component.InvokeAsync("ProductReview", new { productId = Model.ProductId })
             </div>
         </div>
     </div>

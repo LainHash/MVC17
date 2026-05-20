@@ -1,8 +1,20 @@
 ﻿@using MVC17.Helpers.Constants.Globals
 @model IEnumerable<MVC17.ViewModels.CategoryMenuVM>
 
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+}
+
 <div class="dropdown">
-    <a class="nav-item nav-link" asp-area="" asp-controller="Product" asp-action="Index">@RouteDisplayName.ProductsPage</a>
+
+    <a class="nav-item nav-link @(currentController == "Product" && currentAction == "Index" ? "active" : "")"
+           asp-area=""
+           asp-controller="Product"
+           asp-action="Index">
+        <i class="fas fa-box fa-lg"></i>
+        @RouteDisplayName.ProductsPage
+    </a>
 
     <ul class="dropdown-menu">
         @foreach (var item in Model)

@@ -21,6 +21,8 @@ public partial class Customer
 
     public DateTime? DeletedAt { get; set; }
 
+    public string? AvatarImage { get; set; }
+
     public virtual ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
 
     public virtual PersonalInformation Pi { get; set; } = null!;

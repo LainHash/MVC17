@@ -1,0 +1,108 @@
+@{
+    ViewData["Title"] = "Thống kê sản phẩm";
+}
+
+<link rel="stylesheet" href="~/css/statistic.css" />
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="page-title">Thống Kê Sản Phẩm</h2>
+            <div class="nav-links">
+                <a href="/Statistic/Index" class="nav-link">Doanh Thu</a>
+                <a href="/Statistic/Orders" class="nav-link">Đơn Hàng</a>
+                <a href="/Statistic/Products" class="nav-link active">Sản Phẩm</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Section -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="stat-box">
+                <div class="stat-label">Tổng Số Sản Phẩm</div>
+                <div class="stat-value" id="totalProducts">0</div>
+                <div class="stat-sub">Đang kinh doanh</div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="section-card" style="margin-bottom: 0; padding: 20px;">
+                <h3 class="section-title" style="margin-bottom: 15px;">Lọc Theo Thời Gian (Top Sản Phẩm)</h3>
+                <div class="select-group">
+                    <select id="yearSelect" class="form-control"></select>
+                    <select id="monthSelect" class="form-control">
+                        <option value="">Tất cả các tháng</option>
+                        <option value="1">Tháng 1</option>
+                        <option value="2">Tháng 2</option>
+                        <option value="3">Tháng 3</option>
+                        <option value="4">Tháng 4</option>
+                        <option value="5">Tháng 5</option>
+                        <option value="6">Tháng 6</option>
+                        <option value="7">Tháng 7</option>
+                        <option value="8">Tháng 8</option>
+                        <option value="9">Tháng 9</option>
+                        <option value="10">Tháng 10</option>
+                        <option value="11">Tháng 11</option>
+                        <option value="12">Tháng 12</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Top Selling & Revenue -->
+        <div class="col-lg-6">
+            <div class="section-card">
+                <h3 class="section-title">Top 10 Sản Phẩm Bán Chạy (Số Lượng)</h3>
+                <div class="chart-container">
+                    <canvas id="topSellingChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="section-card">
+                <h3 class="section-title">Top 10 Sản Phẩm Doanh Thu Cao</h3>
+                <div class="chart-container">
+                    <canvas id="topRevenueChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Low Stock & Low Selling -->
+        <div class="col-lg-6">
+            <div class="section-card">
+                <h3 class="section-title">Sản Phẩm Sắp Hết Hàng</h3>
+                <div style="max-height: 300px; overflow-y: auto;">
+                    <table class="table table-hover table-premium">
+                        <thead>
+                            <tr>
+                                <th>Tên Sản Phẩm</th>
+                                <th class="text-center">Số Lượng Tồn</th>
+                                <th class="text-center">Trạng Thái</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lowStockTable">
+                            <!-- Data will be loaded via AJAX -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="section-card">
+                <h3 class="section-title">Top 10 Sản Phẩm Ít Bán Chạy</h3>
+                <div class="chart-container">
+                    <canvas id="lowSellingChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="~/js/statistic-products.js"></script>
+}
